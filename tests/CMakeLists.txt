@@ -7,7 +7,8 @@ if(BUILD_TESTING)
 
 	target_include_directories(Tester PUBLIC ${INCLUDE_DIR})
 
-	target_link_libraries(Tester PRIVATE GTest::gtest_main)
+    #test also requires boost libraries, since it uses Parser
+	target_link_libraries(Tester PRIVATE GTest::gtest_main ${BOOST_INCLUDE_LIBRARIES})
 
 	include(GoogleTest)
 

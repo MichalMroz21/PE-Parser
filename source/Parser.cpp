@@ -1,5 +1,7 @@
 #include "Parser.hpp"
 
+#include <boost/filesystem/operations.hpp>
+
 Parser::Parser() {
 	this->isBigEndian = isBigEndianCheck();
 }

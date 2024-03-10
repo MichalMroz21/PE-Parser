@@ -1,44 +1,89 @@
 #include "Parser.hpp"
 
-Parser::Parser() {
-	this->isBigEndian = isBigEndianCheck();
-}
+namespace PE_PARSER{
 
-PEFile* Parser::loadPEFileFromBinary(const std::vector<BYTE>& PEBinary) {
+    Parser::Parser() {
+        this->isBigEndian = isBigEndianCheck(); //todo: determine it by file instead
+    }
 
-	PE_STRUCTURE::DosHeader dosHeader{};
+    Parser::~Parser(){
+        if(this->buffer)
+            free(this->buffer);
+        this->buffer = nullptr;
+    }
 
-	if (PEBinary.size() < sizeof(PE_STRUCTURE::DosHeader)) {
-		throw std::runtime_error("Invalid size of binary to read DOS_HEADER");
-	}
+    template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
+    void Parser::copyBytesToStruct(Base& base){
 
-	std::memcpy(&dosHeader, PEBinary.data(), sizeof(PE_STRUCTURE::DosHeader));
+        boost::mp11::mp_for_each<Md>([&](auto attr){
+            this->copyBytesToStructInner(base.*attr.pointer);   
+        });
+    }
 
-	DWORD NTHeaderLoc = dosHeader.e_lfanew;
+    template<typename Attr> 
+    void Parser::copyBytesToStructInner(Attr& attr){
+
+        //check if iterated type is struct, if it is then recursively call this function for it
+        if(std::is_class<Attr>::value){
+            this->copyBytesToStruct(attr);
+        }
+        else{
+            int bytesToGet = sizeof(Attr);
+
+            if (this->buffer->availableToCopy() < bytesToGet) {
+                std::string typeName = boost::typeindex::type_id_with_cvr<Attr>().pretty_name();
+                std::cerr << "No more remaining data in buffer to read " + typeName;
+                return;
+            }
+
+            int beginPtr = this->buffer->getBeginPtr();
+
+            memcpy_s(this->buffer + beginPtr, this->buffer->availableToCopy(), &attr, bytesToGet);
+
+            //if(!this->isBigEndian) __builtin_bswap(attr);
+
+            this->buffer->cutBytes(bytesToGet);
+        }
+    }
 
 
 
-	return nullptr;
-}
+    //bufferBeginPtr needs to be resetted everytime we load a new Binary into the Parser
+    PE_DATA::PEFile* Parser::loadPEFileFromBinary(PE_BUFFER::Buffer* PEBinary) {
 
-PEFile* Parser::loadPEFileFromPath(const char* fullPEPath) {
-	
-	std::ifstream peFile(fullPEPath, std::ios::binary);
+        this->buffer = PEBinary;
 
-	if (!peFile.is_open()) {
-		throw std::runtime_error("Error opening PE file: " + std::string(fullPEPath));
-	}
+        PE_DATA::PEFile* peFile = new PE_DATA::PEFile();
 
-	this->buffer = std::vector<BYTE>((std::istreambuf_iterator<char>(peFile)), std::istreambuf_iterator<char>());
+        this->copyBytesToStruct(peFile->dosHeader);
 
-	return this->loadPEFileFromBinary(this->buffer);
-}
+        DWORD NTHeaderLoc = peFile->dosHeader.e_lfanew;
 
-bool Parser::isBigEndianCheck(void) {
-	union {
-		uint32_t i;
-		char c[4];
-	} bint = { 0x01020304 };
+        return nullptr;
+    }
 
-	return bint.c[0] == 1;
-}
+    PE_DATA::PEFile* Parser::loadPEFileFromPath(const char* fullPEPath) {
+        
+        std::ifstream peFile(fullPEPath, std::ios::binary);
+
+        if (!peFile.is_open()) {
+            throw std::runtime_error("Error opening PE file: " + std::string(fullPEPath));
+        }
+
+        return this->loadPEFileFromBinary(
+            new PE_BUFFER::Buffer(
+                std::vector<BYTE>((std::istreambuf_iterator<char>(peFile)), std::istreambuf_iterator<char>())
+            )
+        );
+    }
+
+    bool Parser::isBigEndianCheck(void) {
+        union {
+            uint32_t i;
+            char c[4];
+        } bint = { 0x01020304 };
+
+        return bint.c[0] == 1;
+    }
+
+};

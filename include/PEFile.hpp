@@ -3,21 +3,25 @@
 
 #include "Structure.hpp"
 
-class PEFile {
-public:
+namespace PE_DATA{
 
-    PEFile() = delete;
+    class PEFile {
+    public:
 
-	PEFile(PE_STRUCTURE::DosHeader dosHeader, PE_STRUCTURE::ImageNtHeaders imageNTHeaders);
-	PEFile(PE_STRUCTURE::DosHeader dosHeader, PE_STRUCTURE::ImageNtHeaders64 imageNTHeaders64);
+        PEFile();
 
-private:
-	bool is64Bit = false;
+        PEFile(PE_STRUCTURE::DosHeader dosHeader, PE_STRUCTURE::ImageNtHeaders imageNTHeaders);
+        PEFile(PE_STRUCTURE::DosHeader dosHeader, PE_STRUCTURE::ImageNtHeaders64 imageNTHeaders64);
 
-	PE_STRUCTURE::DosHeader dosHeader{};
-	PE_STRUCTURE::ImageNtHeaders imageNTHeaders{};
-	PE_STRUCTURE::ImageNtHeaders64 imageNTHeaders64{};
+        PE_STRUCTURE::DosHeader dosHeader{};
+        PE_STRUCTURE::ImageNtHeaders imageNTHeaders{};
+        PE_STRUCTURE::ImageNtHeaders64 imageNTHeaders64{};
 
-};
+    private:
+        bool is64Bit = false;
+    };
+
+
+}
 
 #endif

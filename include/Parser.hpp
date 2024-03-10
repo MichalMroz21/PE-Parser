@@ -7,27 +7,47 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <type_traits>
+
+#include <boost/mp11.hpp>
+#include <boost/type_index.hpp>
+#include <boost/describe.hpp>
 
 #include "PEFile.hpp"
 #include "Structure.hpp"
+#include "Buffer.hpp"
 
-class Parser {
-public:
+namespace PE_PARSER{
 
-	Parser();
+    class Parser {
+    public:
 
-	[[nodiscard]]
-	PEFile* loadPEFileFromPath(const char* fullPEPath);
+        Parser();
+        ~Parser();
 
-	[[nodiscard]]
-	PEFile* loadPEFileFromBinary(const std::vector<BYTE>& PEBinary);
-	
-private:
+        [[nodiscard]]
+        PE_DATA::PEFile* loadPEFileFromPath(const char* fullPEPath);
 
-	bool isBigEndianCheck(void);
+        [[nodiscard]]
+        PE_DATA::PEFile* loadPEFileFromBinary(PE_BUFFER::Buffer* PEBinary);
+        
+    private:
 
-	bool isBigEndian{};
-	std::vector<BYTE> buffer{};
+        //returns amount of bytes copied to struct
+        template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
+        void copyBytesToStruct(Base& base);
+
+        template<typename Attr> 
+        void copyBytesToStructInner(Attr& attr);
+
+        void setInitBuffer(const std::vector<BYTE>& PEBinary);
+
+        bool isBigEndianCheck(void);
+
+        bool isBigEndian{};
+        PE_BUFFER::Buffer* buffer{};
+        int bufferBeginPtr{};
+    };
+
 };
-
 #endif

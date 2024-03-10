@@ -48,6 +48,25 @@ namespace PE_STRUCTURE {
 
     BOOST_DESCRIBE_STRUCT(ImageNtHeaders64, (), (signature, FileHeader, OptionalHeader));
 
+    BOOST_DESCRIBE_STRUCT(IMAGE_FILE_HEADER, (), (Machine, NumberOfSections, TimeDateStamp,
+        PointerToSymbolTable, NumberOfSymbols, SizeOfOptionalHeader, Characteristics));
+        
+    BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER32, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
+        SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
+        BaseOfData, ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
+        MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
+        Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
+        SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
+
+    BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER64, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
+        SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
+        ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
+        MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
+        Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
+        SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
+
+    BOOST_DESCRIBE_STRUCT(IMAGE_DATA_DIRECTORY, (), (VirtualAddress, Size))
+
 	//For PE32 Executables
 	struct ImageNtHeaders {
 

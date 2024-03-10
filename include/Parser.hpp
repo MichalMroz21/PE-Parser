@@ -12,6 +12,7 @@
 #include <boost/mp11.hpp>
 #include <boost/type_index.hpp>
 #include <boost/describe.hpp>
+#include <boost/endian/conversion.hpp>
 
 #include "PEFile.hpp"
 #include "Structure.hpp"
@@ -37,8 +38,8 @@ namespace PE_PARSER{
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
         void copyBytesToStruct(Base& base);
 
-        template<typename Attr> 
-        void copyBytesToStructInner(Attr& attr);
+        template<typename Attr> void copyBytesToStructInner(Attr& attr);
+        template<typename Arr> void copyBytesToStructInnerArr(Arr& arr); 
 
         void setInitBuffer(const std::vector<BYTE>& PEBinary);
 

@@ -2,16 +2,15 @@
 
 #include <iostream>
 
-int GetMeaningOfLife() {
-	return 42;
-}
+#include <Buffer.hpp>
+#include <Parser.hpp>
 
 TEST(TestTopic, TrivialEquality) {
-	EXPECT_EQ(GetMeaningOfLife(), 42);
+	EXPECT_EQ();
 }
 
 TEST(TestTopic, MoreEqualityTests) {
-	ASSERT_EQ(GetMeaningOfLife(), 0);
+	ASSERT_EQ();
 }
 
 int main(int argc, char** argv) {

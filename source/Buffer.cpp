@@ -4,7 +4,6 @@ namespace PE_BUFFER{
 
     Buffer::Buffer(std::vector<BYTE> buffer){
         this->buffer = buffer;
-        this->beginPtr = 0;
     }
 
     void Buffer::cutBytes(int bytes){

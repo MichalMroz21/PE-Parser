@@ -14,18 +14,26 @@ namespace PE_PARSER{
 
     template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
     void Parser::copyBytesToStruct(Base& base){
-
         boost::mp11::mp_for_each<Md>([&](auto attr){
             this->copyBytesToStructInner(base.*attr.pointer);   
         });
+    }
+
+    template<typename Arr> void Parser::copyBytesToStructInnerArr(Arr& arr) {
+        for (auto& el : arr){
+            this->copyBytesToStructInner(el);
+        }
     }
 
     template<typename Attr> 
     void Parser::copyBytesToStructInner(Attr& attr){
 
         //check if iterated type is struct, if it is then recursively call this function for it
-        if(std::is_class<Attr>::value){
+        if constexpr (std::is_class_v<Attr>){
             this->copyBytesToStruct(attr);
+        }
+        else if constexpr (std::is_array_v<Attr>){
+            this->copyBytesToStructInnerArr(attr);
         }
         else{
             int bytesToGet = sizeof(Attr);
@@ -40,13 +48,13 @@ namespace PE_PARSER{
 
             memcpy_s(this->buffer + beginPtr, this->buffer->availableToCopy(), &attr, bytesToGet);
 
-            //if(!this->isBigEndian) __builtin_bswap(attr);
-
+            if(!this->isBigEndian){
+                attr = boost::endian::endian_reverse(attr);
+            } 
+                
             this->buffer->cutBytes(bytesToGet);
         }
     }
-
-
 
     //bufferBeginPtr needs to be resetted everytime we load a new Binary into the Parser
     PE_DATA::PEFile* Parser::loadPEFileFromBinary(PE_BUFFER::Buffer* PEBinary) {

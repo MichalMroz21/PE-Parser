@@ -57,9 +57,7 @@ namespace PE_PARSER{
     }
 
     //bufferBeginPtr needs to be resetted everytime we load a new Binary into the Parser
-    PE_DATA::PEFile* Parser::loadPEFileFromBinary(PE_BUFFER::Buffer* PEBinary) {
-
-        this->buffer = PEBinary;
+    PE_DATA::PEFile* Parser::loadPEFile() {
 
         PE_DATA::PEFile* peFile = new PE_DATA::PEFile();
 
@@ -67,22 +65,22 @@ namespace PE_PARSER{
 
         DWORD NTHeaderLoc = peFile->dosHeader.e_lfanew;
 
-        return nullptr;
+        return peFile;
     }
 
-    PE_DATA::PEFile* Parser::loadPEFileFromPath(const char* fullPEPath) {
-        
-        std::ifstream peFile(fullPEPath, std::ios::binary);
+    PE_DATA::PEFile* Parser::loadPEFileFromPath(const char* fullPEPath){
+        this->buffer = new PE_BUFFER::Buffer(fullPEPath);
+        return this->loadPEFile();
+    }
 
-        if (!peFile.is_open()) {
-            throw std::runtime_error("Error opening PE file: " + std::string(fullPEPath));
-        }
+    PE_DATA::PEFile* Parser::loadPEFileFromHexString(const std::string& hexStr){
+        this->buffer = new PE_BUFFER::Buffer(hexStr);
+        return this->loadPEFile();
+    }
 
-        return this->loadPEFileFromBinary(
-            new PE_BUFFER::Buffer(
-                std::vector<BYTE>((std::istreambuf_iterator<char>(peFile)), std::istreambuf_iterator<char>())
-            )
-        );
+    PE_DATA::PEFile* Parser::loadPEFileFromBytes(std::vector<BYTE> bytes){
+        this->buffer = new PE_BUFFER::Buffer(bytes);
+        return this->loadPEFile();
     }
 
     bool Parser::isBigEndianCheck(void) {

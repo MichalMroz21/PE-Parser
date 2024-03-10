@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstring>
+#include <string>
 #include <type_traits>
 
 #include <boost/mp11.hpp>
@@ -30,9 +31,14 @@ namespace PE_PARSER{
         PE_DATA::PEFile* loadPEFileFromPath(const char* fullPEPath);
 
         [[nodiscard]]
-        PE_DATA::PEFile* loadPEFileFromBinary(PE_BUFFER::Buffer* PEBinary);
+        PE_DATA::PEFile* loadPEFileFromBytes(std::vector<BYTE> bytes);
+
+        [[nodiscard]]
+        PE_DATA::PEFile* loadPEFileFromHexString(const std::string& hexStr);
         
     private:
+
+        PE_DATA::PEFile* loadPEFile();
 
         //returns amount of bytes copied to struct
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>

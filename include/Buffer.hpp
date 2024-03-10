@@ -3,13 +3,15 @@
 
 #include <vector>
 #include <windows.h>
+#include <fstream>
 
 namespace PE_BUFFER{
 
     class Buffer{
     public:
-        //todo: move constructor
-        Buffer(std::vector<BYTE> buffer);
+        Buffer(std::vector<BYTE> bytes);
+        Buffer(const std::string& hexString);
+        Buffer(const char* fullFilePath);
 
         void cutBytes(int bytes);
 

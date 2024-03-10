@@ -2,8 +2,22 @@
 
 namespace PE_BUFFER{
 
-    Buffer::Buffer(std::vector<BYTE> buffer){
-        this->buffer = buffer;
+    Buffer::Buffer(std::vector<BYTE> bytes){
+        this->buffer = bytes;
+    }
+
+    Buffer::Buffer(const char* fullPEPath){
+        std::ifstream peFile(fullPEPath, std::ios::binary);
+
+        if (!peFile.is_open()) {
+            throw std::runtime_error("Error opening PE file: " + std::string(fullPEPath));
+        }
+
+        this->buffer = std::vector<BYTE>((std::istreambuf_iterator<char>(peFile)), std::istreambuf_iterator<char>());
+    }
+    
+    Buffer::Buffer(const std::string& hexString){
+
     }
 
     void Buffer::cutBytes(int bytes){

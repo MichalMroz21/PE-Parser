@@ -25,7 +25,7 @@ public:
 private:
 
 	bool isBigEndianCheck(void);
-    
+
 	bool isBigEndian{};
 	std::vector<BYTE> buffer{};
 };

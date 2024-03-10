@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <winnt.h>
 
+#include <boost/describe/class.hpp>
+
 namespace PE_STRUCTURE {
 
 	struct DosHeader {
@@ -32,6 +34,10 @@ namespace PE_STRUCTURE {
 		DWORD e_lfanew{}; //Address for NT Headers
 	};
 
+    BOOST_DESCRIBE_STRUCT(DosHeader, (), (magic, e_cblp, e_cp, e_crlc, e_cparhdr,
+        e_minalloc, e_maxalloc, e_ss, e_sp, e_csum, e_ip, e_cs, e_lfarlc, e_ovno,
+        e_res, e_oemid, e_oeminfo, e_res2, e_lfanew));
+
 	//For PE32+ (64-bit) Executables
 	struct ImageNtHeaders64 {
 
@@ -39,6 +45,8 @@ namespace PE_STRUCTURE {
 		IMAGE_FILE_HEADER FileHeader{}; //Some information, has OptionalHeader size
 		IMAGE_OPTIONAL_HEADER64 OptionalHeader{}; //Some important info
 	};
+
+    BOOST_DESCRIBE_STRUCT(ImageNtHeaders64, (), (signature, FileHeader, OptionalHeader));
 
 	//For PE32 Executables
 	struct ImageNtHeaders {
@@ -48,6 +56,7 @@ namespace PE_STRUCTURE {
 		IMAGE_OPTIONAL_HEADER32 OptionalHeader{};
 	};
 
+    BOOST_DESCRIBE_STRUCT(ImageNtHeaders, (), (signature, FileHeader, OptionalHeader));
 };
 
 #endif

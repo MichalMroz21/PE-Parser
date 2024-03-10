@@ -3,10 +3,10 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(BOOST_INCLUDE_LIBRARIES filesystem system program_options)
+set(BOOST_INCLUDE_LIBRARIES describe)
 set(BOOST_ENABLE_CMAKE ON)
 
-option(RUN_TESTS "Run GTests" ON)
+option(MAKE_TEST_EXE "Run GTests" ON)
 
 project(PE-Parser VERSION 0.1 LANGUAGES CXX)
 
@@ -26,7 +26,7 @@ set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 #Get cpp files to add to Parser
 file(GLOB SRC_FILES ${SOURCE_DIR}/*.cpp)
 
-if(RUN_TESTS)
+if(MAKE_TEST_EXE)
 	include(CTest)
 	add_subdirectory(tests)
 endif()

@@ -2,10 +2,6 @@
 
 namespace PE_BUFFER{
 
-    Buffer::Buffer(std::vector<BYTE> bytes){
-        this->buffer = bytes;
-    }
-
     Buffer::Buffer(const char* fullPEPath){
         std::ifstream peFile(fullPEPath, std::ios::binary);
 
@@ -15,28 +11,34 @@ namespace PE_BUFFER{
 
         this->buffer = std::vector<BYTE>((std::istreambuf_iterator<char>(peFile)), std::istreambuf_iterator<char>());
     }
+
+    Buffer::Buffer(std::vector<BYTE> bytes){
+        this->buffer = bytes;
+    }
     
     Buffer::Buffer(const std::string& hexString){
 
     }
 
-    void Buffer::cutBytes(int bytes){
-        this->beginPtr += bytes;
-    }
-
-    std::vector<BYTE>::iterator Buffer::getBegin(){
-        if(this->beginPtr < this->buffer.size())
+    std::vector<BYTE>::iterator Buffer::getBeginIter(){
+        if(this->availableToCopy() > 0)
             return this->buffer.begin() + this->beginPtr;
 
-        else return this->buffer.end();
+        return this->buffer.end();
     }
 
-    int Buffer::getBeginPtr(){
-        return this->beginPtr;
+    BYTE* Buffer::getBeginAddress(){
+        if(this->availableToCopy() > 0)
+            return this->buffer.data() + this->beginPtr;
+
+        return this->buffer.data() + this->buffer.size();
     }
 
     int Buffer::availableToCopy(){
-        return std::distance(getBegin(), this->buffer.end());
+        return this->buffer.size() - this->beginPtr;
     }
 
+    void Buffer::cutBytes(int bytes){
+        this->beginPtr += bytes;
+    }
 };

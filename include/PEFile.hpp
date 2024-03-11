@@ -10,9 +10,6 @@ namespace PE_DATA{
 
         PEFile();
 
-        PEFile(PE_STRUCTURE::DosHeader dosHeader, PE_STRUCTURE::ImageNtHeaders imageNTHeaders);
-        PEFile(PE_STRUCTURE::DosHeader dosHeader, PE_STRUCTURE::ImageNtHeaders64 imageNTHeaders64);
-
         PE_STRUCTURE::DosHeader dosHeader{};
         PE_STRUCTURE::ImageNtHeaders imageNTHeaders{};
         PE_STRUCTURE::ImageNtHeaders64 imageNTHeaders64{};

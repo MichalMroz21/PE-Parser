@@ -37,7 +37,6 @@ namespace PE_PARSER{
         PE_DATA::PEFile* loadPEFileFromHexString(const std::string& hexStr);
         
     private:
-
         PE_DATA::PEFile* loadPEFile();
 
         //returns amount of bytes copied to struct
@@ -48,12 +47,14 @@ namespace PE_PARSER{
         template<typename Arr> void copyBytesToStructInnerArr(Arr& arr); 
 
         void setInitBuffer(const std::vector<BYTE>& PEBinary);
+        void freeBuffer();
+        void* revmemcpy(void *dest, const void *src, size_t len);
 
         bool isBigEndianCheck(void);
 
         bool isBigEndian{};
-        PE_BUFFER::Buffer* buffer{};
         int bufferBeginPtr{};
+        PE_BUFFER::Buffer* buffer{};
     };
 
 };

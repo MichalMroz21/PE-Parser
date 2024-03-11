@@ -5,24 +5,31 @@
 #include <windows.h>
 #include <fstream>
 
+namespace PE_PARSER{
+    class Parser;
+};
+
 namespace PE_BUFFER{
 
     class Buffer{
-    public:
-        Buffer(std::vector<BYTE> bytes);
-        Buffer(const std::string& hexString);
+    
+        friend class PE_PARSER::Parser;
+    
+    protected:
         Buffer(const char* fullFilePath);
-
-        void cutBytes(int bytes);
-
-        [[nodiscard]]
-        std::vector<BYTE>::iterator getBegin();
+        Buffer(std::vector<BYTE> bytes);
+        Buffer(const std::string& hexString); 
 
         [[nodiscard]]
-        int getBeginPtr();
+        std::vector<BYTE>::iterator getBeginIter();
+
+        [[nodiscard]]
+        BYTE* getBeginAddress();
 
         [[nodiscard]]
         int availableToCopy();
+
+        void cutBytes(int bytes);
 
     private:
         std::vector<BYTE> buffer{};

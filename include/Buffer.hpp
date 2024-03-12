@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <fstream>
 
+#include <gtest/gtest_prod.h>
+
 namespace PE_PARSER{
     class Parser;
 };
@@ -14,6 +16,7 @@ namespace PE_BUFFER{
     class Buffer{
     
         friend class PE_PARSER::Parser;
+        FRIEND_TEST(BufferTest, HexConstructor);
     
     protected:
         Buffer(const char* fullFilePath);
@@ -31,7 +34,10 @@ namespace PE_BUFFER{
 
         void cutBytes(int bytes);
 
+        std::vector<BYTE> getBuffer();
+
     private:
+
         std::vector<BYTE> buffer{};
         int beginPtr{};
     };

@@ -1,7 +1,7 @@
 if(BUILD_TESTING)
 	enable_testing()
 
-	file(GLOB TEST_FILES ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
+	file(GLOB_RECURSE TEST_FILES ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
 
 	add_executable(Tester ${TEST_FILES} ${SRC_FILES})
 

@@ -24,7 +24,7 @@ set(SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/source)
 set(INCLUDE_DIR ${CMAKE_CURRENT_LIST_DIR}/include)
 
 #Get cpp files to add to Parser
-file(GLOB SRC_FILES ${SOURCE_DIR}/*.cpp)
+file(GLOB_RECURSE SRC_FILES ${SOURCE_DIR}/*.cpp)
 
 if(MAKE_TEST_EXE)
 	include(CTest)
@@ -36,7 +36,7 @@ add_library(PE-Parser SHARED ${SRC_FILES})
 set_target_properties(PE-Parser PROPERTIES VERSION ${PROJECT_VERSION})
 
 #add all selected boost libraries
-target_link_libraries(PE-Parser PRIVATE ${BOOST_INCLUDE_LIBRARIES})
+target_link_libraries(PE-Parser PRIVATE GTest::gtest_main ${BOOST_INCLUDE_LIBRARIES})
 
 #add include folder to includes of library
 target_include_directories(PE-Parser PUBLIC ${INCLUDE_DIR})

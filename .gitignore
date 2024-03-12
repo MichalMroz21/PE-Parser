@@ -8,7 +8,6 @@ sh.exe.stackdump
 *.d
 *.vs
 *.vscode
-.vscode
 
 # Compiled Object files
 *.slo

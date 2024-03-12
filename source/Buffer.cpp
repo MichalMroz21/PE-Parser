@@ -17,7 +17,18 @@ namespace PE_BUFFER{
     }
     
     Buffer::Buffer(const std::string& hexString){
+        int n = hexString.size();
+        this->buffer = std::vector<BYTE>(n / 2);
 
+        for(int i = 0; i < n; i += 2){
+            std::string strByte = hexString.substr(i, 2);
+            if(i == 0 && n % 2) {
+                i--;
+                std::swap(strByte[0], strByte[1]);
+                strByte[0] = '0';
+            }
+            this->buffer[i / 2] = std::stoi(strByte, nullptr, 16);
+        }
     }
 
     std::vector<BYTE>::iterator Buffer::getBeginIter(){
@@ -40,5 +51,9 @@ namespace PE_BUFFER{
 
     void Buffer::cutBytes(int bytes){
         this->beginPtr += bytes;
+    }
+
+    std::vector<BYTE> Buffer::getBuffer(){
+        return this->buffer;
     }
 };

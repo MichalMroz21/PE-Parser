@@ -9,6 +9,7 @@
 #include <cstring>
 #include <string>
 #include <type_traits>
+#include <bit>
 
 #include <boost/mp11.hpp>
 #include <boost/type_index.hpp>
@@ -43,18 +44,18 @@ namespace PE_PARSER{
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
         void copyBytesToStruct(Base& base);
 
-        template<typename Attr> void copyBytesToStructInner(Attr& attr);
-        template<typename Arr> void copyBytesToStructInnerArr(Arr& arr); 
+        template<typename Attr> 
+        void copyBytesToStructInner(Attr& attr);
 
-        void setInitBuffer(const std::vector<BYTE>& PEBinary);
+        template<typename Arr> 
+        void copyBytesToStructInnerArr(Arr& arr);
+        
         void freeBuffer();
-        void* revmemcpy(void *dest, const void *src, size_t len);
+        void* revmemcpy(void* dest, const void* src, size_t len);
 
-        bool isBigEndianCheck(void);
-
-        bool isBigEndian{};
         int bufferBeginPtr{};
         PE_BUFFER::Buffer* buffer{};
+        static constexpr bool isBigEndian = (std::endian::native == std::endian::big); 
     };
 
 };

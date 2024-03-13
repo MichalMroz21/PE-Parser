@@ -11,11 +11,14 @@ namespace PE_PARSER{
     class Parser;
 };
 
+class BufferTest_HexConstructor_Test;
+
 namespace PE_BUFFER{
 
     class Buffer{
     
         friend class PE_PARSER::Parser;
+        friend class BufferTest_HexConstructor_Test;
         FRIEND_TEST(BufferTest, HexConstructor);
     
     protected:

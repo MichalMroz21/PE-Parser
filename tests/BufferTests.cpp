@@ -7,7 +7,7 @@ TEST(BufferTest, PathConstructor) {
 
 }
 
-TEST(BufferTest, HexConstructor) {
+TEST_F(BufferTest, HexConstructor) {
 
     std::vector<std::string> hexStrs = {"a01738", "a0173"};
     std::vector<std::vector<BYTE>> expectedBuffers = {{160, 23, 56}, {10, 1, 115}};

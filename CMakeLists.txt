@@ -3,7 +3,7 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(BOOST_INCLUDE_LIBRARIES describe type_index endian)
+set(BOOST_INCLUDE_LIBRARIES describe type_index endian algorithm)
 set(BOOST_ENABLE_CMAKE ON)
 
 option(MAKE_TEST_EXE "Run GTests" ON)

@@ -3,7 +3,11 @@
 
 #include <vector>
 #include <windows.h>
+#include <istream>
 #include <fstream>
+#include <iostream>
+
+#include <boost/algorithm/hex.hpp>
 
 #include <gtest/gtest_prod.h>
 
@@ -11,15 +15,14 @@ namespace PE_PARSER{
     class Parser;
 };
 
-class BufferTest_HexConstructor_Test;
-
 namespace PE_BUFFER{
 
     class Buffer{
     
         friend class PE_PARSER::Parser;
-        friend class BufferTest_HexConstructor_Test;
+
         FRIEND_TEST(BufferTest, HexConstructor);
+        FRIEND_TEST(BufferTest, OpenPEFile);
     
     protected:
         Buffer(const char* fullFilePath);
@@ -37,6 +40,7 @@ namespace PE_BUFFER{
 
         void cutBytes(int bytes);
 
+        [[nodiscard]]
         std::vector<BYTE> getBuffer();
 
     private:

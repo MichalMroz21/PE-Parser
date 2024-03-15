@@ -3,32 +3,36 @@
 namespace PE_BUFFER{
 
     Buffer::Buffer(const char* fullPEPath){
-        std::ifstream peFile(fullPEPath, std::ios::binary);
+        std::ifstream peFile(fullPEPath, std::ifstream::binary | std::ifstream::ate);
 
         if (!peFile.is_open()) {
             throw std::runtime_error("Error opening PE file: " + std::string(fullPEPath));
         }
 
-        this->buffer = std::vector<BYTE>((std::istreambuf_iterator<char>(peFile)), std::istreambuf_iterator<char>());
+        peFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
+        std::ifstream::pos_type size = peFile.tellg();
+        peFile.seekg(0, std::ios::beg);
+
+        this->buffer.resize(size);
+
+        peFile.read(reinterpret_cast<char*>(this->buffer.data()), size);
+        peFile.close();
     }
 
     Buffer::Buffer(std::vector<BYTE> bytes){
         this->buffer = bytes;
     }
     
+    //hexString has to be of even size
     Buffer::Buffer(const std::string& hexString){
-        int n = hexString.size();
-        this->buffer = std::vector<BYTE>(n / 2);
+        int sz = hexString.size();
 
-        for(int i = 0; i < n; i += 2){
-            std::string strByte = hexString.substr(i, 2);
-            if(i == 0 && n % 2) {
-                i--;
-                std::swap(strByte[0], strByte[1]);
-                strByte[0] = '0';
-            }
-            this->buffer[i / 2] = std::stoi(strByte, nullptr, 16);
+        if (sz % 2) {
+            throw std::runtime_error("Hex String for Buffer is not even sized");
         }
+
+        boost::algorithm::unhex(hexString, std::back_inserter(this->buffer));
     }
 
     std::vector<BYTE>::iterator Buffer::getBeginIter(){

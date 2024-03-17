@@ -9,16 +9,16 @@
 
 namespace PE_STRUCTURE {
 
-	struct DosHeader {
+	struct DosHeader { //DOS .EXE header
 
 		WORD
-			magic{}, //DOS .EXE header
-			e_cblp{}, //Magic number
-			e_cp{}, //Bytes on last page of file
-			e_crlc{}, //Pages in file
-			e_cparhdr{}, //Relocations
-			e_minalloc{}, //Size of header in paragraphs
-			e_maxalloc{}, //Minimum extra paragraphs needed
+			magic{}, //Magic number
+			e_cblp{}, //Bytes on last page of file
+			e_cp{}, //Pages in file
+			e_crlc{}, //Relocations
+			e_cparhdr{}, //Size of header in paragraphs
+			e_minalloc{}, //Minimum extra paragraphs needed
+			e_maxalloc{}, // Maximum extra paragraphs needed
 			e_ss{}, //Initial (relative) SS value
 			e_sp{}, //Initial SP value
 			e_csum{}, //Checksum
@@ -38,46 +38,34 @@ namespace PE_STRUCTURE {
         e_minalloc, e_maxalloc, e_ss, e_sp, e_csum, e_ip, e_cs, e_lfarlc, e_ovno,
         e_res, e_oemid, e_oeminfo, e_res2, e_lfanew));
 
-	//For PE32+ (64-bit) Executables
-	struct ImageNtHeaders64 {
-
-		DWORD signature{}; //almost always PE/0/0
+    
+    struct ImageHeader{
+        DWORD signature{}; //almost always PE/0/0
 		IMAGE_FILE_HEADER FileHeader{}; //Some information, has OptionalHeader size
-		IMAGE_OPTIONAL_HEADER64 OptionalHeader{}; //Some important info
-	};
+    };
 
-    BOOST_DESCRIBE_STRUCT(ImageNtHeaders64, (), (signature, FileHeader, OptionalHeader));
-
-    BOOST_DESCRIBE_STRUCT(IMAGE_FILE_HEADER, (), (Machine, NumberOfSections, TimeDateStamp,
-        PointerToSymbolTable, NumberOfSymbols, SizeOfOptionalHeader, Characteristics));
-    //Charasteristics - 8th bit (is little endian)
-    //-16th bit (is big endian)
-        
-    BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER32, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
-        SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
-        BaseOfData, ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
-        MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
-        Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
-        SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
-
-    BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER64, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
-        SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
-        ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
-        MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
-        Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
-        SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
-
-    BOOST_DESCRIBE_STRUCT(IMAGE_DATA_DIRECTORY, (), (VirtualAddress, Size));
-
-	//For PE32 Executables
-	struct ImageNtHeaders {
-
-		DWORD signature{};
-		IMAGE_FILE_HEADER FileHeader{};
-		IMAGE_OPTIONAL_HEADER32 OptionalHeader{};
-	};
-
-    BOOST_DESCRIBE_STRUCT(ImageNtHeaders, (), (signature, FileHeader, OptionalHeader));
+    BOOST_DESCRIBE_STRUCT(ImageHeader, (), (signature, FileHeader));
 };
+
+//Structs that don't belong to namespace need to have describe outside of namespace
+
+BOOST_DESCRIBE_STRUCT(IMAGE_FILE_HEADER, (), (Machine, NumberOfSections, TimeDateStamp,
+        PointerToSymbolTable, NumberOfSymbols, SizeOfOptionalHeader, Characteristics));
+        
+BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER32, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
+    SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
+    BaseOfData, ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
+    MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
+    Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
+    SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
+
+BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER64, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
+    SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
+    ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
+    MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
+    Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
+    SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
+
+BOOST_DESCRIBE_STRUCT(IMAGE_DATA_DIRECTORY, (), (VirtualAddress, Size));
 
 #endif

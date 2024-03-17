@@ -38,7 +38,10 @@ namespace PE_BUFFER{
         [[nodiscard]]
         int availableToCopy();
 
-        void cutBytes(int bytes);
+        void cutBytes(unsigned int bytes);
+        void uncutBytes(unsigned int bytes);
+
+        void setMemoryLocation(DWORD offset);
 
         [[nodiscard]]
         std::vector<BYTE> getBuffer();
@@ -46,7 +49,7 @@ namespace PE_BUFFER{
     private:
 
         std::vector<BYTE> buffer{};
-        int beginPtr{};
+        DWORD beginPtr{};
     };
 
 };

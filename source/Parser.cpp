@@ -29,6 +29,26 @@ namespace PE_PARSER{
     }
 
     template<typename Attr> 
+    void Parser::copyBytesToVariable(Attr& attr){
+        int bytesToGet = sizeof(Attr);
+
+        if (this->buffer->availableToCopy() < bytesToGet) {
+            std::string typeName = boost::typeindex::type_id_with_cvr<Attr>().pretty_name();
+            std::cerr << "No more remaining data in buffer to read " + typeName;
+            return;
+        }
+
+        if(!this->isBigEndian){
+            memcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
+        }
+        else{
+            this->revmemcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
+        } 
+            
+        this->buffer->cutBytes(bytesToGet);
+    }
+
+    template<typename Attr> 
     void Parser::copyBytesToStructInner(Attr& attr){
 
         //check if iterated type is struct, if it is then recursively call this function for it
@@ -39,30 +59,28 @@ namespace PE_PARSER{
             this->copyBytesToStructInnerArr(attr);
         }
         else{
-            int bytesToGet = sizeof(Attr);
-
-            if (this->buffer->availableToCopy() < bytesToGet) {
-                std::string typeName = boost::typeindex::type_id_with_cvr<Attr>().pretty_name();
-                std::cerr << "No more remaining data in buffer to read " + typeName;
-                return;
-            }
-
-            if(this->isBigEndian){
-                memcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
-            }
-            else{
-                this->revmemcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
-            } 
-                
-            this->buffer->cutBytes(bytesToGet);
+            this->copyBytesToVariable(attr);
         }
     }
 
-    //bufferBeginPtr needs to be resetted everytime we load a new Binary into the Parser
-    PE_DATA::PEFile* Parser::loadPEFile() {
+    PE_DATA::PEFile* Parser::loadPEFile(){
         PE_DATA::PEFile* peFile = new PE_DATA::PEFile();
+
         this->copyBytesToStruct(peFile->dosHeader);
-        DWORD NTHeaderLoc = peFile->dosHeader.e_lfanew;
+        this->buffer->setMemoryLocation(peFile->headerAddress());
+
+        this->copyBytesToStruct(peFile->imageHeader);
+
+        if(peFile->sizeOfOptionalHeader() >= sizeof(WORD)){
+            DWORD stateOfMachine{};
+
+            this->copyBytesToVariable(stateOfMachine);
+            this->buffer->uncutBytes(sizeof(stateOfMachine));
+
+            peFile->setTypeOfPE(stateOfMachine);
+
+            this->copyBytesToStruct(peFile->getOptionalHeader());
+        }
 
         return peFile;
     }

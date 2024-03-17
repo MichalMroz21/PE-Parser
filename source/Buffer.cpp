@@ -53,8 +53,16 @@ namespace PE_BUFFER{
         return this->buffer.size() - this->beginPtr;
     }
 
-    void Buffer::cutBytes(int bytes){
+    void Buffer::cutBytes(unsigned int bytes){
         this->beginPtr += bytes;
+    }
+
+    void Buffer::uncutBytes(unsigned int bytes){
+        this->beginPtr -= bytes;
+    }
+
+    void Buffer::setMemoryLocation(DWORD offset){
+        this->beginPtr = offset;
     }
 
     std::vector<BYTE> Buffer::getBuffer(){

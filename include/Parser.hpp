@@ -34,6 +34,7 @@ namespace PE_PARSER{
         [[nodiscard]]
         PE_DATA::PEFile* loadPEFileFromBytes(std::vector<BYTE> bytes);
 
+        //hexString has to be of even size
         [[nodiscard]]
         PE_DATA::PEFile* loadPEFileFromHexString(const std::string& hexStr);
         
@@ -49,6 +50,9 @@ namespace PE_PARSER{
 
         template<typename Arr> 
         void copyBytesToStructInnerArr(Arr& arr);
+
+        template<typename Attr> 
+        void copyBytesToVariable(Attr& attr);
         
         void freeBuffer();
         void* revmemcpy(void* dest, const void* src, size_t len);

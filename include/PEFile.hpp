@@ -1,7 +1,11 @@
 #ifndef PE_FILE
 #define PE_FILE
 
-#include "Structure.hpp"
+#include <Structure.hpp>
+#include <stdexcept>
+#include <boost/variant.hpp>
+
+#include <iostream>
 
 namespace PE_PARSER{
     class Parser;
@@ -9,8 +13,11 @@ namespace PE_PARSER{
 
 namespace PE_DATA{
 
+    using HeaderVariant = boost::variant<IMAGE_OPTIONAL_HEADER32*, IMAGE_OPTIONAL_HEADER64*>;
+
     class PEFile {
         friend class PE_PARSER::Parser;
+
     public:
         //DosHeader Data
         [[nodiscard]] WORD magicNumber();
@@ -45,17 +52,18 @@ namespace PE_DATA{
         PEFile();
 
         void setTypeOfPE(WORD stateOfMachine);
-        auto& getOptionalHeader();
+        
+        HeaderVariant getOptionalHeader();
 
         PE_STRUCTURE::DosHeader dosHeader{};
         PE_STRUCTURE::ImageHeader imageHeader{};
-        
+
     private:
         //dev note: get them with getOptionalHeader
         IMAGE_OPTIONAL_HEADER32 imageOptionalHeader32{};
         IMAGE_OPTIONAL_HEADER64 imageOptionalHeader64{};
 
-        bool is64Bit = false;
+        bool is64Bit = false, wasTypeSet = false;
     };
 
 }

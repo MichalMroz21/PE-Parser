@@ -1,19 +1,27 @@
-#include "PEFile.hpp"
+#include <PEFile.hpp>
 
 namespace PE_DATA{
     PEFile::PEFile(){}
 
     void PEFile::setTypeOfPE(WORD stateOfMachine){
-        if(stateOfMachine == 0x010B) is64Bit = false;
-        else if(stateOfMachine == 0x020B) is64Bit = true;
+        if(stateOfMachine == 0x010B) this->is64Bit = false;
+        else if(stateOfMachine == 0x020B) this->is64Bit = true;
         else{
-            std::cerr << "Invalid or unsupported stateOfMachine!";
+            throw std::invalid_argument("Invalid or unsupported stateOfMachine!");
         }
+        
+        this->wasTypeSet = true;
     }
 
-    auto& PEFile::getOptionalHeader(){
-        if(this->is64Bit) return this->imageOptionalHeader64;
-        else return this->imageOptionalHeader32;
+    HeaderVariant PEFile::getOptionalHeader(){
+        if(!this->wasTypeSet){
+            throw std::logic_error("Type of PE was not set before calling this method!");
+        }
+
+        if(this->is64Bit) 
+            return HeaderVariant(&this->imageOptionalHeader64);
+        else 
+            return HeaderVariant(&this->imageOptionalHeader32);
     }
 
     DWORD PEFile::headerAddress(){

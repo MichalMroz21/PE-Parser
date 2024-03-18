@@ -16,9 +16,9 @@
 #include <boost/describe.hpp>
 #include <boost/endian/conversion.hpp>
 
-#include "PEFile.hpp"
-#include "Structure.hpp"
-#include "Buffer.hpp"
+#include <PEFile.hpp>
+#include <Structure.hpp>
+#include <Buffer.hpp>
 
 namespace PE_PARSER{
 

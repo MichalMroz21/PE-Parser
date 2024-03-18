@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #Some libraries are header-only and some require building, this separation is required as boost is added both with find_package and submodules
 #As described here: https://www.boost.org/doc/libs/1_84_0/more/getting_started/windows.html#header-only-libraries
 #The name has to be BOOST_INCLUDE_LIBRARIES!
-set(BOOST_INCLUDE_LIBRARIES algorithm describe type_index endian)
+set(BOOST_INCLUDE_LIBRARIES algorithm describe type_index endian variant)
 set(BOOST_BUILD_LIBRARIES)
 set(BOOST_ENABLE_CMAKE ON)
 

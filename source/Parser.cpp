@@ -1,4 +1,4 @@
-#include "Parser.hpp"
+#include <Parser.hpp>
 
 namespace PE_PARSER{
 
@@ -79,7 +79,10 @@ namespace PE_PARSER{
 
             peFile->setTypeOfPE(stateOfMachine);
 
-            this->copyBytesToStruct(peFile->getOptionalHeader());
+            boost::apply_visitor([&](auto x){
+                this->copyBytesToStruct(*x);
+            }, peFile->getOptionalHeader());
+            
         }
 
         return peFile;

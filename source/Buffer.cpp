@@ -1,4 +1,4 @@
-#include "Buffer.hpp"
+#include <Buffer.hpp>
 
 namespace PE_BUFFER{
 
@@ -26,10 +26,8 @@ namespace PE_BUFFER{
     
     //hexString has to be of even size
     Buffer::Buffer(const std::string& hexString){
-        int sz = hexString.size();
-
-        if (sz % 2) {
-            throw std::runtime_error("Hex String for Buffer is not even sized");
+        if (hexString.size() % 2) {
+            throw std::invalid_argument("Hex String for Buffer is not of even size");
         }
 
         boost::algorithm::unhex(hexString, std::back_inserter(this->buffer));

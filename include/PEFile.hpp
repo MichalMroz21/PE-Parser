@@ -48,6 +48,9 @@ namespace PE_DATA{
         [[nodiscard]] WORD sizeOfOptionalHeader();
         [[nodiscard]] WORD charasteristics();
 
+        //OptionalHeader data
+        [[nodiscard]]
+
     protected:
         PEFile();
 

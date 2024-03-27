@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <gmock/gmock.h>
+
 #include <parser.hpp>
 
 #include <iomanip>
@@ -51,7 +53,6 @@ namespace PE_PARSER{
         EXPECT_EQ(peFile->sizeOfUninitializedData(), 0x00000000);
         EXPECT_EQ(peFile->addressOfEntryPoint(), 0x002CD4B4);
         EXPECT_EQ(peFile->baseOfCode(), 0x00001000);
-        EXPECT_EQ(peFile->baseOfData(), 0x00000200);
         EXPECT_EQ(peFile->imageBase(), 0x0000000140000000);
         EXPECT_EQ(peFile->sectionAlignment(), 0x00001000);
         EXPECT_EQ(peFile->fileAlignment(), 0x00000200);
@@ -72,6 +73,10 @@ namespace PE_PARSER{
         EXPECT_EQ(peFile->sizeOfHeapCommit(), 0x0000000000001000);
         EXPECT_EQ(peFile->loaderFlags(), 0x00000000);
         EXPECT_EQ(peFile->numberOfRvaAndSizes(), 0x00000010);
+
+        EXPECT_ANY_THROW({
+            peFile->baseOfData();
+        });
     }   
 
 };

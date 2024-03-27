@@ -13,7 +13,7 @@ namespace PE_DATA{
         this->wasTypeSet = true;
     }
 
-    bool PEFile::is64Bit(){
+    bool PEFile::getIs64Bit(){
         if(!this->wasTypeSet){
             throw std::logic_error("Type of PE was not set before calling this method!");
         }
@@ -28,97 +28,99 @@ namespace PE_DATA{
 
             switch(attr){
 
-                using namespace OptHeaderAttr;
-
-                case magic:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->magic);
+                case OptHeaderAttr::magic:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->Magic);
                     break;
-                case majorLinkerVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->majorLinkerVersion);
+                case OptHeaderAttr::majorLinkerVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorLinkerVersion);
                     break;
-                case minorLinkerVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->minorLinkerVersion);
+                case OptHeaderAttr::minorLinkerVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorLinkerVersion);
                     break;
-                case sizeOfCode:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfCode);
+                case OptHeaderAttr::sizeOfCode:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfCode);
                     break;
-                case sizeOfInitializedData:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfInitializedData);
+                case OptHeaderAttr::sizeOfInitializedData:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfInitializedData);
                     break;
-                case sizeOfUninitializedData:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfUninitializedData);
+                case OptHeaderAttr::sizeOfUninitializedData:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfUninitializedData);
                     break;
-                case addressOfEntryPoint:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->addressOfEntryPoint);
+                case OptHeaderAttr::addressOfEntryPoint:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->AddressOfEntryPoint);
                     break;
-                case baseOfCode:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->baseOfCode);
+                case OptHeaderAttr::baseOfCode:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->BaseOfCode);
                     break;
-                case baseOfData:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->baseOfData);
+                case OptHeaderAttr::baseOfData:{
+                    if constexpr (std::is_same_v<decltype(*x), Header32>){
+                        attrPtr = reinterpret_cast<std::uintptr_t>(&x->BaseOfData);
+                    }
+                    else throw std::logic_error("Trying to obtain attribute of base of data on x64 PE");
                     break;
-                case imageBase:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->imageBase);
+                }
+                case OptHeaderAttr::imageBase:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->ImageBase);
                     break;
-                case sectionAlignment:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sectionAlignment);
+                case OptHeaderAttr::sectionAlignment:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SectionAlignment);
                     break;
-                case fileAlignment:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->fileAlignment);
+                case OptHeaderAttr::fileAlignment:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->FileAlignment);
                     break;
-                case majorOperatingSystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->majorOperatingSystemVersion);
+                case OptHeaderAttr::majorOperatingSystemVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorOperatingSystemVersion);
                     break;
-                case minorOperatingSystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->minorOperatingSystemVersion);
+                case OptHeaderAttr::minorOperatingSystemVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorOperatingSystemVersion);
                     break;
-                case majorImageVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->majorImageVersion);
+                case OptHeaderAttr::majorImageVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorImageVersion);
                     break;
-                case minorImageVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->minorImageVersion);
+                case OptHeaderAttr::minorImageVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorImageVersion);
                     break;
-                case majorSubsystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->majorSubsystemVersion);
+                case OptHeaderAttr::majorSubsystemVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorSubsystemVersion);
                     break;
-                case minorSubsystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->minorSubsystemVersion);
+                case OptHeaderAttr::minorSubsystemVersion:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorSubsystemVersion);
                     break;
-                case win32VersionValue:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->win32VersionValue);
+                case OptHeaderAttr::win32VersionValue:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->Win32VersionValue);
                     break;
-                case sizeOfImage:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfImage);
+                case OptHeaderAttr::sizeOfImage:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfImage);
                     break;
-                case sizeOfHeaders:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfHeaders);
+                case OptHeaderAttr::sizeOfHeaders:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfHeaders);
                     break;
-                case checkSum:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->checkSum);
+                case OptHeaderAttr::checkSum:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->CheckSum);
                     break;
-                case subsystem:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->subsystem);
+                case OptHeaderAttr::subsystem:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->Subsystem);
                     break;
-                case dllCharasteristics:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->dllCharasteristics);
+                case OptHeaderAttr::dllCharasteristics:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->DllCharacteristics);
                     break;
-                case sizeOfStackReserve:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfStackReserve);
+                case OptHeaderAttr::sizeOfStackReserve:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfStackReserve);
                     break;
-                case sizeOfStackCommit:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfStackCommit);
+                case OptHeaderAttr::sizeOfStackCommit:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfStackCommit);
                     break;
-                case sizeOfHeapReserve:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfHeapReserve);
+                case OptHeaderAttr::sizeOfHeapReserve:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfHeapReserve);
                     break;
-                case sizeOfHeapCommit:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->sizeOfHeapCommit);
+                case OptHeaderAttr::sizeOfHeapCommit:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfHeapCommit);
                     break;
-                case loaderFlags:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->loaderFlags);
+                case OptHeaderAttr::loaderFlags:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->LoaderFlags);
                     break;
-                case numberOfRvaAndSizes:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->numberOfRvaAndSizes);
+                case OptHeaderAttr::numberOfRvaAndSizes:
+                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->NumberOfRvaAndSizes);
                     break;
                 default:
                     throw std::invalid_argument("Invalid enum argument");
@@ -143,7 +145,7 @@ namespace PE_DATA{
     }
 
     HeaderVariant PEFile::getOptionalHeader(){
-        if(this->is64Bit()) 
+        if(this->getIs64Bit()) 
             return HeaderVariant(&this->imageOptionalHeader64);
         else 
             return HeaderVariant(&this->imageOptionalHeader32);
@@ -285,6 +287,7 @@ namespace PE_DATA{
     }
 
     DWORD PEFile::baseOfData(){
+        if(this->getIs64Bit()) throw std::logic_error("Trying to obtain base of data on x64 PE");
         return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::baseOfData, sizeof(DWORD)));
     }
 

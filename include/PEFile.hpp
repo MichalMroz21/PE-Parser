@@ -94,14 +94,12 @@ namespace PE_DATA{
     protected:
         PEFile();
 
-        void setTypeOfPE(WORD stateOfMachine);
-
-        ULONGLONG getOptHeaderAttr(OptHeaderAttr attr, int attrSize)
-
-        bool is64Bit();
+        bool getIs64Bit();
         
         PE_STRUCTURE::DosHeader dosHeader{};
         PE_STRUCTURE::ImageHeader imageHeader{};
+
+        void setTypeOfPE(WORD stateOfMachine);
 
         enum class OptHeaderAttr{
             magic, majorLinkerVersion, minorLinkerVersion,
@@ -115,6 +113,8 @@ namespace PE_DATA{
             sizeOfStackReserve, sizeOfStackCommit, sizeOfHeapReserve,
             sizeOfHeapCommit, loaderFlags, numberOfRvaAndSizes
         };
+
+        ULONGLONG getOptHeaderAttr(OptHeaderAttr attr, int attrSize);
 
     private:
         //dev note: get them with getOptionalHeader

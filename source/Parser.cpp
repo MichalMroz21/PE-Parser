@@ -14,6 +14,7 @@ namespace PE_PARSER{
         this->freeBuffer();
     }
 
+    //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed anyway
     template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
     void Parser::copyBytesToStruct(Base& base){
         boost::mp11::mp_for_each<Md>([&](auto attr){
@@ -71,20 +72,17 @@ namespace PE_PARSER{
 
         this->copyBytesToStruct(peFile->imageHeader);
 
-        if(peFile->sizeOfOptionalHeader() >= sizeof(WORD)){
-            DWORD stateOfMachine{};
+        DWORD stateOfMachine{};
 
-            this->copyBytesToVariable(stateOfMachine);
-            this->buffer->uncutBytes(sizeof(stateOfMachine));
+        this->copyBytesToVariable(stateOfMachine);
+        this->buffer->uncutBytes(sizeof(stateOfMachine));
 
-            peFile->setTypeOfPE(stateOfMachine);
+        peFile->setTypeOfPE(stateOfMachine);
 
-            boost::apply_visitor([&](auto x){
-                this->copyBytesToStruct(*x);
-            }, peFile->getOptionalHeader());
+        boost::apply_visitor([this, peFile](auto x){
+            this->copyBytesToStruct(*x);
+        }, peFile->getOptionalHeader());
             
-        }
-
         return peFile;
     }
 

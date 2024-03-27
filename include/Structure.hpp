@@ -55,14 +55,14 @@ BOOST_DESCRIBE_STRUCT(IMAGE_FILE_HEADER, (), (Machine, NumberOfSections, TimeDat
 BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER32, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
     SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
     BaseOfData, ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
-    MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
+    MinorOperatingSystemVersion, MajorImageVersion, MinorImageVersion, MajorSubsystemVersion, MinorSubsystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
     Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
     SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
 
 BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER64, (), (Magic, MajorLinkerVersion, MinorLinkerVersion,
     SizeOfCode, SizeOfInitializedData, SizeOfUninitializedData, AddressOfEntryPoint, BaseOfCode,
     ImageBase, SectionAlignment, FileAlignment, MajorOperatingSystemVersion,
-    MinorOperatingSystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
+    MinorOperatingSystemVersion, MajorImageVersion, MinorImageVersion, MajorSubsystemVersion, MinorSubsystemVersion, Win32VersionValue, SizeOfImage, SizeOfHeaders, CheckSum,
     Subsystem, DllCharacteristics, SizeOfStackReserve, SizeOfStackCommit, SizeOfHeapReserve,
     SizeOfHeapCommit, LoaderFlags, NumberOfRvaAndSizes, DataDirectory));
 

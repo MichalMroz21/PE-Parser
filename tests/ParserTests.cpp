@@ -65,7 +65,7 @@ namespace PE_PARSER{
         EXPECT_EQ(peFile->win32VersionValue(), 0x00000000);
         EXPECT_EQ(peFile->sizeOfImage(), 0x005D8000);
         EXPECT_EQ(peFile->sizeOfHeaders(), 0x00000400);
-        EXPECT_EQ(peFile->checkSum(), 0x005C561D);
+        EXPECT_EQ(peFile->checkSumOptional(), 0x005C561D);
         EXPECT_EQ(peFile->dllCharasteristics(), 0x00008160);
         EXPECT_EQ(peFile->sizeOfStackReserve(), 0x0000000000100000);
         EXPECT_EQ(peFile->sizeOfStackCommit(), 0x0000000000001000);

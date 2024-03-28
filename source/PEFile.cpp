@@ -20,9 +20,10 @@ namespace PE_DATA{
         return this->is64Bit;
     }
 
-    ULONGLONG PEFile::getOptHeaderAttr(OptHeaderAttr attr, int attrSize){
+    template<typename AttrType>
+    AttrType PEFile::getOptHeaderAttr(OptHeaderAttr attr){
 
-        return boost::apply_visitor([attr, attrSize, this](auto x) -> ULONGLONG {
+        return boost::apply_visitor([attr, this](auto x) -> AttrType {
 
             std::uintptr_t attrPtr{}, structPtr = reinterpret_cast<std::uintptr_t>(x);
 
@@ -126,11 +127,11 @@ namespace PE_DATA{
                     throw std::invalid_argument("Invalid enum argument");
             }
 
-            if( (attrPtr + attrSize) - structPtr > this->sizeOfOptionalHeader() ){
+            if( (attrPtr + sizeof(AttrType)) - structPtr > this->sizeOfOptionalHeader() ){
                 throw std::logic_error("Reading data from optional header that is outside of the read range (size)");
             }
 
-            return *reinterpret_cast<ULONGLONG*>(attrPtr);
+            return *reinterpret_cast<AttrType*>(attrPtr);
 
         }, this->getOptionalHeader());
     }
@@ -255,123 +256,123 @@ namespace PE_DATA{
 
     //OptionalHeader Data
     WORD PEFile::magic(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::magic, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::magic);
     }
 
     BYTE PEFile::majorLinkerVersion(){
-        return static_cast<BYTE>(this->getOptHeaderAttr(OptHeaderAttr::majorLinkerVersion, sizeof(BYTE)));
+        return this->getOptHeaderAttr<BYTE>(OptHeaderAttr::majorLinkerVersion);
     }
 
     BYTE PEFile::minorLinkerVersion(){
-        return static_cast<BYTE>(this->getOptHeaderAttr(OptHeaderAttr::minorLinkerVersion, sizeof(BYTE)));
+        return this->getOptHeaderAttr<BYTE>(OptHeaderAttr::minorLinkerVersion);
     }
 
     DWORD PEFile::sizeOfCode(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::sizeOfCode, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sizeOfCode);
     }
 
     DWORD PEFile::sizeOfInitializedData(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::sizeOfInitializedData, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sizeOfInitializedData);
     }
 
     DWORD PEFile::sizeOfUninitializedData(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::sizeOfUninitializedData, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sizeOfUninitializedData);
     }
 
     DWORD PEFile::addressOfEntryPoint(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::addressOfEntryPoint, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::addressOfEntryPoint);
     }
 
     DWORD PEFile::baseOfCode(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::baseOfCode, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::baseOfCode);
     }
 
     DWORD PEFile::baseOfData(){
         if(this->getIs64Bit()) throw std::logic_error("Trying to obtain base of data on x64 PE");
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::baseOfData, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::baseOfData);
     }
 
     ULONGLONG PEFile::imageBase(){
-        return this->getOptHeaderAttr(OptHeaderAttr::imageBase, sizeof(ULONGLONG));
+        return this->getOptHeaderAttr<ULONGLONG>(OptHeaderAttr::imageBase);
     }
 
     DWORD PEFile::sectionAlignment(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::sectionAlignment, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sectionAlignment);
     }
 
     DWORD PEFile::fileAlignment(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::fileAlignment, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::fileAlignment);
     }
 
     WORD PEFile::majorOperatingSystemVersion(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::majorOperatingSystemVersion, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::majorOperatingSystemVersion);
     }
 
     WORD PEFile::minorOperatingSystemVersion(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::minorOperatingSystemVersion, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::minorOperatingSystemVersion);
     }
 
     WORD PEFile::majorImageVersion(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::majorImageVersion, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::majorImageVersion);
     }
 
     WORD PEFile::minorImageVersion(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::minorImageVersion, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::minorImageVersion);
     }
 
     WORD PEFile::majorSubsystemVersion(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::majorSubsystemVersion, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::majorSubsystemVersion);
     }
 
     WORD PEFile::minorSubsystemVersion(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::minorSubsystemVersion, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::minorSubsystemVersion);
     }
 
     DWORD PEFile::win32VersionValue(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::win32VersionValue, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::win32VersionValue);
     }
 
     DWORD PEFile::sizeOfImage(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::sizeOfImage, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sizeOfImage);
     }
 
     DWORD PEFile::sizeOfHeaders(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::sizeOfHeaders, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sizeOfHeaders);
     }
 
     DWORD PEFile::checkSumOptional(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::checkSum, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::checkSum);
     }
 
     WORD PEFile::subsystem(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::subsystem, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::subsystem);
     }
 
     WORD PEFile::dllCharasteristics(){
-        return static_cast<WORD>(this->getOptHeaderAttr(OptHeaderAttr::dllCharasteristics, sizeof(WORD)));
+        return this->getOptHeaderAttr<WORD>(OptHeaderAttr::dllCharasteristics);
     }
 
     ULONGLONG PEFile::sizeOfStackReserve(){
-        return this->getOptHeaderAttr(OptHeaderAttr::sizeOfStackReserve, sizeof(ULONGLONG));
+        return this->getOptHeaderAttr<ULONGLONG>(OptHeaderAttr::sizeOfStackReserve);
     }
 
     ULONGLONG PEFile::sizeOfStackCommit(){
-        return this->getOptHeaderAttr(OptHeaderAttr::sizeOfStackCommit, sizeof(ULONGLONG));
+        return this->getOptHeaderAttr<ULONGLONG>(OptHeaderAttr::sizeOfStackCommit);
     }
 
     ULONGLONG PEFile::sizeOfHeapReserve(){
-        return this->getOptHeaderAttr(OptHeaderAttr::sizeOfHeapReserve, sizeof(ULONGLONG));
+        return this->getOptHeaderAttr<ULONGLONG>(OptHeaderAttr::sizeOfHeapReserve);
     }
 
     ULONGLONG PEFile::sizeOfHeapCommit(){
-        return this->getOptHeaderAttr(OptHeaderAttr::sizeOfHeapCommit, sizeof(ULONGLONG));
+        return this->getOptHeaderAttr<ULONGLONG>(OptHeaderAttr::sizeOfHeapCommit);
     }
 
     DWORD PEFile::loaderFlags(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::loaderFlags, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::loaderFlags);
     }
 
     DWORD PEFile::numberOfRvaAndSizes(){
-        return static_cast<DWORD>(this->getOptHeaderAttr(OptHeaderAttr::numberOfRvaAndSizes, sizeof(DWORD)));
+        return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::numberOfRvaAndSizes);
     }
 };

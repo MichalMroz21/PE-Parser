@@ -114,7 +114,8 @@ namespace PE_DATA{
             sizeOfHeapCommit, loaderFlags, numberOfRvaAndSizes
         };
 
-        ULONGLONG getOptHeaderAttr(OptHeaderAttr attr, int attrSize);
+        template<typename AttrType>
+        AttrType getOptHeaderAttr(OptHeaderAttr attr);
 
     private:
         //dev note: get them with getOptionalHeader

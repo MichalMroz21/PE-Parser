@@ -2,13 +2,13 @@
 #define PE_FILE
 
 #include <Structure.hpp>
-#include <stdexcept>
+#include <Converter.hpp>
 
 #include <boost/variant.hpp>
 #include <boost/mp11.hpp>
 
-#include <iostream>
 #include <cstdint>
+#include <stdexcept>
 
 namespace PE_PARSER{
     class Parser;
@@ -115,7 +115,7 @@ namespace PE_DATA{
         };
 
         template<typename AttrType>
-        AttrType getOptHeaderAttr(OptHeaderAttr attr);
+        AttrType getOptHeaderAttr(OptHeaderAttr attr, bool convertBytes = false);
 
     private:
         //dev note: get them with getOptionalHeader

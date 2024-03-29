@@ -55,8 +55,7 @@ namespace PE_PARSER{
         void copyBytesToVariable(Attr& attr);
         
         void freeBuffer();
-        void* revmemcpy(void* dest, const void* src, size_t len);
-
+        
         PE_BUFFER::Buffer* buffer{};
         
         static constexpr bool isBigEndian = (std::endian::native == std::endian::big); 

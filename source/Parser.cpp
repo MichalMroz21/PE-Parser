@@ -15,7 +15,7 @@ namespace PE_PARSER{
     }
 
     //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed anyway
-    template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
+    template<typename Base, class Md>
     void Parser::copyBytesToStruct(Base& base){
         boost::mp11::mp_for_each<Md>([&](auto attr){
             this->copyBytesToStructInner(base.*attr.pointer);   
@@ -43,7 +43,8 @@ namespace PE_PARSER{
             memcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
         }
         else{
-            this->revmemcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
+            std::reverse_copy(reinterpret_cast<const char*>(this->buffer->getBeginAddress()),
+                reinterpret_cast<const char*>(this->buffer->getBeginAddress() + bytesToGet), reinterpret_cast<char*>(&attr));
         } 
             
         this->buffer->cutBytes(bytesToGet);
@@ -103,14 +104,4 @@ namespace PE_PARSER{
         this->buffer = new PE_BUFFER::Buffer(hexStr);
         return this->loadPEFile();
     }
-
-    //TODO: Optimize this, it's better to copy 2,4,8 bytes instead of 1 if possible
-    void* Parser::revmemcpy(void* dest, const void* src, size_t len){
-        uint8_t* d = (uint8_t*)dest + len - 1;
-        uint8_t* s = (uint8_t*)src;
-        while (len--)
-            *d-- = *s++;
-        return dest;
-    }
-
 };

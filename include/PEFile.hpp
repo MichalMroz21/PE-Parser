@@ -6,9 +6,13 @@
 
 #include <boost/variant.hpp>
 #include <boost/mp11.hpp>
+#include <boost/type_index.hpp>
+#include <boost/describe.hpp>
 
 #include <cstdint>
 #include <stdexcept>
+#include <iostream>
+#include <type_traits>
 
 namespace PE_PARSER{
     class Parser;
@@ -102,7 +106,7 @@ namespace PE_DATA{
         void setTypeOfPE(WORD stateOfMachine);
 
         enum class OptHeaderAttr{
-            magic, majorLinkerVersion, minorLinkerVersion,
+            magic = 0, majorLinkerVersion, minorLinkerVersion,
             sizeOfCode, sizeOfInitializedData, sizeOfUninitializedData,
             addressOfEntryPoint, baseOfCode, baseOfData,
             imageBase, sectionAlignment, fileAlignment,

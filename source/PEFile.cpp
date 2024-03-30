@@ -23,116 +23,46 @@ namespace PE_DATA{
     }
 
     template<typename AttrType>
-    AttrType PEFile::getOptHeaderAttr(OptHeaderAttr attr, bool convertBytes){
+    AttrType PEFile::getOptHeaderAttr(OptHeaderAttr attrEnum, bool convertBytes){
 
-        return boost::apply_visitor([attr, this](auto x) -> AttrType {
+        return boost::apply_visitor([&attrEnum, this](auto x) -> AttrType {
 
-            std::uintptr_t attrPtr{}, structPtr = reinterpret_cast<std::uintptr_t>(x);
+            if constexpr (std::is_same_v<decltype(*x), Header32&> || std::is_same_v<decltype(*x), Header64&>){
 
-            switch(attr){
-                case OptHeaderAttr::magic:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->Magic);
-                    break;
-                case OptHeaderAttr::majorLinkerVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorLinkerVersion);
-                    break;
-                case OptHeaderAttr::minorLinkerVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorLinkerVersion);
-                    break;
-                case OptHeaderAttr::sizeOfCode:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfCode);
-                    break;
-                case OptHeaderAttr::sizeOfInitializedData:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfInitializedData);
-                    break;
-                case OptHeaderAttr::sizeOfUninitializedData:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfUninitializedData);
-                    break;
-                case OptHeaderAttr::addressOfEntryPoint:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->AddressOfEntryPoint);
-                    break;
-                case OptHeaderAttr::baseOfCode:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->BaseOfCode);
-                    break;
-                case OptHeaderAttr::baseOfData:{
-                    if constexpr (std::is_same_v<decltype(*x), Header32>){
-                        attrPtr = reinterpret_cast<std::uintptr_t>(&x->BaseOfData);
+                std::uintptr_t attrPtr{}, structPtr = reinterpret_cast<std::uintptr_t>(x);
+
+                int attrCnt{};
+
+                if constexpr (std::is_same_v<decltype(*x), Header64&>){
+
+                    if(attrEnum == OptHeaderAttr::baseOfData){
+                        throw std::logic_error("Trying to obtain attribute of base of data on x64 PE");
                     }
-                    else throw std::logic_error("Trying to obtain attribute of base of data on x64 PE");
-                    break;
+
+                    if(attrEnum > OptHeaderAttr::baseOfData){
+                        attrEnum = static_cast<OptHeaderAttr>(static_cast<int>(attrEnum) - 1);
+                    }
                 }
-                case OptHeaderAttr::imageBase:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->ImageBase);
-                    break;
-                case OptHeaderAttr::sectionAlignment:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SectionAlignment);
-                    break;
-                case OptHeaderAttr::fileAlignment:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->FileAlignment);
-                    break;
-                case OptHeaderAttr::majorOperatingSystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorOperatingSystemVersion);
-                    break;
-                case OptHeaderAttr::minorOperatingSystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorOperatingSystemVersion);
-                    break;
-                case OptHeaderAttr::majorImageVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorImageVersion);
-                    break;
-                case OptHeaderAttr::minorImageVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorImageVersion);
-                    break;
-                case OptHeaderAttr::majorSubsystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MajorSubsystemVersion);
-                    break;
-                case OptHeaderAttr::minorSubsystemVersion:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->MinorSubsystemVersion);
-                    break;
-                case OptHeaderAttr::win32VersionValue:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->Win32VersionValue);
-                    break;
-                case OptHeaderAttr::sizeOfImage:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfImage);
-                    break;
-                case OptHeaderAttr::sizeOfHeaders:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfHeaders);
-                    break;
-                case OptHeaderAttr::checkSum:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->CheckSum);
-                    break;
-                case OptHeaderAttr::subsystem:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->Subsystem);
-                    break;
-                case OptHeaderAttr::dllCharasteristics:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->DllCharacteristics);
-                    break;
-                case OptHeaderAttr::sizeOfStackReserve:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfStackReserve);
-                    break;
-                case OptHeaderAttr::sizeOfStackCommit:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfStackCommit);
-                    break;
-                case OptHeaderAttr::sizeOfHeapReserve:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfHeapReserve);
-                    break;
-                case OptHeaderAttr::sizeOfHeapCommit:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->SizeOfHeapCommit);
-                    break;
-                case OptHeaderAttr::loaderFlags:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->LoaderFlags);
-                    break;
-                case OptHeaderAttr::numberOfRvaAndSizes:
-                    attrPtr = reinterpret_cast<std::uintptr_t>(&x->NumberOfRvaAndSizes);
-                    break;
-                default:
-                    throw std::invalid_argument("Invalid enum argument");
-            }
 
-            if( (attrPtr + sizeof(AttrType)) - structPtr > this->sizeOfOptionalHeader() ){
-                throw std::logic_error("Reading data from optional header that is outside of the read range (size)");
-            }
+                boost::mp11::mp_for_each<boost::describe::describe_members<std::remove_reference_t<decltype(*x)>, boost::describe::mod_any_access>>
+                ([&](auto attr){
+                    if(static_cast<int>(attrEnum) == attrCnt){
+                        attrPtr = reinterpret_cast<std::uintptr_t>(&((*x).*attr.pointer));
+                    }
+                    attrCnt++;
+                });
 
-            return *reinterpret_cast<AttrType*>(attrPtr);
+                if(attrPtr == 0) throw std::invalid_argument("Invalid enum argument");
+
+                if( (attrPtr + sizeof(AttrType)) - structPtr > this->sizeOfOptionalHeader() ){
+                    throw std::logic_error("Reading data from optional header that is outside of the read range (size)");
+                }
+
+                return *reinterpret_cast<AttrType*>(attrPtr);
+            }
+            else {
+                throw std::logic_error("Invalid type returned from getOptionalHeader");
+            }
 
         }, this->getOptionalHeader());
     }

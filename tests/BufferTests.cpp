@@ -36,11 +36,11 @@ namespace PE_BUFFER{
         };
 
          for(int i = 0; i < files.size(); i++) {
-           //std::vector<BYTE> buff = PE_BUFFER::Buffer(files[i]).getBuffer();
-          // ASSERT_THAT(
-              //  std::vector<BYTE>(buff.begin() + expectedBuffers[i].size(), buff.end()),
-               // ::testing::ElementsAreArray(expectedBuffers[i])
-          // );
+          std::vector<BYTE> buff = PE_BUFFER::Buffer(files[i]).getBuffer();
+          ASSERT_THAT(
+                std::vector<BYTE>(buff.begin(), buff.begin() + expectedBuffers[i].size()),
+                ::testing::ElementsAreArray(expectedBuffers[i])
+          );
         }
     }
 };

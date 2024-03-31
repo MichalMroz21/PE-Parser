@@ -1,5 +1,5 @@
-#ifndef PARSER
-#define PARSER
+#ifndef PE_PARSER_HPP
+#define PE_PARSER_HPP
 
 #include <vector>
 #include <stdint.h>
@@ -20,6 +20,7 @@
 #include <Structure.hpp>
 #include <Buffer.hpp>
 
+//Class for extracting bytes from Portable Executables
 namespace PE_PARSER{
 
     class Parser {
@@ -28,6 +29,7 @@ namespace PE_PARSER{
         Parser();
         ~Parser();
 
+        //User Entry Points into parsing Portable Executables
         [[nodiscard]]
         PE_DATA::PEFile* loadPEFileFromPath(const char* fullPEPath);
 
@@ -39,6 +41,7 @@ namespace PE_PARSER{
         PE_DATA::PEFile* loadPEFileFromHexString(const std::string& hexStr);
         
     private:
+        //Main logic of parsing Portable Executables
         PE_DATA::PEFile* loadPEFile();
 
         //returns amount of bytes copied to struct

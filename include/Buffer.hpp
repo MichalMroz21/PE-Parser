@@ -1,5 +1,5 @@
-#ifndef BUFFER_H
-#define BUFFER_H
+#ifndef PE_BUFFER_HPP
+#define PE_BUFFER_HPP
 
 #include <vector>
 #include <windows.h>
@@ -15,6 +15,7 @@ namespace PE_PARSER{
     class Parser;
 };
 
+//Class to hold Bytes from Portable Executable
 namespace PE_BUFFER{
 
     class Buffer{
@@ -53,5 +54,4 @@ namespace PE_BUFFER{
     };
 
 };
-
 #endif

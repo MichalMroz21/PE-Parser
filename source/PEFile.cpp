@@ -6,12 +6,16 @@ namespace PE_DATA{
     }
 
     void PEFile::setTypeOfPE(WORD stateOfMachine){
-        if(stateOfMachine == 0x010B) this->is64Bit = false;
-        else if(stateOfMachine == 0x020B) this->is64Bit = true;
-        else{
-            throw std::invalid_argument("Invalid or unsupported stateOfMachine!");
+        switch(stateOfMachine){
+            case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
+                this->is64Bit = false;
+                break;
+            case IMAGE_NT_OPTIONAL_HDR64_MAGIC:
+                this->is64Bit = true;
+                break;
+            default:
+                throw std::invalid_argument("Invalid or unsupported stateOfMachine!");
         }
-        
         this->wasTypeSet = true;
     }
 
@@ -47,7 +51,7 @@ namespace PE_DATA{
                 boost::mp11::mp_for_each<boost::describe::describe_members<std::remove_reference_t<decltype(*x)>, boost::describe::mod_any_access>>
                 ([&](auto attr){
                     if(static_cast<int>(attrEnum) == attrCnt){
-                        attrPtr = reinterpret_cast<std::uintptr_t>(&((*x).*attr.pointer));
+                        attrPtr = reinterpret_cast<std::uintptr_t>(&( x->*(attr.pointer) ));
                     }
                     attrCnt++;
                 });
@@ -60,7 +64,7 @@ namespace PE_DATA{
 
                 return *reinterpret_cast<AttrType*>(attrPtr);
             }
-            else {
+            else{
                 throw std::logic_error("Invalid type returned from getOptionalHeader");
             }
 

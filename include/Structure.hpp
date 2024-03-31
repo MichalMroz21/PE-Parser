@@ -1,5 +1,5 @@
-#ifndef STRUCTURE_H
-#define STRUCTURE_H
+#ifndef PE_STRUCTURE_HPP
+#define PE_STRUCTURE_HPP
 
 #include <Windows.h>
 #include <stdint.h>
@@ -7,6 +7,7 @@
 
 #include <boost/describe/class.hpp>
 
+//Defines structure of Portable Executables
 namespace PE_STRUCTURE {
 
 	struct DosHeader { //DOS .EXE header

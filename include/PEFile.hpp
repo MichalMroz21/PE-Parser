@@ -1,5 +1,5 @@
-#ifndef PE_FILE
-#define PE_FILE
+#ifndef PE_FILE_HPP
+#define PE_FILE_HPP
 
 #include <Structure.hpp>
 #include <Converter.hpp>
@@ -18,6 +18,7 @@ namespace PE_PARSER{
     class Parser;
 };
 
+//Class to read data from Parsed Portable Executable
 namespace PE_DATA{
 
     using Header32 = IMAGE_OPTIONAL_HEADER32;
@@ -130,5 +131,4 @@ namespace PE_DATA{
     };
 
 }
-
 #endif

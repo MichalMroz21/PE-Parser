@@ -5,7 +5,7 @@
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-set(BOOST_INCLUDE_LIBRARIES describe type_index endian algorithm variant date_time range)
+set(BOOST_INCLUDE_LIBRARIES describe type_index endian algorithm variant date_time dynamic_bitset)
 set(BOOST_ENABLE_CMAKE ON)
 
 set(GTEST_LINK GTest::gtest_main GTest::gmock_main)

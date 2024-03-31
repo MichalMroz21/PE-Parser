@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <parser.hpp>
+#include <Parser.hpp>
 
 #include <iomanip>
 #include <iostream>
@@ -13,7 +13,6 @@ namespace PE_PARSER{
     TEST(ParserTest, Parse){
 
         PE_PARSER::Parser parser;
-
         PE_DATA::PEFile* peFile = parser.loadPEFileFromPath("../../tests/Test_PEs/1.exe");
 
         EXPECT_ANY_THROW({

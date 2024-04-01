@@ -108,7 +108,7 @@ namespace PE_CONVERTER{
         if(bits.size() > descMap.size()) 
             throw std::logic_error("Size of Bits higher than descMap");
 
-        for(std::size_t i = RESERVED_BITS_CNT; i < bits.size(); i++){
+        for(std::size_t i = 0; i < bits.size(); i++){
             if(bits[i]) 
                 description.push_back(descMap[i]);
         }

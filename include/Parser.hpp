@@ -46,7 +46,7 @@ namespace PE_PARSER{
 
         //returns amount of bytes copied to struct
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
-        void copyBytesToStruct(Base& base);
+        void copyBytesToStruct(Base& base, std::size_t toCopy = sizeof(Base));
 
         template<typename Attr> 
         void copyBytesToStructInner(Attr& attr);

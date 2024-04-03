@@ -11,7 +11,7 @@ namespace PE_PARSER{
     }
 
     Parser::~Parser(){
-        this->freeBuffer();
+        freeBuffer();
     }
 
     //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed anyway

@@ -14,7 +14,7 @@ namespace PE_PARSER{
         freeBuffer();
     }
 
-    //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed anyway
+    //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed
     template<typename Base, class Md>
     void Parser::copyBytesToStruct(Base& base, std::size_t toCopy){
         boost::mp11::mp_for_each<Md>([&](auto attr){

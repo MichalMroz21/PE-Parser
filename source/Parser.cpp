@@ -16,17 +16,20 @@ namespace PE_PARSER{
 
     //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed
     template<typename Base, class Md>
-    void Parser::copyBytesToStruct(Base& base, std::size_t toCopy){
+    void Parser::copyBytesToStruct(Base& base, int toCopy){
         boost::mp11::mp_for_each<Md>([&](auto attr){
+            if(toCopy <= 0) return;
             this->copyBytesToStructInner(base.*attr.pointer, toCopy);
             toCopy -= sizeof(attr);   
         });
     }
 
     template<typename Arr> 
-    void Parser::copyBytesToStructInnerArr(Arr& arr) {
+    void Parser::copyBytesToStructInnerArr(Arr& arr, int toCopy) {
         for (auto& el : arr){
-            this->copyBytesToStructInner(el);
+            if(toCopy <= 0) return;
+            this->copyBytesToStructInner(el, toCopy);
+            toCopy -= sizeof(el);
         }
     }
 
@@ -35,9 +38,7 @@ namespace PE_PARSER{
         int bytesToGet = sizeof(Attr);
 
         if (this->buffer->availableToCopy() < bytesToGet) {
-            std::string typeName = boost::typeindex::type_id_with_cvr<Attr>().pretty_name();
-            std::cerr << "No more remaining data in buffer to read " + typeName;
-            return;
+            throw std::logic_error("Trying to read from a buffer that has no more data to copy from");
         }
 
         if(!this->isBigEndian){
@@ -52,17 +53,18 @@ namespace PE_PARSER{
     }
 
     template<typename Attr> 
-    void Parser::copyBytesToStructInner(Attr& attr){
+    void Parser::copyBytesToStructInner(Attr& attr, int toCopy){
 
         //check if iterated type is struct, if it is then recursively call this function for it
         if constexpr (std::is_class_v<Attr>){
-            this->copyBytesToStruct(attr);
+            this->copyBytesToStruct(attr, toCopy);
         }
         else if constexpr (std::is_array_v<Attr>){
-            this->copyBytesToStructInnerArr(attr);
+            this->copyBytesToStructInnerArr(attr, toCopy);
         }
         else{
-            this->copyBytesToVariable(attr);
+            if(toCopy >= sizeof(attr))
+                this->copyBytesToVariable(attr);
         }
     }
 
@@ -74,6 +76,7 @@ namespace PE_PARSER{
 
         this->copyBytesToStruct(peFile->imageHeader);
 
+        //The type of Optional Header
         DWORD stateOfMachine{};
 
         this->copyBytesToVariable(stateOfMachine);
@@ -81,10 +84,8 @@ namespace PE_PARSER{
 
         peFile->setTypeOfPE(stateOfMachine);
 
-        int sz = peFile->sizeOfOptionalHeader();
-
         boost::apply_visitor([this, peFile](auto x){
-            this->copyBytesToStruct(*x);
+            this->copyBytesToStruct(*x, peFile->sizeOfOptionalHeader());
         }, peFile->getOptionalHeader());
             
         return peFile;

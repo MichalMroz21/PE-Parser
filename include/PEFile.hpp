@@ -120,7 +120,7 @@ namespace PE_DATA{
         };
 
         template<typename AttrType>
-        AttrType getOptHeaderAttr(OptHeaderAttr attr, bool convertBytes = false);
+        AttrType getOptHeaderAttr(OptHeaderAttr attr);
 
     private:
         //dev note: get them with getOptionalHeader

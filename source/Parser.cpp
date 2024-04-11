@@ -54,7 +54,6 @@ namespace PE_PARSER{
 
     template<typename Attr> 
     void Parser::copyBytesToStructInner(Attr& attr, int toCopy){
-
         //check if iterated type is struct, if it is then recursively call this function for it
         if constexpr (std::is_class_v<Attr>){
             this->copyBytesToStruct(attr, toCopy);
@@ -62,9 +61,8 @@ namespace PE_PARSER{
         else if constexpr (std::is_array_v<Attr>){
             this->copyBytesToStructInnerArr(attr, toCopy);
         }
-        else{
-            if(toCopy >= sizeof(attr))
-                this->copyBytesToVariable(attr);
+        else if(toCopy >= sizeof(attr)){
+            this->copyBytesToVariable(attr);
         }
     }
 

@@ -27,7 +27,7 @@ namespace PE_DATA{
     }
 
     template<typename AttrType>
-    AttrType PEFile::getOptHeaderAttr(OptHeaderAttr attrEnum, bool convertBytes){
+    AttrType PEFile::getOptHeaderAttr(OptHeaderAttr attrEnum){
 
         return boost::apply_visitor([&attrEnum, this](auto x) -> AttrType {
 

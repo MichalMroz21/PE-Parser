@@ -2,7 +2,7 @@
 
 namespace PE_PARSER{
 
-    Parser::Parser() {}
+    Parser::Parser() = default;
 
     void Parser::freeBuffer(){
         if(this->buffer)
@@ -67,12 +67,15 @@ namespace PE_PARSER{
     }
 
     PE_DATA::PEFile* Parser::loadPEFile(){
-        PE_DATA::PEFile* peFile = new PE_DATA::PEFile();
+        auto* peFile = new PE_DATA::PEFile();
 
         this->copyBytesToStruct(peFile->dosHeader);
         this->buffer->setMemoryLocation(peFile->headerAddress());
 
         this->copyBytesToStruct(peFile->imageHeader);
+
+        //Allocate space for section headers
+        peFile->allocateSectionHeaders(peFile->numberOfSections());
 
         //The type of Optional Header
         DWORD stateOfMachine{};
@@ -85,6 +88,10 @@ namespace PE_PARSER{
         boost::apply_visitor([this, peFile](auto x){
             this->copyBytesToStruct(*x, peFile->sizeOfOptionalHeader());
         }, peFile->getOptionalHeader());
+
+        for(auto& imageSectionHeader : peFile->imageSectionHeaders){
+            this->copyBytesToStruct(imageSectionHeader);
+        }
             
         return peFile;
     }
@@ -95,7 +102,7 @@ namespace PE_PARSER{
         return this->loadPEFile();
     }
 
-    PE_DATA::PEFile* Parser::loadPEFileFromBytes(std::vector<BYTE> bytes){
+    PE_DATA::PEFile* Parser::loadPEFileFromBytes(const std::vector<BYTE>& bytes){
         this->freeBuffer();
         this->buffer = new PE_BUFFER::Buffer(bytes);
         return this->loadPEFile();

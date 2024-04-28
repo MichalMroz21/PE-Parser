@@ -175,4 +175,77 @@ namespace PE_DATA{
         if(this->getIs64Bit()) throw std::logic_error("Trying to obtain base of data on x64 PE");
         return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::baseOfData);
     }
+    IMAGE_DATA_DIRECTORY* PEFile::dataDirectory(){
+        return this->getOptHeaderAttr<IMAGE_DATA_DIRECTORY*>(OptHeaderAttr::dataDirectory);
+    }
+
+    void PEFile::allocateSectionHeaders(std::size_t numberOfSections) {
+        this->imageSectionHeaders.resize(numberOfSections);
+    }
+
+    //Data Directory (in optional header) data
+    std::pair<DWORD, std::size_t> PEFile::exportDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_EXPORT].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::importDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_IMPORT].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::resourceDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_RESOURCE].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_RESOURCE].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::exceptionDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_EXCEPTION].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_EXCEPTION].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::securityDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_SECURITY].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_SECURITY].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::baseRelocationDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::debugDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_DEBUG].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::architectureDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_ARCHITECTURE].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_ARCHITECTURE].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::globalPtrDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_GLOBALPTR].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_GLOBALPTR].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::tlsDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_TLS].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::loadConfigDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_LOAD_CONFIG].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::boundImportDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_BOUND_IMPORT].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::iatDirectory() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_IAT].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_IAT].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::delayImportDescriptor() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_DELAY_IMPORT].Size};
+    }
+
+    std::pair<DWORD, std::size_t> PEFile::clrRuntimeHeader() {
+        return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].Size};
+    }
+
+    //Section Headers data
+    std::vector<IMAGE_SECTION_HEADER> PEFile::getSectionHeaders() {
+        return this->imageSectionHeaders;
+    }
 };

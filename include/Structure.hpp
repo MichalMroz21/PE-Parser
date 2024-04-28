@@ -69,4 +69,8 @@ BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER64, (), (Magic, MajorLinkerVersion, M
 
 BOOST_DESCRIBE_STRUCT(IMAGE_DATA_DIRECTORY, (), (VirtualAddress, Size));
 
+BOOST_DESCRIBE_STRUCT(IMAGE_SECTION_HEADER, (), (Name, Misc, SizeOfRawData,
+    PointerToRawData, PointerToRelocations, PointerToLinenumbers, NumberOfRelocations,
+    NumberOfLinenumbers, Characteristics));
+
 #endif

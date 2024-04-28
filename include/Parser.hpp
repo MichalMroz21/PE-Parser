@@ -9,7 +9,6 @@
 #include <cstring>
 #include <string>
 #include <type_traits>
-#include <bit>
 
 #include <boost/mp11.hpp>
 #include <boost/type_index.hpp>
@@ -34,7 +33,7 @@ namespace PE_PARSER{
         PE_DATA::PEFile* loadPEFileFromPath(const char* fullPEPath);
 
         [[nodiscard]]
-        PE_DATA::PEFile* loadPEFileFromBytes(std::vector<BYTE> bytes);
+        PE_DATA::PEFile* loadPEFileFromBytes(const std::vector<BYTE>& bytes);
 
         //hexString has to be of even size
         [[nodiscard]]

@@ -26,9 +26,9 @@ namespace PE_BUFFER{
         FRIEND_TEST(BufferTest, OpenPEFile);
     
     protected:
-        Buffer(const char* fullFilePath);
-        Buffer(std::vector<BYTE> bytes);
-        Buffer(const std::string& hexString); 
+        explicit Buffer(const char* fullFilePath);
+        explicit Buffer(const std::vector<BYTE>& bytes);
+        explicit Buffer(const std::string& hexString);
 
         [[nodiscard]]
         std::vector<BYTE>::iterator getBeginIter();

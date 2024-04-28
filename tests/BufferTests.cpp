@@ -2,10 +2,8 @@
 #include <gmock/gmock.h>
 #include <Buffer.hpp>
 
-#include <iomanip>
 #include <iostream>
 #include <span>
-#include <Windows.h>
 
 namespace PE_BUFFER{
 

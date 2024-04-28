@@ -3,10 +3,8 @@
 
 #include <Parser.hpp>
 
-#include <iomanip>
-#include <iostream>
 #include <tuple>
-#include <Windows.h>
+#include <winnt.h>
 
 namespace PE_PARSER{
 
@@ -64,7 +62,7 @@ namespace PE_PARSER{
                 peFile->dllCharasteristics(), peFile->sizeOfStackReserve(),
                 peFile->sizeOfStackCommit(), peFile->sizeOfHeapReserve(), peFile->sizeOfHeapCommit(),
                 peFile->loaderFlags(), peFile->numberOfRvaAndSizes()
-            }), 
+            }),
             ::testing::ElementsAreArray(
                 std::vector<uint64_t>{
                     0x020B, 0x0E, 0x10, 0x00333400, 0x0029FE00, 0x00000000,
@@ -75,6 +73,55 @@ namespace PE_PARSER{
                     0x0000000000100000, 0x0000000000001000, 0x00000000, 0x00000010
                 }
             )
+        );
+
+        //DataDirectory byte data
+        ASSERT_THAT(
+                (std::vector<std::pair<DWORD, std::size_t>>{
+                        peFile->exportDirectory(), peFile->importDirectory(), peFile->resourceDirectory(), peFile->exceptionDirectory(),
+                        peFile->securityDirectory(), peFile->baseRelocationDirectory(), peFile->debugDirectory(), peFile->architectureDirectory(),
+                        peFile->globalPtrDirectory(), peFile->tlsDirectory(), peFile->loadConfigDirectory(), peFile->boundImportDirectory(),
+                        peFile->iatDirectory(), peFile->delayImportDescriptor(), peFile->clrRuntimeHeader()
+                }),
+                ::testing::ElementsAreArray(
+                        std::vector<std::pair<DWORD, std::size_t>>{
+                                {0, 0}, {0x428A4C, 0x190}, {0X46E000, 0x163BA0},
+                                {0x453000, 0x1A418}, {0x5BFC00, 0x19A8}, {0x5D2000, 0X51CC},
+                                {0x3C2070, 0x54}, {0, 0}, {0, 0}, {0X3C21D0, 0x28}, {0x3C20D0, 0x100},
+                                {0, 0}, {0x335000, 0x1248}, {0, 0}, {0, 0}
+                        }
+                )
+        );
+
+        /*typedef struct _IMAGE_SECTION_HEADER {
+            BYTE Name[IMAGE_SIZEOF_SHORT_NAME];
+            union {
+                DWORD PhysicalAddress;
+                DWORD VirtualSize;
+            } Misc;
+            DWORD VirtualAddress;
+            DWORD SizeOfRawData;
+            DWORD PointerToRawData;
+            DWORD PointerToRelocations;
+            DWORD PointerToLinenumbers;
+            WORD NumberOfRelocations;
+            WORD NumberOfLinenumbers;
+            DWORD Characteristics;
+        } IMAGE_SECTION_HEADER,*PIMAGE_SECTION_HEADER;*/
+
+        //SectionHeaders byte data
+        ASSERT_THAT(
+                peFile->getSectionHeaders(),
+                ::testing::ElementsAreArray(
+                        std::vector<IMAGE_SECTION_HEADER>{
+                                {"text", 0, 0x1000, 0x333400, 0x200, 0x0, 0x0, 0x0, 0x0, 0x60000020},
+                                {".rdata", 0, 0x335000, 0xF7800, 0x200, 0x0, 0x0, 0x0, 0x0, 0x40000040},
+                                {".data", 0, 0x42D000, 0x11800, 0x200, 0x0, 0x0, 0x0, 0x0, 0xC0000040},
+                                {".pdata", 0, 0x453000, 0x1A600, 0x200, 0x0, 0x0, 0x0, 0x0, 0x40000040},
+                                {".rsrc", 0, 0x46E000, 0x163C00, 0x200, 0x0, 0x0, 0x0, 0x0, 0x40000040},
+                                {".reloc", 0, 0x5D2000, 0x5200, 0x200, 0x0, 0x0, 0x0, 0x0, 0x42000040}
+                        }
+                )
         );
     }   
 

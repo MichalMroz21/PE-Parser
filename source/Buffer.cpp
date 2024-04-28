@@ -20,7 +20,7 @@ namespace PE_BUFFER{
         peFile.close();
     }
 
-    Buffer::Buffer(std::vector<BYTE> bytes){
+    Buffer::Buffer(const std::vector<BYTE>& bytes){
         this->buffer = bytes;
     }
     

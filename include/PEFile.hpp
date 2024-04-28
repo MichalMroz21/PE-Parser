@@ -90,6 +90,28 @@ namespace PE_DATA{
         [[nodiscard]] ULONGLONG sizeOfHeapCommit();
         [[nodiscard]] DWORD loaderFlags();
         [[nodiscard]] DWORD numberOfRvaAndSizes();
+        [[nodiscard]] IMAGE_DATA_DIRECTORY* dataDirectory();
+
+        //Data Directory (in optional header) data
+        //Returns address and size of data directory
+        [[nodiscard]] std::pair<DWORD, std::size_t> exportDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> importDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> resourceDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> exceptionDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> securityDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> baseRelocationDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> debugDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> architectureDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> globalPtrDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> tlsDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> loadConfigDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> boundImportDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> iatDirectory();
+        [[nodiscard]] std::pair<DWORD, std::size_t> delayImportDescriptor();
+        [[nodiscard]] std::pair<DWORD, std::size_t> clrRuntimeHeader();
+
+        //Section Headers data
+        [[nodiscard]] std::vector<IMAGE_SECTION_HEADER> getSectionHeaders();
 
         [[nodiscard]] HeaderVariant getOptionalHeader();
 
@@ -116,16 +138,20 @@ namespace PE_DATA{
             minorSubsystemVersion, win32VersionValue, sizeOfImage,
             sizeOfHeaders, checkSum, subsystem, dllCharasteristics,
             sizeOfStackReserve, sizeOfStackCommit, sizeOfHeapReserve,
-            sizeOfHeapCommit, loaderFlags, numberOfRvaAndSizes
+            sizeOfHeapCommit, loaderFlags, numberOfRvaAndSizes, dataDirectory
         };
 
         template<typename AttrType>
         AttrType getOptHeaderAttr(OptHeaderAttr attr);
 
+        void allocateSectionHeaders(std::size_t numberOfSections);
+
     private:
         //dev note: get them with getOptionalHeader
         IMAGE_OPTIONAL_HEADER32 imageOptionalHeader32{};
         IMAGE_OPTIONAL_HEADER64 imageOptionalHeader64{};
+
+        std::vector<IMAGE_SECTION_HEADER> imageSectionHeaders{};
 
         bool is64Bit = false, wasTypeSet = false;
     };

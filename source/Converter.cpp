@@ -5,7 +5,6 @@ namespace PE_CONVERTER{
     Converter::Converter(){}
 
     std::string Converter::getMagicValue(WORD magic){
-
         switch(magic){
             case IMAGE_NT_OPTIONAL_HDR32_MAGIC:
                 return "PE32";
@@ -16,8 +15,6 @@ namespace PE_CONVERTER{
             default:
                 throw std::invalid_argument("Magic Value is invalid");
         }
-
-        return {};
     }
 
     std::string Converter::getSubsystem(WORD subsystem){
@@ -42,7 +39,6 @@ namespace PE_CONVERTER{
     }
 
     std::string Converter::getMachineStr(WORD machine){
-
         std::unordered_map<WORD, std::string> machineMap{
             {IMAGE_FILE_MACHINE_UNKNOWN, "unknown"}, {IMAGE_FILE_MACHINE_I386, "intel 386"},
             {IMAGE_FILE_MACHINE_R3000, "MIPS little-endian"}, {IMAGE_FILE_MACHINE_R4000, "MIPS little-endian"},

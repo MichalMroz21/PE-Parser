@@ -62,7 +62,10 @@ namespace PE_DATA{
                     throw std::logic_error("Reading data from optional header that is outside of the read range (size)");
                 }
 
+                if constexpr (std::is_pointer_v<AttrType>) return reinterpret_cast<AttrType>(attrPtr);
+
                 return *reinterpret_cast<AttrType*>(attrPtr);
+
             }
             else{
                 throw std::logic_error("Invalid type returned from getOptionalHeader");

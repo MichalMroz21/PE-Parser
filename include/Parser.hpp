@@ -22,6 +22,8 @@
 //Class for extracting bytes from Portable Executables
 namespace PE_PARSER{
 
+    using ILTEntryVariant = boost::variant<unsigned long long*, unsigned long*>;
+
     class Parser {
     public:
 
@@ -43,6 +45,11 @@ namespace PE_PARSER{
         //Main logic of parsing Portable Executables
         PE_DATA::PEFile* loadPEFile();
 
+        unsigned long long ILT_64{};
+        unsigned long ILT_32{};
+
+        ILTEntryVariant getILTEntryVariant(PE_DATA::PEFile* peFile);
+
         //returns amount of bytes copied to struct
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
         void copyBytesToStruct(Base& base, int toCopy = sizeof(Base));
@@ -57,6 +64,7 @@ namespace PE_PARSER{
         void copyBytesToVariable(Attr& attr);
         
         void freeBuffer();
+        std::string getNullTerminatedString();
         
         PE_BUFFER::Buffer* buffer{};
         

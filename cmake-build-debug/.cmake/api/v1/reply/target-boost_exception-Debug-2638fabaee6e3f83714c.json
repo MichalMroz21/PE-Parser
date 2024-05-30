@@ -1,0 +1,139 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "dependencies/boost/libs/exception/libboost_exception-gcc13-mt-d-x64-1_85.a"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_link_libraries"
+		],
+		"files" : 
+		[
+			"dependencies/boost/libs/exception/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 9,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 17,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -std=gnu++20 -fdiagnostics-color=always"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/exception/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/assert/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/config/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/core/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/static_assert/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/throw_exception/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/smart_ptr/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/move/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/type_traits/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/tuple/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					1
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"folder" : 
+	{
+		"name" : "Dependencies"
+	},
+	"id" : "boost_exception::@9016f87321e284b4ba85",
+	"name" : "boost_exception",
+	"nameOnDisk" : "libboost_exception-gcc13-mt-d-x64-1_85.a",
+	"paths" : 
+	{
+		"build" : "dependencies/boost/libs/exception",
+		"source" : "dependencies/boost/libs/exception"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "dependencies/boost/libs/exception/src/clone_current_exception_non_intrusive.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

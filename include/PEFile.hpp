@@ -111,12 +111,18 @@ namespace PE_DATA{
         [[nodiscard]] std::pair<DWORD, std::size_t> clrRuntimeHeader();
 
         //Section Headers data
-        [[nodiscard]] std::vector<IMAGE_SECTION_HEADER> getSectionHeaders();
+        [[nodiscard]] std::vector<IMAGE_SECTION_HEADER>* getSectionHeaders(bool getEmpty = false);
 
-        [[nodiscard]] HeaderVariant getOptionalHeader();
+        //Data Directories
+        [[nodiscard]] std::vector<IMAGE_IMPORT_DESCRIPTOR>* getImportDirectoryTable(bool getEmpty = false);
+        [[nodiscard]] std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>* getImportByNameTable(bool getEmpty = false);
+        [[nodiscard]] std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR>* getBoundImportDirectoryTable(bool getEmpty = false);
+        [[nodiscard]] std::vector<std::string>* getImportDirectoryNames(bool getEmpty = false);
 
-        [[nodiscard]] PE_STRUCTURE::DosHeader getDosHeaderStruct();
-        [[nodiscard]] PE_STRUCTURE::ImageHeader getImageHeaderStruct();
+        [[nodiscard]] HeaderVariant getOptionalHeader(bool getEmpty = false);
+
+        [[nodiscard]] PE_STRUCTURE::DosHeader* getDosHeader(bool getEmpty = false);
+        [[nodiscard]] PE_STRUCTURE::ImageHeader* getImageHeader(bool getEmpty = false);
 
     protected:
         PEFile();
@@ -141,17 +147,41 @@ namespace PE_DATA{
             sizeOfHeapCommit, loaderFlags, numberOfRvaAndSizes, dataDirectory
         };
 
+        enum class DataDirectory{
+            exportDirectory = 0, importDirectory, resourceDirectory,
+            exceptionDirectory, securityDirectory, baseRelocationDirectory,
+            debugDirectory, architectureDirectory, globalPtrDirectory,
+            tlsDirectory, loadConfigDirectory, boundImportDirectory,
+            iatDirectory, delayImportDescriptor, clrRuntimeHeader
+        };
+
+        std::pair<DWORD, std::size_t> getDataDirectoryPairEnum(DataDirectory dir);
+
         template<typename AttrType>
         AttrType getOptHeaderAttr(OptHeaderAttr attr);
 
+        template<typename T>
+        bool isTypeSet(T *type){
+            T zeroStruct{};
+            return memcmp(type, &zeroStruct, sizeof(T)) != 0;
+        }
+
         void allocateSectionHeaders(std::size_t numberOfSections);
+
+        std::uintptr_t translateRVAtoRaw(std::uintptr_t rva),
+                       getRawDirectoryAddress(DataDirectory dir);
 
     private:
         //dev note: get them with getOptionalHeader
-        IMAGE_OPTIONAL_HEADER32 imageOptionalHeader32{};
-        IMAGE_OPTIONAL_HEADER64 imageOptionalHeader64{};
+        Header32 imageOptionalHeader32{};
+        Header64 imageOptionalHeader64{};
 
         std::vector<IMAGE_SECTION_HEADER> imageSectionHeaders{};
+        std::vector<IMAGE_IMPORT_DESCRIPTOR> importDirectoryTable{};
+        std::vector<std::string> importDirectoryNames{};
+        std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>> importByNameTable{};
+
+        std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> boundImportDirectoryTable{};
 
         bool is64Bit = false, wasTypeSet = false;
     };

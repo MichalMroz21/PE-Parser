@@ -1,0 +1,313 @@
+{
+	"archive" : {},
+	"artifacts" : 
+	[
+		{
+			"path" : "dependencies/boost/libs/date_time/libboost_date_time-gcc13-mt-d-x64-1_85.a"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_library",
+			"target_link_libraries",
+			"target_compile_definitions"
+		],
+		"files" : 
+		[
+			"dependencies/boost/libs/date_time/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 10,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 18,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 37,
+				"parent" : 0
+			},
+			{
+				"command" : 2,
+				"file" : 0,
+				"line" : 45,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -std=gnu++20 -fdiagnostics-color=always"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTAINER_NO_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "BOOST_CONTAINER_STATIC_LINK"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "BOOST_DATE_TIME_NO_LIB"
+				},
+				{
+					"backtrace" : 3,
+					"define" : "BOOST_DATE_TIME_SOURCE"
+				},
+				{
+					"backtrace" : 4,
+					"define" : "BOOST_DATE_TIME_STATIC_LINK"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 0,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/date_time/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/algorithm/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/array/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/assert/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/config/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/core/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/static_assert/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/throw_exception/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/bind/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/concept_check/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/preprocessor/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/type_traits/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/exception/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/smart_ptr/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/move/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/tuple/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/function/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/iterator/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/detail/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/function_types/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/mpl/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/predef/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/utility/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/io/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/fusion/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/container_hash/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/describe/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/mp11/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/typeof/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/functional/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/optional/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/range/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/conversion/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/regex/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/unordered/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/lexical_cast/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/container/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/intrusive/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/integer/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/numeric/conversion/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/tokenizer/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/PE-Parser/dependencies/boost/libs/winapi/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2,
+					2,
+					2,
+					2
+				],
+				"standard" : "20"
+			},
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "boost_container::@8569b6b5b14371a00483"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "boost_exception::@9016f87321e284b4ba85"
+		}
+	],
+	"id" : "boost_date_time::@46d750590eb5456938ff",
+	"name" : "boost_date_time",
+	"nameOnDisk" : "libboost_date_time-gcc13-mt-d-x64-1_85.a",
+	"paths" : 
+	{
+		"build" : "dependencies/boost/libs/date_time",
+		"source" : "dependencies/boost/libs/date_time"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "dependencies/boost/libs/date_time/src/gregorian/greg_month.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "STATIC_LIBRARY"
+}

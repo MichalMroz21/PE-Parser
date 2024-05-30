@@ -4,10 +4,7 @@
 #include <Converter.hpp>
 #include <Parser.hpp>
 
-#include <iomanip>
-#include <iostream>
 #include <tuple>
-#include <Windows.h>
 #include <vector>
 #include <string>
 
@@ -16,7 +13,7 @@ namespace PE_CONVERTER{
     TEST(ConverterTest, Convert){
 
         PE_PARSER::Parser parser;
-        PE_DATA::PEFile* peFile = parser.loadPEFileFromPath("../../tests/Test_PEs/1.exe");
+        PE_DATA::PEFile* peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/1.exe");
 
         Converter converter;
 

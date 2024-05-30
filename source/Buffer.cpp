@@ -66,4 +66,8 @@ namespace PE_BUFFER{
     std::vector<BYTE> Buffer::getBuffer(){
         return this->buffer;
     }
+
+    DWORD Buffer::getCurrMemoryLocation() {
+        return this->beginPtr;
+    }
 };

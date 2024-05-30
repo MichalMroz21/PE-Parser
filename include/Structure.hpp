@@ -69,8 +69,11 @@ BOOST_DESCRIBE_STRUCT(IMAGE_OPTIONAL_HEADER64, (), (Magic, MajorLinkerVersion, M
 
 BOOST_DESCRIBE_STRUCT(IMAGE_DATA_DIRECTORY, (), (VirtualAddress, Size));
 
-BOOST_DESCRIBE_STRUCT(IMAGE_SECTION_HEADER, (), (Name, Misc, SizeOfRawData,
+BOOST_DESCRIBE_STRUCT(IMAGE_SECTION_HEADER, (), (Name, Misc, VirtualAddress, SizeOfRawData,
     PointerToRawData, PointerToRelocations, PointerToLinenumbers, NumberOfRelocations,
     NumberOfLinenumbers, Characteristics));
+
+BOOST_DESCRIBE_STRUCT(IMAGE_IMPORT_DESCRIPTOR , (), (OriginalFirstThunk, TimeDateStamp, ForwarderChain, Name, FirstThunk));
+BOOST_DESCRIBE_STRUCT(IMAGE_BOUND_IMPORT_DESCRIPTOR, (), (TimeDateStamp, OffsetModuleName, NumberOfModuleForwarderRefs));
 
 #endif

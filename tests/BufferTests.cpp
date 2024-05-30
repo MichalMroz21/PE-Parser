@@ -21,7 +21,7 @@ namespace PE_BUFFER{
     }
 
     TEST(BufferTest, OpenPEFile){
-        std::vector<const char*> files{"../../tests/Test_PEs/1.exe"};
+        std::vector<const char*> files{"D:/PE-Parser/tests/Test_PEs/1.exe"};
 
         //Only check first 50 bytes
         std::vector<std::vector<BYTE>> expectedBuffers{

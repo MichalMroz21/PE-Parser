@@ -43,6 +43,7 @@ namespace PE_BUFFER{
         void uncutBytes(unsigned int bytes);
 
         void setMemoryLocation(DWORD offset);
+        DWORD getCurrMemoryLocation();
 
         [[nodiscard]]
         std::vector<BYTE> getBuffer();

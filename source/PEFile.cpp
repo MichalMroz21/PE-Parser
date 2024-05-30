@@ -74,16 +74,26 @@ namespace PE_DATA{
         }, this->getOptionalHeader());
     }
 
-    //Data Structs
-    PE_STRUCTURE::DosHeader PEFile::getDosHeaderStruct(){
-        return this->dosHeader;
+    PE_STRUCTURE::DosHeader* PEFile::getDosHeader(bool getEmpty){
+        if(!getEmpty && !this->isTypeSet(&this->dosHeader)){
+            throw std::logic_error("Dos header was not obtained before calling this method!");
+        }
+        return &this->dosHeader;
     }
     
-    PE_STRUCTURE::ImageHeader PEFile::getImageHeaderStruct(){
-        return this->imageHeader;
+    PE_STRUCTURE::ImageHeader* PEFile::getImageHeader(bool getEmpty){
+        if(!getEmpty && !this->isTypeSet(&this->imageHeader)){
+            throw std::logic_error("Image header was not obtained before calling this method!");
+        }
+        return &this->imageHeader;
     }
 
-    HeaderVariant PEFile::getOptionalHeader(){
+    HeaderVariant PEFile::getOptionalHeader(bool getEmpty){
+
+        if( !getEmpty && !(this->isTypeSet(&this->imageOptionalHeader64) || this->isTypeSet(&this->imageOptionalHeader32)) ){
+            throw std::logic_error("Optional header was not obtained before calling this method!");
+        }
+
         if(this->getIs64Bit()) 
             return HeaderVariant(&this->imageOptionalHeader64);
         else 
@@ -91,33 +101,33 @@ namespace PE_DATA{
     }
 
     //DosHeader Data
-    DWORD PEFile::headerAddress() { return this->dosHeader.e_lfanew; }
-    WORD PEFile::magicNumber() { return this->dosHeader.magic; }
-    WORD PEFile::lastPageBytes() { return this->dosHeader.e_cblp; }
-    WORD PEFile::pagesInFile() { return this->dosHeader.e_cp; }
-    WORD PEFile::relocations() { return this->dosHeader.e_crlc; }
-    WORD PEFile::sizeOfHeaderInParagraphs() { return this->dosHeader.e_cparhdr; }
-    WORD PEFile::minimumExtraParagraphs() { return this->dosHeader.e_minalloc; }
-    WORD PEFile::maximumExtraParagraphs() { return this->dosHeader.e_maxalloc; }
-    WORD PEFile::initialSSValue() { return this->dosHeader.e_ss; }
-    WORD PEFile::initialSPValue() { return this->dosHeader.e_sp; }
-    WORD PEFile::checkSum() { return this->dosHeader.e_csum; }
-    WORD PEFile::initialIPValue() { return this->dosHeader.e_ip; }
-    WORD PEFile::initialCSValue() { return this->dosHeader.e_cs; }
-    WORD PEFile::addressRelocationTable() { return this->dosHeader.e_lfarlc; }
-    WORD PEFile::overlayNumber() { return this->dosHeader.e_ovno; }
-    WORD PEFile::oemIdentifier() { return this->dosHeader.e_oemid; }
-    WORD PEFile::oemInformation() { return this->dosHeader.e_oeminfo; }
+    DWORD PEFile::headerAddress() { return this->getDosHeader()->e_lfanew; }
+    WORD PEFile::magicNumber() { return this->getDosHeader()->magic; }
+    WORD PEFile::lastPageBytes() { return this->getDosHeader()->e_cblp; }
+    WORD PEFile::pagesInFile() { return this->getDosHeader()->e_cp; }
+    WORD PEFile::relocations() { return this->getDosHeader()->e_crlc; }
+    WORD PEFile::sizeOfHeaderInParagraphs() { return this->getDosHeader()->e_cparhdr; }
+    WORD PEFile::minimumExtraParagraphs() { return this->getDosHeader()->e_minalloc; }
+    WORD PEFile::maximumExtraParagraphs() { return this->getDosHeader()->e_maxalloc; }
+    WORD PEFile::initialSSValue() { return this->getDosHeader()->e_ss; }
+    WORD PEFile::initialSPValue() { return this->getDosHeader()->e_sp; }
+    WORD PEFile::checkSum() { return this->getDosHeader()->e_csum; }
+    WORD PEFile::initialIPValue() { return this->getDosHeader()->e_ip; }
+    WORD PEFile::initialCSValue() { return this->getDosHeader()->e_cs; }
+    WORD PEFile::addressRelocationTable() { return this->getDosHeader()->e_lfarlc; }
+    WORD PEFile::overlayNumber() { return this->getDosHeader()->e_ovno; }
+    WORD PEFile::oemIdentifier() { return this->getDosHeader()->e_oemid; }
+    WORD PEFile::oemInformation() { return this->getDosHeader()->e_oeminfo; }
 
     //ImageHeader data
-    DWORD PEFile::signature() { return this->imageHeader.signature; }
-    WORD PEFile::machine() { return this->imageHeader.FileHeader.Machine; }
-    WORD PEFile::numberOfSections() { return this->imageHeader.FileHeader.NumberOfSections; }
-    DWORD PEFile::timeDateStamp() { return this->imageHeader.FileHeader.TimeDateStamp; }
-    DWORD PEFile::pointerToSymbolTable() { return this->imageHeader.FileHeader.PointerToSymbolTable; }
-    DWORD PEFile::numberOfSymbols() { return this->imageHeader.FileHeader.NumberOfSymbols; }
-    WORD PEFile::sizeOfOptionalHeader() { return this->imageHeader.FileHeader.SizeOfOptionalHeader; }
-    WORD PEFile::charasteristics() { return this->imageHeader.FileHeader.Characteristics; }
+    DWORD PEFile::signature() { return this->getImageHeader()->signature; }
+    WORD PEFile::machine() { return this->getImageHeader()->FileHeader.Machine; }
+    WORD PEFile::numberOfSections() { return this->getImageHeader()->FileHeader.NumberOfSections; }
+    DWORD PEFile::timeDateStamp() { return this->getImageHeader()->FileHeader.TimeDateStamp; }
+    DWORD PEFile::pointerToSymbolTable() { return this->getImageHeader()->FileHeader.PointerToSymbolTable; }
+    DWORD PEFile::numberOfSymbols() { return this->getImageHeader()->FileHeader.NumberOfSymbols; }
+    WORD PEFile::sizeOfOptionalHeader() { return this->getImageHeader()->FileHeader.SizeOfOptionalHeader; }
+    WORD PEFile::charasteristics() { return this->getImageHeader()->FileHeader.Characteristics; }
 
     //OptionalHeader Data
     WORD PEFile::magic() { return this->getOptHeaderAttr<WORD>(OptHeaderAttr::magic); }
@@ -247,8 +257,63 @@ namespace PE_DATA{
         return {this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].VirtualAddress, this->dataDirectory()[IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR].Size};
     }
 
-    //Section Headers data
-    std::vector<IMAGE_SECTION_HEADER> PEFile::getSectionHeaders() {
-        return this->imageSectionHeaders;
+    std::pair<DWORD, std::size_t> PEFile::getDataDirectoryPairEnum(PEFile::DataDirectory dir) {
+        return {this->dataDirectory()[static_cast<std::size_t>(dir)].VirtualAddress, this->dataDirectory()[static_cast<std::size_t>(dir)].Size};
     }
+
+    //Section Headers data
+    std::vector<IMAGE_SECTION_HEADER>* PEFile::getSectionHeaders(bool getEmpty) {
+        if(this->imageSectionHeaders.empty()){
+            throw std::logic_error("Section headers were not allocated before calling this method!");
+        }
+        if(!getEmpty && !this->isTypeSet(this->imageSectionHeaders.data())){
+            throw std::logic_error("Section headers were not obtained before calling this method!");
+        }
+        return &this->imageSectionHeaders;
+    }
+
+    std::uintptr_t PEFile::getRawDirectoryAddress(DataDirectory dir) {
+        auto dirPair = this->getDataDirectoryPairEnum(dir);
+        if(dirPair.second == 0) throw std::logic_error("Trying to obtain raw address of empty directory");
+        return this->translateRVAtoRaw(dirPair.first);
+    }
+
+    std::uintptr_t PEFile::translateRVAtoRaw(std::uintptr_t rva) {
+        for(const auto& sectionHeader : *this->getSectionHeaders()){
+            if(rva >= sectionHeader.VirtualAddress && rva < sectionHeader.VirtualAddress + sectionHeader.SizeOfRawData){
+                return rva - sectionHeader.VirtualAddress + sectionHeader.PointerToRawData;
+            }
+        }
+
+        throw std::invalid_argument("RVA not found in any section");
+    }
+
+    std::vector<IMAGE_IMPORT_DESCRIPTOR> *PEFile::getImportDirectoryTable(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->importDirectoryTable.data())){
+            throw std::logic_error("Import directory table was not obtained before calling this method!");
+        }
+        return &this->importDirectoryTable;
+    }
+
+    std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> *PEFile::getBoundImportDirectoryTable(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->boundImportDirectoryTable.data())){
+            throw std::logic_error("Bound import directory table was not obtained before calling this method!");
+        }
+        return &this->boundImportDirectoryTable;
+    }
+
+    std::vector<std::string> *PEFile::getImportDirectoryNames(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->importDirectoryNames.data())){
+            throw std::logic_error("Import directory names were not obtained before calling this method!");
+        }
+        return &this->importDirectoryNames;
+    }
+
+    std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>* PEFile::getImportByNameTable(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->importByNameTable.data())){
+            throw std::logic_error("Import by name table was not obtained before calling this method!");
+        }
+        return &this->importByNameTable;
+    }
+
 };

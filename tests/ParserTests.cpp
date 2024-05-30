@@ -5,6 +5,7 @@
 
 #include <tuple>
 #include <winnt.h>
+#include "better_braces.hpp"
 
 namespace PE_PARSER{
     std::unique_ptr<IMAGE_IMPORT_BY_NAME> createImageImportByName(WORD hint, const char* name){
@@ -19,7 +20,7 @@ namespace PE_PARSER{
         return importByName;
     }
 
-    std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>> createNameTable(std::optional<WORD> ordinal, WORD hint, const char* name){
+    std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>> createNameTable(WORD hint, const char* name, std::optional<WORD> ordinal = std::nullopt){
         return std::make_pair(ordinal, createImageImportByName(hint, name));
     }
 
@@ -201,29 +202,422 @@ namespace PE_PARSER{
                 )
         );
 
-        //ImportByNameTable byte data
-        std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>> importByNameTable = std::move(*peFile->getImportByNameTable());
-        std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>> expectedImportByNameTable = {
-                {
-                        createNameTable(std::nullopt, 0x51, "ImageList_BeginDrag"),
-                        createNameTable(std::nullopt, 0x5F, "ImageList_EndDrag"),
-                        createNameTable(std::nullopt, 0x76, "ImageList_SetIconSize"),
-                        createNameTable(std::nullopt, 0x59, "ImageList_DragMove"),
-                        createNameTable(std::nullopt, 0x5A, "ImageList_DragShowNolock"),
-                        std::make_pair(0x11, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
-                        createNameTable(std::nullopt, 0x50, "ImageList_AddMasked"),
-                        createNameTable(std::nullopt, 0x65, "ImageList_GetImageCount"),
-                        createNameTable(std::nullopt, 0x7C, "InitCommonControlsEx"),
-                        createNameTable(std::nullopt, 0x70, "ImageList_ReplaceIcon"),
-                        createNameTable(std::nullopt, 0x55, "ImageList_Destroy"),
-                        createNameTable(std::nullopt, 0x54, "ImageList_Create"),
-                        createNameTable(std::nullopt, 0x93, "_TrackMouseEvent"),
-                        createNameTable(std::nullopt, 0x66, "ImageList_GetImageInfo"),
-                        createNameTable(std::nullopt, 0x5B, "ImageList_Draw"),
-                        std::make_pair(0x19D, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
-                        std::make_pair(0x19C, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
-                        createNameTable(std::nullopt, 0x57, "ImageList_DragEnter"),
-                        std::make_pair(0x19A, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{}))
-                }};
-       }
+        std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>
+                importByNameTable = std::move(*peFile->getImportByNameTable()), expectedImportByNameTable{};
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x51, "ImageList_BeginDrag"),
+                createNameTable(0x5F, "ImageList_EndDrag"),
+                createNameTable(0x76, "ImageList_SetIconSize"),
+                createNameTable(0x59, "ImageList_DragMove"),
+                createNameTable(0x5A, "ImageList_DragShowNolock"),
+                std::make_pair(0x11, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
+                createNameTable(0x50, "ImageList_AddMasked"),
+                createNameTable(0x65, "ImageList_GetImageCount"),
+                createNameTable(0x7C, "InitCommonControlsEx"),
+                createNameTable(0x70, "ImageList_ReplaceIcon"),
+                createNameTable(0x55, "ImageList_Destroy"),
+                createNameTable(0x54, "ImageList_Create"),
+                createNameTable(0x93, "_TrackMouseEvent"),
+                createNameTable(0x66, "ImageList_GetImageInfo"),
+                createNameTable(0x5B, "ImageList_Draw"),
+                std::make_pair(0x19D, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
+                std::make_pair(0x19C, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
+                createNameTable(0x57, "ImageList_DragEnter"),
+                std::make_pair(0x19A, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{}))
+        });
+
+        expectedImportByNameTable.push_back(init{
+            createNameTable(0x69, "PathIsRelativeW"),
+            createNameTable(0xD, "ColorRGBToHLS"),
+            createNameTable(0x99, "PathStripPathW"),
+            createNameTable(0x37, "PathAppendW"),
+            createNameTable(0x35, "PathAddExtensionW"),
+            createNameTable(0x8D, "PathRemoveExtensionW"),
+            createNameTable(0x5F, "PathIsDirectoryW"),
+            createNameTable(0x3D, "PathCombineW"),
+            createNameTable(0x8, "AssocQueryStringW"),
+            createNameTable(0x7F, "PathMatchSpecW"),
+            createNameTable(0x4D, "PathFindFileNameW"),
+            createNameTable(0x59, "PathGetDriveNumberW"),
+            createNameTable(0x42, "PathCompactPathExW"),
+            createNameTable(0x4B, "PathFindExtensionW"),
+            createNameTable(0x49, "PathFileExistsW"),
+            createNameTable(0x8F, "PathRemoveFileSpecW"),
+            createNameTable(0xC, "ColorHLSToRGB")
+        });
+
+        expectedImportByNameTable.push_back(init{
+           createNameTable(0x140, "SHFileOperationW"),
+           createNameTable(0x9F, "SHCreateItemFromParsingName"),
+           createNameTable(0x29, "DragQueryPoint"),
+           createNameTable(0x24, "DragFinish"),
+           createNameTable(0x1B6, "ShellExecuteW"),
+           std::make_pair(0xA5, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
+           createNameTable(0x157, "SHGetFolderPathW"),
+           createNameTable(0x28, "DragQueryFileW"),
+           createNameTable(0x1C2, "Shell_NotifyIconW")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x16, "ImageNtHeader")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x7, "GetFileVersionInfoSizeW"),
+                createNameTable(0x8, "GetFileVersionInfoW"),
+                createNameTable(0x10, "VerQueryValueW")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0xC5, "CryptQueryObject"),
+                createNameTable(0x4B, "CertGetNameStringW"),
+                createNameTable(0x56, "CertNameToStrW"),
+                createNameTable(0x46, "CertGetCertificateContextProperty"),
+                createNameTable(0x35, "CertFindCertificateInStore"),
+                createNameTable(0x12, "CertCloseStore"),
+                createNameTable(0xB5, "CryptMsgGetParam"),
+                createNameTable(0xAE, "CryptMsgClose")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x8A, "WinVerifyTrust")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x1, "IsDestinationReachableW"),
+                createNameTable(0x2, "IsNetworkAlive")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x9F, "InternetCrackUrlW")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x76, "ImmSetCompositionStringW"),
+                createNameTable(0x2D, "ImmEscapeW"),
+                createNameTable(0x39, "ImmGetCompositionStringW"),
+                createNameTable(0x77, "ImmSetCompositionWindow"),
+                createNameTable(0x74, "ImmSetCompositionFontW"),
+                createNameTable(0x6B, "ImmReleaseContext"),
+                createNameTable(0x3B, "ImmGetContext"),
+                createNameTable(0x64, "ImmNotifyIME"),
+                createNameTable(0x72, "ImmSetCandidateWindow")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x0, "AlphaBlend")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x341, "GlobalLock"),
+                createNameTable(0x217, "GetCurrentDirectoryW"),
+                createNameTable(0x336, "GlobalAlloc"),
+                createNameTable(0x1AD, "FormatMessageW"),
+                createNameTable(0x312, "GetTimeFormatEx"),
+                createNameTable(0x227, "GetDateFormatEx"),
+                createNameTable(0x3B4, "LCMapStringW"),
+                createNameTable(0x168, "ExpandEnvironmentStringsW"),
+                createNameTable(0x517, "SetCurrentDirectoryW"),
+                createNameTable(0x1B1, "FreeLibrary"),
+                createNameTable(0x3CA, "LoadResource"),
+                createNameTable(0x3DE, "LockResource"),
+                createNameTable(0x58A, "SizeofResource"),
+                createNameTable(0x19C, "FindResourceW"),
+                createNameTable(0x222, "GetCurrentThreadId"),
+                createNameTable(0x86, "CloseHandle"),
+                createNameTable(0x524, "SetEvent"),
+                createNameTable(0x4CA, "ResetEvent"),
+                createNameTable(0x5E6, "WaitForSingleObject"),
+                createNameTable(0xBF, "CreateEventW"),
+                createNameTable(0xF2, "CreateThread"),
+                createNameTable(0xAD, "CopyFileW"),
+                createNameTable(0xCB, "CreateFileW"),
+                createNameTable(0x21D, "GetCurrentProcess"),
+                createNameTable(0x21E, "GetCurrentProcessId"),
+                createNameTable(0x3C7, "LoadLibraryW"),
+                createNameTable(0x4B4, "ReleaseMutex"),
+                createNameTable(0xDA, "CreateMutexW"),
+                createNameTable(0x58B, "Sleep"),
+                createNameTable(0x345, "GlobalSize"),
+                createNameTable(0x64C, "IstrcpynW"),
+                createNameTable(0x268, "GetLocalTime"),
+                createNameTable(0x5E4, "WaitForMultipleObjects"),
+                createNameTable(0xAA, "CopyFileExW"),
+                createNameTable(0x116, "DeleteFileW"),
+                createNameTable(0x324, "GetVersionExW"),
+                createNameTable(0xC8, "CreateFileMappingW"),
+                createNameTable(0x3E1, "MapViewOfFile"),
+                createNameTable(0x5BF, "UnmapViewOfFile"),
+                createNameTable(0x2FD, "GetTempPathW"),
+                createNameTable(0x53F, "SetLastError"),
+                createNameTable(0x71, "Cancello"),
+                createNameTable(0x58E, "SleepEx"),
+                createNameTable(0x5E7, "WaitForSingleObjectEx"),
+                createNameTable(0x45A, "QueueUserAPC"),
+                createNameTable(0x476, "ReadDirectoryChangesW"),
+                createNameTable(0x269, "GetLocaleInfoA"),
+                createNameTable(0x30E, "GetTickCount"),
+                createNameTable(0x3C4, "LoadLibraryA"),
+                createNameTable(0x2DD, "GetStringTypeExW"),
+                createNameTable(0x3B2, "LCMapStringA"),
+                createNameTable(0x2DC, "GetStringTypeExA"),
+                createNameTable(0x31B, "GetUserDefaultLCID"),
+                createNameTable(0x12F, "DuplicateHandle"),
+                createNameTable(0x5D8, "VirtualFree"),
+                createNameTable(0x5D5, "VirtualAlloc"),
+                createNameTable(0x27B, "GetModuleHandleA"),
+                createNameTable(0x1B2, "FreeLibraryAndExitThread"),
+                createNameTable(0x30C, "GetThreadTimes"),
+                createNameTable(0x221, "GetCurrentThread"),
+                createNameTable(0x5C5, "UnregisterWait"),
+                createNameTable(0x4AD, "RegisterWaitForSingleObject"),
+                createNameTable(0x313, "GetTimeFormatW"),
+                createNameTable(0x2B6, "GetProcessAffinityMask"),
+                createNameTable(0x290, "GetNumaHighestNodeNumber"),
+                createNameTable(0x11B, "DeleteTimerQueueTimer"),
+                createNameTable(0x78, "ChangeTimerQueueTimer"),
+                createNameTable(0xFA, "CreateTimerQueueTimer"),
+                createNameTable(0x26F, "GetLogicalProcessorInformation"),
+                createNameTable(0x308, "GetThreadPriority"),
+                createNameTable(0x56B, "SetThreadPriority"),
+                createNameTable(0x589, "SignalObjectAndWait"),
+                createNameTable(0x36C, "InitializeSListHead"),
+                createNameTable(0x2D7, "GetStartupInfoW"),
+                createNameTable(0x382, "IsDebuggerPresent"),
+                createNameTable(0x389, "IsProcessorFeaturePresent"),
+                createNameTable(0x59A, "TerminateProcess"),
+                createNameTable(0x57B, "SetUnhandledExceptionFilter"),
+                createNameTable(0x5BC, "UnhandledExceptionFilter"),
+                createNameTable(0x4E1, "RtlVirtualUnwind"),
+                createNameTable(0x4DA, "RtlLookupFunctionEntry"),
+                createNameTable(0x4D3, "RtlCaptureContext"),
+                createNameTable(0x26B, "GetLocaleInfoW"),
+                createNameTable(0x9B, "CompareStringW"),
+                createNameTable(0x9B, "CompareStringW"),
+                createNameTable(0x1C7, "GetCPInfo"),
+                createNameTable(0x2F0, "GetSystemTimeAsFileTime"),
+                createNameTable(0x5AD, "TlsFree"),
+                createNameTable(0x5AF, "TlsSetValue"),
+                createNameTable(0x5AE, "TlsGetValue"),
+                createNameTable(0x5AC, "TlsAlloc"),
+                createNameTable(0x595, "SwitchToThread"),
+                createNameTable(0x368, "InitializeCriticalSectionAndSpinCount"),
+                createNameTable(0x451, "QueryPerformanceFrequency"),
+                createNameTable(0x450, "QueryPerformanceCounter"),
+                createNameTable(0x466, "RaiseException"),
+                createNameTable(0x10A, "DecodePointer"),
+                createNameTable(0x131, "EncodePointer"),
+                createNameTable(0x4DC, "RtlPcToFileHeader"),
+                createNameTable(0x2DE, "GetStringTypeW"),
+                createNameTable(0x111, "DeleteCriticalSection"),
+                createNameTable(0x5B5, "TryEnterCriticalSection"),
+                createNameTable(0x3C0, "LeaveCriticalSection"),
+                createNameTable(0x135, "EnterCriticalSection"),
+                createNameTable(0xBA, "CreateDirectoryW"),
+                createNameTable(0x97, "CompareFileTime"),
+                createNameTable(0x64F, "IstrlenW"),
+                createNameTable(0x643, "IstrcmpW"),
+                createNameTable(0x24C, "GetFileAttributesW"),
+                createNameTable(0x192, "FindNextFileW"),
+                createNameTable(0x186, "FindFirstFileW"),
+                createNameTable(0x17B, "FindClose"),
+                createNameTable(0x60D, "WideCharToMultiByte"),
+                createNameTable(0x3F2, "MultiByteToWideChar"),
+                createNameTable(0x1B8, "GetACP"),
+                createNameTable(0x33D, "GlobalFree"),
+                createNameTable(0x27A, "GetModuleFileNameW"),
+                createNameTable(0x322, "GetVersion"),
+                createNameTable(0x3F1, "MulDiv"),
+                createNameTable(0x3D2, "LocalFree"),
+                createNameTable(0x3CD, "LocalAlloc"),
+                createNameTable(0x228, "GetDateFormatW"),
+                createNameTable(0x267, "GetLastError"),
+                createNameTable(0x41C, "OutputDebugStringW"),
+                createNameTable(0x646, "IstrcmpiW"),
+                createNameTable(0x3C6, "LoadLibraryExW"),
+                createNameTable(0x2B5, "GetProcAddress"),
+                createNameTable(0x27E, "GetModuleHandleW"),
+                createNameTable(0x5DB, "VirtualProtect"),
+                createNameTable(0x4B8, "ReleaseSemaphore"),
+                createNameTable(0x371, "InterlockedPopEntrySList"),
+                createNameTable(0x348, "GlobalUnlock"),
+                createNameTable(0x170, "FileTimeToSystemTime"),
+                createNameTable(0x597, "SystemTimeToTzSpecificLocalTime"),
+                createNameTable(0x3EB, "MoveFileExW"),
+                createNameTable(0x649, "IstrcpyW"),
+                createNameTable(0x52B, "SetFileAttributesW"),
+                createNameTable(0x274, "GetLongPathNameW"),
+                createNameTable(0x260, "GetFullPathNameW"),
+                createNameTable(0x560, "SetThreadAffinityMask"),
+                createNameTable(0x249, "GetFileAttributesExW"),
+                createNameTable(0x372, "InterlockedPushEntrySList"),
+                createNameTable(0x370, "InterlockedFlushSList"),
+                createNameTable(0x446, "QueryDepthSList"),
+                createNameTable(0x5C6, "UnregisterWaitEx"),
+                createNameTable(0xF9, "CreateTimerQueue"),
+                createNameTable(0x4E0, "RtlUnwindEx"),
+                createNameTable(0x477, "ReadFile"),
+                createNameTable(0x164, "ExitProcess"),
+                createNameTable(0x27D, "GetModuleHandleExW"),
+                createNameTable(0x165, "ExitThread"),
+                createNameTable(0x2D9, "GetStdHandle"),
+                createNameTable(0x621, "WriteFile"),
+                createNameTable(0x34E, "HeapAlloc"),
+                createNameTable(0x352, "HeapFree"),
+                createNameTable(0x255, "GetFileType"),
+                createNameTable(0x202, "GetConsoleMode"),
+                createNameTable(0x474, "ReadConsoleW"),
+                createNameTable(0x390, "IsValidLocale"),
+                createNameTable(0x159, "EnumSystemLocalesW"),
+                createNameTable(0x315, "GetTimeZoneInformation"),
+                createNameTable(0x1A5, "FlushFileBuffers"),
+                createNameTable(0x1F0, "GetConsoleCP"),
+                createNameTable(0x531, "SetFilePointerEx"),
+                createNameTable(0x253, "GetFileSizeEx"),
+                createNameTable(0x38E, "IsValidCodePage"),
+                createNameTable(0x29E, "GetOEMCP"),
+                createNameTable(0x355, "HeapReAlloc"),
+                createNameTable(0x181, "FindFirstFileExW"),
+                createNameTable(0x1DC, "GetCommandLineA"),
+                createNameTable(0x1DD, "GetCommandLineW"),
+                createNameTable(0x23E, "GetEnvironmentStringsW"),
+                createNameTable(0x1B0, "FreeEnvironmentStringsW"),
+                createNameTable(0x522, "SetEnvironmentVariableW"),
+                createNameTable(0x4DF, "RtlUnwind"),
+                createNameTable(0x2BB, "GetProcessHeap"),
+                createNameTable(0x557, "SetStdHandle"),
+                createNameTable(0x357, "HeapSize"),
+                createNameTable(0x51E, "SetEndOfFile"),
+                createNameTable(0x620, "WriteConsoleW"),
+                createNameTable(0x2EA, "GetSystemInfo")
+        });
+
+        expectedImportByNameTable.push_back(init{
+
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x17A, "DeleteDC"),
+                createNameTable(0x2AE, "GetPixel"),
+                createNameTable(0x13, "BitBlt"),
+                createNameTable(0x323, "RestoreDC"),
+                createNameTable(0x31, "CreateCompatibleDC"),
+                createNameTable(0x2A7, "GetObjectW"),
+                createNameTable(0x275, "GetDeviceCaps"),
+                createNameTable(0x35B, "SelectObject"),
+                createNameTable(0x30, "CreateCompatibleBitmap"),
+                createNameTable(0x2F4, "MoveToEx"),
+                createNameTable(0x2E2, "LineTo"),
+                createNameTable(0x46, "CreateHatchBrush"),
+                createNameTable(0x2D1, "GetTextMetricsW"),
+                createNameTable(0x383, "SetROP2"),
+                createNameTable(0x2B2, "GetROP2"),
+                createNameTable(0x44, "CreateFontW"),
+                createNameTable(0x1D1, "ExtTextOutW"),
+                createNameTable(0x32A, "SaveDC"),
+                createNameTable(0x2F9, "OffsetWindowOrgEx"),
+                createNameTable(0x29, "CreateBitmap"),
+                createNameTable(0x4E, "CreatePatternBrush"),
+                createNameTable(0x300, "PatBlt"),
+                createNameTable(0x366, "SetBrushOrgEx"),
+                createNameTable(0x274, "GetDIBits"),
+                createNameTable(0x36C, "SetDIBits"),
+                createNameTable(0x1BE, "EnumFontFamiliesExW"),
+                createNameTable(0x388, "SetTextAlign"),
+                createNameTable(0x394, "StartDocW"),
+                createNameTable(0x188, "EndDoc"),
+                createNameTable(0x396, "StartPage"),
+                createNameTable(0x18B, "EndPage"),
+                createNameTable(0x13B, "DPtoLP"),
+                createNameTable(0x2CC, "GetTextExtentPointW"),
+                createNameTable(0x397, "StretchBlt"),
+                createNameTable(0x22, "CombineRgn"),
+                createNameTable(0x2DC, "IntersectClipRect"),
+                createNameTable(0x324, "RoundRect"),
+                createNameTable(0x186, "Ellipse"),
+                createNameTable(0x310, "Polygon"),
+                createNameTable(0x2C4, "GetTextExtentExPointA"),
+                createNameTable(0x2C6, "GetTextExtentExPointW"),
+                createNameTable(0x2C8, "GetTextExtentPoint32A"),
+                createNameTable(0x37, "CreateDIBSection"),
+                createNameTable(0x1D0, "ExtTextOutA"),
+                createNameTable(0x38A, "SetTextColor"),
+                createNameTable(0x363, "SetBkMode"),
+                createNameTable(0x311, "Polyline"),
+                createNameTable(0x359, "SelectClipRgn"),
+                createNameTable(0x319, "Rectangle"),
+                createNameTable(0x2C9, "GetTextExtentPoint32W"),
+                createNameTable(0x2B8, "GetStockObject"),
+                createNameTable(0x269, "GetClipRgn"),
+                createNameTable(0x1CA, "ExcludeClipRect"),
+                createNameTable(0x17D, "DeleteObject"),
+                createNameTable(0x59, "CreateSolidBrush"),
+                createNameTable(0x54, "CreateRectRgnIndirect"),
+                createNameTable(0x53, "CreateRectRgn"),
+                createNameTable(0x4F, "CreatePen"),
+                createNameTable(0x43, "CreateFontIndirectW"),
+                createNameTable(0x362, "SetBkColor"),
+                createNameTable(0x391, "SetWindowOrgEx"),
+                createNameTable(0x3F, "CreateFontA")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x1, "ChooseColorW"),
+                createNameTable(0x15, "PrintDlgW")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x25B, "RegCloseKey"),
+                createNameTable(0x28C, "RegOpenKeyExW"),
+                createNameTable(0x299, "RegQueryValueExW"),
+                createNameTable(0x20, "AllocateAndInitializeSid"),
+                createNameTable(0x5F, "CheckTokenMembership"),
+                createNameTable(0x134, "FreeSid"),
+                createNameTable(0x264, "RegCreateKeyExW"),
+                createNameTable(0x26F, "RegDeleteKeyW"),
+                createNameTable(0x273, "RegDeleteValueW"),
+                createNameTable(0x27A, "RegEnumKeyExW"),
+                createNameTable(0x293, "RegQueryInfoKeyW"),
+                createNameTable(0x2A9, "RegSetValueExW"),
+                createNameTable(0x198, "IsTextUnicode"),
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0xE, "CLSIDFromProgID"),
+                createNameTable(0x1D8, "RegisterDragDrop"),
+                createNameTable(0x1AB, "OleInitialize"),
+                createNameTable(0xB4, "DoDragDrop"),
+                createNameTable(0x1C8, "OleUninitialize"),
+                createNameTable(0x1D9, "ReleaseStgMedium"),
+                createNameTable(0x60, "CoInitialize"),
+                createNameTable(0x90, "CoUninitialize"),
+                createNameTable(0x8C, "CoTaskMemFree"),
+                createNameTable(0x2B, "CoCreateInstance"),
+                createNameTable(0x1DB, "RevokeDragDrop")
+        });
+
+        expectedImportByNameTable.push_back(init{
+                std::make_pair(0x2, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
+                std::make_pair(0x6, std::move(std::unique_ptr<IMAGE_IMPORT_BY_NAME>{})),
+        });
+
+        expectedImportByNameTable.push_back(init{
+                createNameTable(0x4D, "OpenThemeData"),
+                createNameTable(0x9, "CloseThemeData"),
+                createNameTable(0xD, "DrawThemeBackground"),
+                createNameTable(0x25, "GetThemeBackgroundContentRect"),
+                createNameTable(0x33, "GetThemePartSize"),
+                createNameTable(0x2E, "GetThemeFont"),
+                createNameTable(0x51, "SetWindowTheme"),
+                createNameTable(0x15, "EnableThemeDialogTexture"),
+                createNameTable(0x11, "DrawThemeParentBackground"),
+                createNameTable(0x43, "GetTehemeTransitionDuration"),
+                createNameTable(0x5, "BufferedPaintRenderAnimation"),
+                createNameTable(0x17, "EndBufferedAnimation"),
+                createNameTable(0x0, "BeginBufferedAnimation"),
+                createNameTable(0x7, "BufferedPaintStopAllAnimations"),
+                createNameTable(0x14, "DrawThemeTextEx")
+        });
+    }
 };

@@ -115,7 +115,7 @@ namespace PE_PARSER{
             //Obtain Import Lookup Tables for Imports
             for(auto& importRow : *peFile->getImportDirectoryTable()){
                 this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(importRow.OriginalFirstThunk));
-                peFile->getImportDirectoryTable(true)->push_back({});
+                peFile->getImportByNameTable(true)->push_back({});
 
                 while(boost::apply_visitor([this, peFile](auto x) -> bool {
                     this->copyBytesToVariable(*x);

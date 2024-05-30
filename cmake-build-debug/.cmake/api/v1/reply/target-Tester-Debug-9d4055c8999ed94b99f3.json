@@ -355,10 +355,6 @@
 	[
 		{
 			"backtrace" : 2,
-			"id" : "gtest_main::@a4432ad443712679b6ad"
-		},
-		{
-			"backtrace" : 2,
 			"id" : "gmock_main::@8ef480c43141331a0779"
 		},
 		{
@@ -368,6 +364,10 @@
 		{
 			"backtrace" : 2,
 			"id" : "gtest::@a4432ad443712679b6ad"
+		},
+		{
+			"backtrace" : 2,
+			"id" : "gtest_main::@a4432ad443712679b6ad"
 		},
 		{
 			"backtrace" : 2,

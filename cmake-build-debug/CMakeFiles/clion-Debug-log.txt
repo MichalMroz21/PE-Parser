@@ -25,6 +25,6 @@ Call Stack (most recent call first):
 -- Detecting C compile features - done
 -- Boost: Debug build, static libraries, MPI OFF, Python OFF, testing OFF
 -- Boost: libraries included: describe;type_index;endian;algorithm;variant;date_time;dynamic_bitset
--- Configuring done (9.4s)
+-- Configuring done (7.4s)
 -- Generating done (1.0s)
 -- Build files have been written to: D:/PE-Parser/cmake-build-debug

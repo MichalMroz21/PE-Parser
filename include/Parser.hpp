@@ -19,6 +19,8 @@
 #include <Structure.hpp>
 #include <Buffer.hpp>
 
+#include <better_braces.hpp>
+
 //Class for extracting bytes from Portable Executables
 namespace PE_PARSER{
 

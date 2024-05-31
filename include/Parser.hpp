@@ -70,7 +70,10 @@ namespace PE_PARSER{
         
         PE_BUFFER::Buffer* buffer{};
         
-        static constexpr bool isBigEndian = (std::endian::native == std::endian::big); 
+        static constexpr bool isBigEndian = (std::endian::native == std::endian::big);
+
+        void getBoundImportDirectoryData(PE_DATA::PEFile* peFile),
+             getImportDirectoryData(PE_DATA::PEFile* peFile);
     };
 
 };

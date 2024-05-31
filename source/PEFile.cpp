@@ -323,4 +323,11 @@ namespace PE_DATA{
         return &this->boundImportDirectoryNames;
     }
 
+    std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* PEFile::getBaseRelocationTable(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->baseRelocationDirectoryTable.data())){
+            throw std::logic_error("Base relocation directory table was not obtained before calling this method!");
+        }
+        return &this->baseRelocationDirectoryTable;
+    }
+
 };

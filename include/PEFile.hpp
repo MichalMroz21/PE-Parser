@@ -119,6 +119,7 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR>* getBoundImportDirectoryTable(bool getEmpty = false);
         [[nodiscard]] std::vector<std::string>* getImportDirectoryNames(bool getEmpty = false);
         [[nodiscard]] std::vector<std::string>* getBoundImportDirectoryNames(bool getEmpty = false);
+        [[nodiscard]] std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* getBaseRelocationTable(bool getEmpty = false);
 
         [[nodiscard]] HeaderVariant getOptionalHeader(bool getEmpty = false);
 
@@ -184,6 +185,8 @@ namespace PE_DATA{
 
         std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> boundImportDirectoryTable{};
         std::vector<std::string> boundImportDirectoryNames{};
+
+        std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>> baseRelocationDirectoryTable{};
 
         bool is64Bit = false, wasTypeSet = false;
     };

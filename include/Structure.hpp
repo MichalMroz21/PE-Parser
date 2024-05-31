@@ -76,4 +76,6 @@ BOOST_DESCRIBE_STRUCT(IMAGE_SECTION_HEADER, (), (Name, Misc, VirtualAddress, Siz
 BOOST_DESCRIBE_STRUCT(IMAGE_IMPORT_DESCRIPTOR , (), (OriginalFirstThunk, TimeDateStamp, ForwarderChain, Name, FirstThunk));
 BOOST_DESCRIBE_STRUCT(IMAGE_BOUND_IMPORT_DESCRIPTOR, (), (TimeDateStamp, OffsetModuleName, NumberOfModuleForwarderRefs));
 
+BOOST_DESCRIBE_STRUCT(IMAGE_BASE_RELOCATION, (), (VirtualAddress, SizeOfBlock));
+
 #endif

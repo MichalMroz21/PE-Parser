@@ -74,6 +74,8 @@ namespace PE_PARSER{
 
         void getBoundImportDirectoryData(PE_DATA::PEFile* peFile),
              getImportDirectoryData(PE_DATA::PEFile* peFile);
+
+        void getBaseRelactionDirectoryData(PE_DATA::PEFile *pFile);
     };
 
 };

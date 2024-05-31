@@ -161,6 +161,28 @@ namespace PE_PARSER{
         }
     }
 
+    void Parser::getBaseRelactionDirectoryData(PE_DATA::PEFile *peFile){
+        this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory));
+
+        while(true){
+            IMAGE_BASE_RELOCATION baseRelocation{};
+            this->copyBytesToStruct(baseRelocation);
+
+            if(!peFile->isTypeSet(&baseRelocation)) break;
+
+            peFile->getBaseRelocationTable(true)->emplace_back(baseRelocation, std::vector<WORD>{});
+
+            DWORD amountOfRelocations = (baseRelocation.SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD);
+
+            for (DWORD i = 0; i < amountOfRelocations; i++) {
+                WORD relocation{};
+                this->copyBytesToVariable(relocation);
+                if(relocation == 0) continue;
+                peFile->getBaseRelocationTable(true)->back().second.push_back(relocation);
+            }
+        }
+    }
+
     PE_DATA::PEFile* Parser::loadPEFile(){
         auto* peFile = new PE_DATA::PEFile();
 
@@ -200,6 +222,10 @@ namespace PE_PARSER{
         //Obtain Bound Import Directory Table
         if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::boundImportDirectory).second){
             this->getBoundImportDirectoryData(peFile); //!Leaves buffer at random address
+        }
+
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory).second){
+            this->getBaseRelactionDirectoryData(peFile); //!Leaves buffer at random address
         }
 
         this->freeBuffer();

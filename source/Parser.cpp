@@ -161,7 +161,7 @@ namespace PE_PARSER{
         }
     }
 
-    void Parser::getBaseRelactionDirectoryData(PE_DATA::PEFile *peFile){
+    void Parser::getBaseRelocationDirectoryData(PE_DATA::PEFile *peFile){
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory));
 
         while(true){
@@ -225,7 +225,7 @@ namespace PE_PARSER{
         }
 
         if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory).second){
-            this->getBaseRelactionDirectoryData(peFile); //!Leaves buffer at random address
+            this->getBaseRelocationDirectoryData(peFile); //!Leaves buffer at random address
         }
 
         this->freeBuffer();

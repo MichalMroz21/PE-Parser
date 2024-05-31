@@ -316,4 +316,11 @@ namespace PE_DATA{
         return &this->importByNameTable;
     }
 
+    std::vector<std::string> *PEFile::getBoundImportDirectoryNames(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->boundImportDirectoryNames.data())){
+            throw std::logic_error("Bound import directory names were not obtained before calling this method!");
+        }
+        return &this->boundImportDirectoryNames;
+    }
+
 };

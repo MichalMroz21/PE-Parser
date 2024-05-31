@@ -41,7 +41,7 @@ namespace PE_PARSER{
             throw std::logic_error("Trying to read from a buffer that has no more data to copy from");
         }
 
-        if(!this->isBigEndian){
+        if(!PE_PARSER::Parser::isBigEndian){
             memcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
         }
         else{
@@ -115,7 +115,7 @@ namespace PE_PARSER{
             //Obtain Import Lookup Tables for Imports
             for(auto& importRow : *peFile->getImportDirectoryTable()){
                 this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(importRow.OriginalFirstThunk));
-                peFile->getImportByNameTable(true)->push_back({});
+                peFile->getImportByNameTable(true)->emplace_back();
 
                 while(boost::apply_visitor([this, peFile](auto x) -> bool {
                     this->copyBytesToVariable(*x);
@@ -155,11 +155,19 @@ namespace PE_PARSER{
             this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::boundImportDirectory));
             IMAGE_BOUND_IMPORT_DESCRIPTOR boundImportRow{};
 
+            //Get Bound Import Directory Table
             while(true){
                 this->buffer->cutBytes(sizeof(IMAGE_BOUND_FORWARDER_REF) * boundImportRow.NumberOfModuleForwarderRefs);
                 this->copyBytesToStruct(boundImportRow);
                 if(!peFile->isTypeSet(&boundImportRow)) break;
                 peFile->getBoundImportDirectoryTable(true)->push_back(boundImportRow);
+            }
+
+            //Get DLL names from Bound Import Directory Table
+            for(auto& boundRow : *peFile->getBoundImportDirectoryTable()){
+                this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::boundImportDirectory));
+                this->buffer->cutBytes(boundRow.OffsetModuleName);
+                peFile->getBoundImportDirectoryNames(true)->push_back(this->getNullTerminatedString());
             }
         }
 

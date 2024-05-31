@@ -118,6 +118,7 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>* getImportByNameTable(bool getEmpty = false);
         [[nodiscard]] std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR>* getBoundImportDirectoryTable(bool getEmpty = false);
         [[nodiscard]] std::vector<std::string>* getImportDirectoryNames(bool getEmpty = false);
+        [[nodiscard]] std::vector<std::string>* getBoundImportDirectoryNames(bool getEmpty = false);
 
         [[nodiscard]] HeaderVariant getOptionalHeader(bool getEmpty = false);
 
@@ -182,6 +183,7 @@ namespace PE_DATA{
         std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>> importByNameTable{};
 
         std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> boundImportDirectoryTable{};
+        std::vector<std::string> boundImportDirectoryNames{};
 
         bool is64Bit = false, wasTypeSet = false;
     };

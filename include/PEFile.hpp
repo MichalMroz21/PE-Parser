@@ -27,6 +27,7 @@ namespace PE_DATA{
     using HeaderVariant = boost::variant<Header32*, Header64*>;
     using ConfigVariant = boost::variant<IMAGE_LOAD_CONFIG_DIRECTORY32*, IMAGE_LOAD_CONFIG_DIRECTORY64*>;
     using ConfigRestVariant = boost::variant<PE_STRUCTURE::LoadConfigDirectory32_Rest*, PE_STRUCTURE::LoadConfigDirectory64_Rest*>;
+    using TLSVariant = boost::variant<IMAGE_TLS_DIRECTORY32*, IMAGE_TLS_DIRECTORY64*>;
 
     class PEFile {
         friend class PE_PARSER::Parser;
@@ -144,6 +145,14 @@ namespace PE_DATA{
         [[nodiscard]] std::pair<DWORD, std::size_t> delayImportDescriptor();
         [[nodiscard]] std::pair<DWORD, std::size_t> clrRuntimeHeader();
 
+        //TLS Directory data
+        [[nodiscard]] ULONGLONG tlsStartAddressOfRawData();
+        [[nodiscard]] ULONGLONG tlsEndAddressOfRawData();
+        [[nodiscard]] ULONGLONG tlsAddressOfIndex();
+        [[nodiscard]] ULONGLONG tlsAddressOfCallBacks();
+        [[nodiscard]] ULONGLONG tlsSizeOfZeroFill();
+        [[nodiscard]] ULONGLONG tlsCharacteristics();
+
         //Section Headers data
         [[nodiscard]] std::vector<IMAGE_SECTION_HEADER>* getSectionHeaders(bool getEmpty = false);
 
@@ -159,6 +168,7 @@ namespace PE_DATA{
         [[nodiscard]] HeaderVariant getOptionalHeader(bool getEmpty = false);
         [[nodiscard]] ConfigVariant getLoadConfigDirectory(bool getEmpty = false);
         [[nodiscard]] ConfigRestVariant getLoadConfigDirectoryRest(bool getEmpty = false);
+        [[nodiscard]] TLSVariant getTLSDirectory(bool getEmpty = false);
 
         [[nodiscard]] IMAGE_DOS_HEADER* getDosHeader(bool getEmpty = false);
         [[nodiscard]] PE_STRUCTURE::ImageHeader* getImageHeader(bool getEmpty = false);
@@ -209,10 +219,18 @@ namespace PE_DATA{
             GuardLongJumpTargetTable, GuardLongJumpTargetCount
         };
 
+        enum class TLSData{
+            StartAddressOfRawData = 0, EndAddressOfRawData, AddressOfIndex,
+            AddressOfCallBacks, SizeOfZeroFill, Characteristics
+        };
+
         std::pair<DWORD, std::size_t> getDataDirectoryPairEnum(DataDirectory dir);
 
         template<typename AttrType>
         AttrType getOptHeaderAttr(OptHeaderAttr attr);
+
+        template<typename AttrType>
+        AttrType getTLSData(TLSData tlsData);
 
         template<typename T>
         bool isTypeSet(T *type){
@@ -231,6 +249,9 @@ namespace PE_DATA{
 
         IMAGE_LOAD_CONFIG_DIRECTORY32 loadConfigDirectory32{};
         IMAGE_LOAD_CONFIG_DIRECTORY64 loadConfigDirectory64{};
+
+        IMAGE_TLS_DIRECTORY32 tlsDirectory32{};
+        IMAGE_TLS_DIRECTORY64 tlsDirectory64{};
 
         PE_STRUCTURE::LoadConfigDirectory32_Rest loadConfigDirectoryRest32{};
         PE_STRUCTURE::LoadConfigDirectory64_Rest loadConfigDirectoryRest64{};

@@ -82,4 +82,7 @@ BOOST_DESCRIBE_STRUCT(IMAGE_DEBUG_DIRECTORY, (), (Characteristics, TimeDateStamp
 BOOST_DESCRIBE_STRUCT(IMAGE_LOAD_CONFIG_DIRECTORY32, (), (Size, TimeDateStamp, MajorVersion, MinorVersion, GlobalFlagsClear, GlobalFlagsSet, CriticalSectionDefaultTimeout, DeCommitFreeBlockThreshold, DeCommitTotalFreeThreshold, LockPrefixTable, MaximumAllocationSize, VirtualMemoryThreshold, ProcessHeapFlags, ProcessAffinityMask, CSDVersion, Reserved1, EditList, SecurityCookie, SEHandlerTable, SEHandlerCount));
 BOOST_DESCRIBE_STRUCT(IMAGE_LOAD_CONFIG_DIRECTORY64, (), (Size, TimeDateStamp, MajorVersion, MinorVersion, GlobalFlagsClear, GlobalFlagsSet, CriticalSectionDefaultTimeout, DeCommitFreeBlockThreshold, DeCommitTotalFreeThreshold, LockPrefixTable, MaximumAllocationSize, VirtualMemoryThreshold, ProcessAffinityMask, ProcessHeapFlags, CSDVersion, Reserved1, EditList, SecurityCookie, SEHandlerTable, SEHandlerCount));
 
+BOOST_DESCRIBE_STRUCT(IMAGE_TLS_DIRECTORY32, (), (StartAddressOfRawData, EndAddressOfRawData, AddressOfIndex, AddressOfCallBacks, SizeOfZeroFill, Characteristics));
+BOOST_DESCRIBE_STRUCT(IMAGE_TLS_DIRECTORY64, (), (StartAddressOfRawData, EndAddressOfRawData, AddressOfIndex, AddressOfCallBacks, SizeOfZeroFill, Characteristics));
+
 #endif

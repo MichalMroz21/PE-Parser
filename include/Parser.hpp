@@ -79,6 +79,8 @@ namespace PE_PARSER{
         void getDebugDirectoryData(PE_DATA::PEFile* peFile);
 
         void getLoadConfigDirectoryData(PE_DATA::PEFile *pFile);
+
+        void getTLSDirectoryData(PE_DATA::PEFile *pFile);
     };
 
 };

@@ -210,6 +210,14 @@ namespace PE_PARSER{
         }, peFile->getLoadConfigDirectoryRest(true));
     }
 
+    void Parser::getTLSDirectoryData(PE_DATA::PEFile *peFile) {
+        this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::tlsDirectory));
+
+        boost::apply_visitor([this, peFile](auto x){
+            this->copyBytesToStruct(*x);
+        }, peFile->getTLSDirectory(true));
+    }
+
     PE_DATA::PEFile* Parser::loadPEFile(){
         auto* peFile = new PE_DATA::PEFile();
 
@@ -262,6 +270,10 @@ namespace PE_PARSER{
 
         if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::loadConfigDirectory).second){
             this->getLoadConfigDirectoryData(peFile); //!Leaves buffer at random address
+        }
+
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::tlsDirectory).second){
+            this->getTLSDirectoryData(peFile); //!Leaves buffer at random address
         }
 
         this->freeBuffer();

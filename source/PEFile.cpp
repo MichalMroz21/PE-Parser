@@ -573,4 +573,68 @@ namespace PE_DATA{
         return this->getLoadConfigData<WORD>(LoadConfigData::DependentLoadFlags);
     }
 
+    TLSVariant PEFile::getTLSDirectory(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(&this->tlsDirectory32) && !this->isTypeSet(&this->tlsDirectory64)){
+            throw std::logic_error("TLS directory was not obtained before calling this method!");
+        }
+
+        if(this->getIs64Bit()) {
+            return TLSVariant(&this->tlsDirectory64);
+        }
+        else{
+            return TLSVariant(&this->tlsDirectory32);
+        }
+
+    }
+
+    template<typename AttrType>
+    AttrType PEFile::getTLSData(PEFile::TLSData tlsData){
+        return boost::apply_visitor([&tlsData](auto x) -> AttrType {
+            if constexpr (std::is_same_v<decltype(*x), IMAGE_TLS_DIRECTORY32&> || std::is_same_v<decltype(*x), IMAGE_TLS_DIRECTORY64&>){
+                switch(tlsData){
+                    case TLSData::StartAddressOfRawData:
+                        return x->StartAddressOfRawData;
+                    case TLSData::EndAddressOfRawData:
+                        return x->EndAddressOfRawData;
+                    case TLSData::AddressOfIndex:
+                        return x->AddressOfIndex;
+                    case TLSData::AddressOfCallBacks:
+                        return x->AddressOfCallBacks;
+                    case TLSData::SizeOfZeroFill:
+                        return x->SizeOfZeroFill;
+                    case TLSData::Characteristics:
+                        return x->Characteristics;
+                    default:
+                        throw std::invalid_argument("Invalid enum argument");
+                }
+            }
+            else{
+                throw std::logic_error("Invalid type returned from getTLSDirectory");
+            }
+        }, this->getTLSDirectory() );
+    }
+
+    ULONGLONG PEFile::tlsStartAddressOfRawData() {
+        return this->getTLSData<ULONGLONG>(TLSData::StartAddressOfRawData);
+    }
+
+    ULONGLONG PEFile::tlsEndAddressOfRawData() {
+        return this->getTLSData<ULONGLONG>(TLSData::EndAddressOfRawData);
+    }
+
+    ULONGLONG PEFile::tlsAddressOfIndex() {
+        return this->getTLSData<ULONGLONG>(TLSData::AddressOfIndex);
+    }
+
+    ULONGLONG PEFile::tlsAddressOfCallBacks() {
+        return this->getTLSData<ULONGLONG>(TLSData::AddressOfCallBacks);
+    }
+
+    ULONGLONG PEFile::tlsSizeOfZeroFill() {
+        return this->getTLSData<ULONGLONG>(TLSData::SizeOfZeroFill);
+    }
+
+    ULONGLONG PEFile::tlsCharacteristics() {
+        return this->getTLSData<ULONGLONG>(TLSData::Characteristics);
+    }
 };

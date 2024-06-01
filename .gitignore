@@ -3,6 +3,8 @@ build
 CMakePresets.json
 CMakeSettings.json
 sh.exe.stackdump
+cmake-build-debug
+.idea
 
 # Prerequisites
 *.d

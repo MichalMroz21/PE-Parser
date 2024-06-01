@@ -922,5 +922,17 @@ namespace PE_PARSER{
                         }
                 )
         );
+
+        ASSERT_THAT(
+                (std::vector<ULONGLONG>{
+                        peFile->tlsStartAddressOfRawData(), peFile->tlsEndAddressOfRawData(), peFile->tlsAddressOfIndex(),
+                        peFile->tlsAddressOfCallBacks(), peFile->tlsSizeOfZeroFill(), peFile->tlsCharacteristics()
+                }),
+                ::testing::ElementsAreArray(
+                        std::vector<ULONGLONG>{
+                            0x1403D09E8, 0x1403D09F0, 0x140450870, 0x140336498, 0x0, 0x300000
+                        }
+                )
+        );
     }
 };

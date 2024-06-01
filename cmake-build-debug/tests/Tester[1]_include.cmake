@@ -1,5 +1,0 @@
-if(EXISTS "D:/PE-Parser/cmake-build-debug/tests/Tester[1]_tests.cmake")
-  include("D:/PE-Parser/cmake-build-debug/tests/Tester[1]_tests.cmake")
-else()
-  add_test(Tester_NOT_BUILT Tester_NOT_BUILT)
-endif()

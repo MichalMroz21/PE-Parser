@@ -74,7 +74,7 @@ namespace PE_DATA{
         }, this->getOptionalHeader());
     }
 
-    PE_STRUCTURE::DosHeader* PEFile::getDosHeader(bool getEmpty){
+    IMAGE_DOS_HEADER* PEFile::getDosHeader(bool getEmpty){
         if(!getEmpty && !this->isTypeSet(&this->dosHeader)){
             throw std::logic_error("Dos header was not obtained before calling this method!");
         }
@@ -102,7 +102,7 @@ namespace PE_DATA{
 
     //DosHeader Data
     DWORD PEFile::headerAddress() { return this->getDosHeader()->e_lfanew; }
-    WORD PEFile::magicNumber() { return this->getDosHeader()->magic; }
+    WORD PEFile::magicNumber() { return this->getDosHeader()->e_magic; }
     WORD PEFile::lastPageBytes() { return this->getDosHeader()->e_cblp; }
     WORD PEFile::pagesInFile() { return this->getDosHeader()->e_cp; }
     WORD PEFile::relocations() { return this->getDosHeader()->e_crlc; }
@@ -328,6 +328,249 @@ namespace PE_DATA{
             throw std::logic_error("Base relocation directory table was not obtained before calling this method!");
         }
         return &this->baseRelocationDirectoryTable;
+    }
+
+    std::vector<IMAGE_DEBUG_DIRECTORY> *PEFile::getDebugDirectoryTable(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->debugDirectoryTable.data())){
+            throw std::logic_error("Debug directory table was not obtained before calling this method!");
+        }
+        return &this->debugDirectoryTable;
+    }
+
+    ConfigVariant PEFile::getLoadConfigDirectory(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(&this->loadConfigDirectory64) && !this->isTypeSet(&this->loadConfigDirectory32)){
+            throw std::logic_error("Load config directory was not obtained before calling this method!");
+        }
+
+        if(this->getIs64Bit())
+            return ConfigVariant(&this->loadConfigDirectory64);
+        else
+            return ConfigVariant(&this->loadConfigDirectory32);
+    }
+
+    ConfigRestVariant PEFile::getLoadConfigDirectoryRest(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(&this->loadConfigDirectoryRest64) && !this->isTypeSet(&this->loadConfigDirectoryRest32)){
+            throw std::logic_error("Load config directory rest was not obtained before calling this method!");
+        }
+
+        if(this->getIs64Bit())
+            return ConfigRestVariant(&this->loadConfigDirectoryRest64);
+        else
+            return ConfigRestVariant(&this->loadConfigDirectoryRest32);
+    }
+
+    template<typename AttrType>
+    AttrType PEFile::getLoadConfigData(PEFile::LoadConfigData confData){
+        if(static_cast<int>(confData) > static_cast<int>(LoadConfigData::SEHandlerCount)){
+            return boost::apply_visitor([&confData](auto x) -> AttrType {
+                if(std::is_same_v<decltype(*x), PE_STRUCTURE::LoadConfigDirectory32_Rest&> || std::is_same_v<decltype(*x), PE_STRUCTURE::LoadConfigDirectory64_Rest&>){
+                    switch(confData){
+                        case LoadConfigData::GuardCFCheckFunctionPointer:
+                            return x->GuardCFCheckFunctionPointer;
+                        case LoadConfigData::GuardCFDispatchFunctionPointer:
+                            return x->GuardCFDispatchFunctionPointer;
+                        case LoadConfigData::GuardCFFunctionTable:
+                            return x->GuardCFFunctionTable;
+                        case LoadConfigData::GuardCFFunctionCount:
+                            return x->GuardCFFunctionCount;
+                        case LoadConfigData::GuardFlags:
+                            return x->GuardFlags;
+                        case LoadConfigData::GuardAddressTakenIatEntryTable:
+                            return x->GuardAddressTakenIatEntryTable;
+                        case LoadConfigData::GuardAddressTakenIatEntryCount:
+                            return x->GuardAddressTakenIatEntryCount;
+                        case LoadConfigData::GuardLongJumpTargetTable:
+                            return x->GuardLongJumpTargetTable;
+                        case LoadConfigData::GuardLongJumpTargetCount:
+                            return x->GuardLongJumpTargetCount;
+                        default:
+                            throw std::invalid_argument("Invalid enum argument");
+                    }
+                }
+                else{
+                    throw std::logic_error("Invalid type returned from getLoadConfigDirectoryRest");
+                }
+            }, this->getLoadConfigDirectoryRest() );
+        }
+
+        return boost::apply_visitor([&confData](auto x) -> AttrType {
+            if constexpr (std::is_same_v<decltype(*x), IMAGE_LOAD_CONFIG_DIRECTORY32&> || std::is_same_v<decltype(*x), IMAGE_LOAD_CONFIG_DIRECTORY64&>){
+                switch(confData){
+                    case LoadConfigData::Size:
+                        return x->Size;
+                    case LoadConfigData::TimeDateStamp:
+                        return x->TimeDateStamp;
+                    case LoadConfigData::MajorVersion:
+                        return x->MajorVersion;
+                    case LoadConfigData::MinorVersion:
+                        return x->MinorVersion;
+                    case LoadConfigData::GlobalFlagsClear:
+                        return x->GlobalFlagsClear;
+                    case LoadConfigData::GlobalFlagsSet:
+                        return x->GlobalFlagsSet;
+                    case LoadConfigData::CriticalSectionDefaultTimeout:
+                        return x->CriticalSectionDefaultTimeout;
+                    case LoadConfigData::DeCommitFreeBlockThreshold:
+                        return x->DeCommitFreeBlockThreshold;
+                    case LoadConfigData::DeCommitTotalFreeThreshold:
+                        return x->DeCommitTotalFreeThreshold;
+                    case LoadConfigData::LockPrefixTable:
+                        return x->LockPrefixTable;
+                    case LoadConfigData::MaximumAllocationSize:
+                        return x->MaximumAllocationSize;
+                    case LoadConfigData::VirtualMemoryThreshold:
+                        return x->VirtualMemoryThreshold;
+                    case LoadConfigData::ProcessAffinityMask:
+                        return x->ProcessAffinityMask;
+                    case LoadConfigData::ProcessHeapFlags:
+                        return x->ProcessHeapFlags;
+                    case LoadConfigData::CSDVersion:
+                        return x->CSDVersion;
+                    case LoadConfigData::DependentLoadFlags:
+                        return x->Reserved1;
+                    case LoadConfigData::EditList:
+                        return x->EditList;
+                    case LoadConfigData::SecurityCookie:
+                        return x->SecurityCookie;
+                    case LoadConfigData::SEHandlerTable:
+                        return x->SEHandlerTable;
+                    case LoadConfigData::SEHandlerCount:
+                        return x->SEHandlerCount;
+                    default:
+                        throw std::invalid_argument("Invalid enum argument");
+                }
+            }
+            else{
+                throw std::logic_error("Invalid type returned from getLoadConfigDirectory");
+            }
+        }, this->getLoadConfigDirectory() );
+    }
+
+    DWORD PEFile::LoadConfigSize() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::Size);
+    }
+
+    DWORD PEFile::LoadConfigTimeDateStamp() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::TimeDateStamp);
+    }
+
+    WORD PEFile::LoadConfigMajorVersion() {
+        return this->getLoadConfigData<WORD>(LoadConfigData::MajorVersion);
+    }
+
+    WORD PEFile::LoadConfigMinorVersion() {
+        return this->getLoadConfigData<WORD>(LoadConfigData::MinorVersion);
+    }
+
+    DWORD PEFile::LoadConfigGlobalFlagsClear() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::GlobalFlagsClear);
+    }
+
+    DWORD PEFile::LoadConfigGlobalFlagsSet() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::GlobalFlagsSet);
+    }
+
+    DWORD PEFile::LoadConfigCriticalSectionDefaultTimeout() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::CriticalSectionDefaultTimeout);
+    }
+
+    ULONGLONG PEFile::LoadConfigDeCommitFreeBlockThreshold() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::DeCommitFreeBlockThreshold);
+    }
+
+    ULONGLONG PEFile::LoadConfigDeCommitTotalFreeThreshold() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::DeCommitTotalFreeThreshold);
+    }
+
+    ULONGLONG PEFile::LoadConfigLockPrefixTable() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::LockPrefixTable);
+    }
+
+    ULONGLONG PEFile::LoadConfigMaximumAllocationSize() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::MaximumAllocationSize);
+    }
+
+    ULONGLONG PEFile::LoadConfigVirtualMemoryThreshold() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::VirtualMemoryThreshold);
+    }
+
+    ULONGLONG PEFile::LoadConfigProcessAffinityMask() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::ProcessAffinityMask);
+    }
+
+    DWORD PEFile::LoadConfigProcessHeapFlags() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::ProcessHeapFlags);
+    }
+
+    WORD PEFile::LoadConfigCSDVersion() {
+        return this->getLoadConfigData<WORD>(LoadConfigData::CSDVersion);
+    }
+
+    ULONGLONG PEFile::LoadConfigSecurityCookie() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::SecurityCookie);
+    }
+
+    ULONGLONG PEFile::LoadConfigSEHandlerTable() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::SEHandlerTable);
+    }
+
+    ULONGLONG PEFile::LoadConfigSEHandlerCount() {
+        return this->getLoadConfigData<WORD>(LoadConfigData::SEHandlerCount);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardCFCheckFunctionPointer() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardCFCheckFunctionPointer);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardCFDispatchFunctionPointer() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardCFDispatchFunctionPointer);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardCFFunctionTable() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardCFFunctionTable);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardCFFunctionCount() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardCFFunctionCount);
+    }
+
+    DWORD PEFile::LoadConfigGuardFlags() {
+        return this->getLoadConfigData<DWORD>(LoadConfigData::GuardFlags);
+    }
+
+    DWORD* PEFile::LoadConfigCodeIntegrity() {
+        return boost::apply_visitor([](auto x) -> DWORD* {
+            if constexpr (std::is_same_v<decltype(*x), PE_STRUCTURE::LoadConfigDirectory32_Rest&> || std::is_same_v<decltype(*x), PE_STRUCTURE::LoadConfigDirectory64_Rest&>){
+                return x->CodeIntegrity;
+            }
+            else{
+                throw std::logic_error("Invalid type returned from getLoadConfigDirectoryRest");
+            }
+        }, this->getLoadConfigDirectoryRest() );
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardAddressTakenIatEntryTable() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardAddressTakenIatEntryTable);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardAddressTakenIatEntryCount() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardAddressTakenIatEntryCount);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardLongJumpTargetTable() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardLongJumpTargetTable);
+    }
+
+    ULONGLONG PEFile::LoadConfigGuardLongJumpTargetCount() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::GuardLongJumpTargetCount);
+    }
+
+    ULONGLONG PEFile::LoadConfigEditList() {
+        return this->getLoadConfigData<ULONGLONG>(LoadConfigData::EditList);
+    }
+
+    WORD PEFile::LoadConfigDependentLoadFlags() {
+        return this->getLoadConfigData<WORD>(LoadConfigData::DependentLoadFlags);
     }
 
 };

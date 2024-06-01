@@ -2,8 +2,10 @@
 #include <gmock/gmock.h>
 
 #include <Parser.hpp>
+#include <Structure.hpp>
 
 #include <tuple>
+#include <windows.h>
 #include <winnt.h>
 #include "better_braces.hpp"
 
@@ -846,5 +848,79 @@ namespace PE_PARSER{
                 }
             }
         }
+
+        std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>> relocationTable = *peFile->getBaseRelocationTable(),
+                expectedRelocationTable{
+                        //first relocation table
+                        std::make_pair(IMAGE_BASE_RELOCATION{0x336000, 0x9C}, std::vector<WORD>{
+                                0xa248, 0xa250, 0xa260, 0xa268, 0xa270, 0xa278, 0xa280, 0xa288, 0xa290, 0xa298, 0xa2A0,
+                                0xa2A8, 0xa2B0, 0xa2B8, 0xa2C0, 0xa2C8, 0xa2D0, 0xa2D8, 0xa2E0, 0xa2E8, 0xa2F0, 0xa2F8,
+                                0xa300, 0xa308, 0xa310, 0xa318, 0xa320, 0xa328, 0xa330, 0xa338, 0xa340, 0xa348, 0xa350,
+                                0xa358, 0xa360, 0xa368, 0xa370, 0xa378, 0xa380, 0xa388, 0xa390, 0xa398, 0xa3A0, 0xa3A8,
+                                0xa3B0, 0xa3B8, 0xa3C0, 0xa3C8, 0xa3D0, 0xa3D8, 0xa3E0, 0xa3E8, 0xa3F0, 0xa3F8, 0xa400,
+                                0xa408, 0xa410, 0xa418, 0xa420, 0xa428, 0xa430, 0xa448, 0xa450, 0xa458,
+                                0xa460, 0xa468, 0xa470, 0xa478, 0xa480, 0xa4a8, 0xa4b0, 0xa4b8, 0xa4c0
+                        }),
+                        //last relocation table
+                        std::make_pair(IMAGE_BASE_RELOCATION{0x43E000, 0x58}, std::vector<WORD>{
+                                0xA010, 0xa048, 0xa080, 0xa0b0, 0xa0e0, 0xa118, 0xa148, 0xa178, 0xa1a8, 0xa1d8,
+                                0xa200, 0xa230, 0xa258, 0xa288, 0xa2b0, 0xa2d0, 0xa300, 0xa320, 0xa340,
+                                0xa368, 0xa388, 0xa3b0, 0xa3d0, 0xa3f8, 0xa418, 0xa438, 0xa458, 0xa478,
+                                0xa4a0, 0xa4c0, 0xa4e8, 0xa508, 0xa530, 0xa550, 0xa570, 0xa590, 0xa5b8,
+                                0xa5d8, 0xa5f8
+                        }),
+        };
+
+        int expInd{};
+
+        for(int i = 0; i < relocationTable.size(); i++){
+            if(i != 0 && i != relocationTable.size() - 1) continue; //only test first and last one
+            ASSERT_EQ(relocationTable[i].first.VirtualAddress, expectedRelocationTable[expInd].first.VirtualAddress);
+            ASSERT_EQ(relocationTable[i].first.SizeOfBlock, expectedRelocationTable[expInd].first.SizeOfBlock);
+            for(int j = 0; j < relocationTable[i].second.size(); j++){
+                ASSERT_EQ(relocationTable[i].second[j], expectedRelocationTable[expInd].second[j]);
+            }
+            expInd++;
+        }
+
+        std::vector<IMAGE_DEBUG_DIRECTORY> debugDirectory = *peFile->getDebugDirectoryTable(),
+        expectedDebugDirectory{
+                {0x0, 0x615074EB, 0x0, 0x0, 0x2, 0x4F, 0x3D059C, 0x3CED9C},
+                {0x0, 0x615074EB, 0x0, 0x0, 0xC, 0x14, 0x3D05EC, 0x3CEDEC},
+                {0x0, 0x615074EB, 0x0, 0x0, 0xD, 0x3C8, 0x3D0600, 0x3CEE00}
+        };
+
+        for(int i = 0; i < debugDirectory.size(); i++){
+            ASSERT_EQ(debugDirectory[i].Characteristics, expectedDebugDirectory[i].Characteristics);
+            ASSERT_EQ(debugDirectory[i].TimeDateStamp, expectedDebugDirectory[i].TimeDateStamp);
+            ASSERT_EQ(debugDirectory[i].MajorVersion, expectedDebugDirectory[i].MajorVersion);
+            ASSERT_EQ(debugDirectory[i].MinorVersion, expectedDebugDirectory[i].MinorVersion);
+            ASSERT_EQ(debugDirectory[i].PointerToRawData, expectedDebugDirectory[i].PointerToRawData);
+            ASSERT_EQ(debugDirectory[i].SizeOfData, expectedDebugDirectory[i].SizeOfData);
+            ASSERT_EQ(debugDirectory[i].Type, expectedDebugDirectory[i].Type);
+        }
+
+        ASSERT_THAT(
+                (std::vector<ULONGLONG>{
+                        peFile->LoadConfigSize(), peFile->LoadConfigTimeDateStamp(), peFile->LoadConfigMajorVersion(),
+                        peFile->LoadConfigMinorVersion(), peFile->LoadConfigGlobalFlagsClear(), peFile->LoadConfigGlobalFlagsSet(),
+                        peFile->LoadConfigCriticalSectionDefaultTimeout(), peFile->LoadConfigDeCommitFreeBlockThreshold(),
+                        peFile->LoadConfigDeCommitTotalFreeThreshold(), peFile->LoadConfigLockPrefixTable(), peFile->LoadConfigMaximumAllocationSize(),
+                        peFile->LoadConfigVirtualMemoryThreshold(), peFile->LoadConfigProcessAffinityMask(), peFile->LoadConfigProcessHeapFlags(),
+                        peFile->LoadConfigCSDVersion(), peFile->LoadConfigDependentLoadFlags(), peFile->LoadConfigEditList(), peFile->LoadConfigSecurityCookie(),
+                        peFile->LoadConfigSEHandlerTable(), peFile->LoadConfigSEHandlerCount(), peFile->LoadConfigGuardCFCheckFunctionPointer(), peFile->LoadConfigGuardCFDispatchFunctionPointer(),
+                        peFile->LoadConfigGuardCFFunctionTable(), peFile->LoadConfigGuardCFFunctionCount(), peFile->LoadConfigGuardFlags(),
+                        peFile->LoadConfigCodeIntegrity()[0], peFile->LoadConfigCodeIntegrity()[1], peFile->LoadConfigCodeIntegrity()[2], peFile->LoadConfigGuardAddressTakenIatEntryTable(),
+                        peFile->LoadConfigGuardAddressTakenIatEntryCount(), peFile->LoadConfigGuardLongJumpTargetTable(), peFile->LoadConfigGuardLongJumpTargetCount(),
+                }),
+                ::testing::ElementsAreArray(
+                        std::vector<ULONGLONG>{
+                                0x100, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+                                0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1404330F8,
+                                0x0, 0x0, 0x140336248, 0x140336250, 0x0, 0x0, 0x100,
+                                0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+                        }
+                )
+        );
     }
 };

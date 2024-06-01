@@ -2,53 +2,52 @@
 #define PE_STRUCTURE_HPP
 
 #include <Windows.h>
-#include <stdint.h>
 #include <winnt.h>
 
 #include <boost/describe/class.hpp>
 
 //Defines structure of Portable Executables
 namespace PE_STRUCTURE {
-
-	struct DosHeader { //DOS .EXE header
-
-		WORD
-			magic{}, //Magic number
-			e_cblp{}, //Bytes on last page of file
-			e_cp{}, //Pages in file
-			e_crlc{}, //Relocations
-			e_cparhdr{}, //Size of header in paragraphs
-			e_minalloc{}, //Minimum extra paragraphs needed
-			e_maxalloc{}, // Maximum extra paragraphs needed
-			e_ss{}, //Initial (relative) SS value
-			e_sp{}, //Initial SP value
-			e_csum{}, //Checksum
-			e_ip{}, //Initial IP value
-			e_cs{}, //Initial (relative) CS value 
-			e_lfarlc{}, //File address of relocation table
-			e_ovno{}, //Overlay number
-			e_res[4]{}, //Reserved words
-			e_oemid{}, //OEM identifier
-			e_oeminfo{}, //OEM information 
-			e_res2[10]{}; //Reserved words
-
-		DWORD e_lfanew{}; //Address for NT Headers
-	};
-
-    BOOST_DESCRIBE_STRUCT(DosHeader, (), (magic, e_cblp, e_cp, e_crlc, e_cparhdr,
-        e_minalloc, e_maxalloc, e_ss, e_sp, e_csum, e_ip, e_cs, e_lfarlc, e_ovno,
-        e_res, e_oemid, e_oeminfo, e_res2, e_lfanew));
-
-    
     struct ImageHeader{
         DWORD signature{}; //almost always PE/0/0
 		IMAGE_FILE_HEADER FileHeader{}; //Some information, has OptionalHeader size
     };
 
+    struct LoadConfigDirectory32_Rest{
+        DWORD GuardCFCheckFunctionPointer{};
+        DWORD GuardCFDispatchFunctionPointer{};
+        DWORD GuardCFFunctionTable{};
+        DWORD GuardCFFunctionCount{};
+        DWORD GuardFlags{};
+        DWORD CodeIntegrity[3];
+        DWORD GuardAddressTakenIatEntryTable{};
+        DWORD GuardAddressTakenIatEntryCount{};
+        DWORD GuardLongJumpTargetTable{};
+        DWORD GuardLongJumpTargetCount{};
+    };
+
+    struct LoadConfigDirectory64_Rest{
+        ULONGLONG GuardCFCheckFunctionPointer{};
+        ULONGLONG GuardCFDispatchFunctionPointer{};
+        ULONGLONG GuardCFFunctionTable{};
+        ULONGLONG GuardCFFunctionCount{};
+        DWORD GuardFlags{};
+        DWORD CodeIntegrity[3];
+        ULONGLONG GuardAddressTakenIatEntryTable{};
+        ULONGLONG GuardAddressTakenIatEntryCount{};
+        ULONGLONG GuardLongJumpTargetTable{};
+        ULONGLONG GuardLongJumpTargetCount{};
+    };
+
     BOOST_DESCRIBE_STRUCT(ImageHeader, (), (signature, FileHeader));
+
+    BOOST_DESCRIBE_STRUCT(LoadConfigDirectory32_Rest, (), (GuardCFCheckFunctionPointer, GuardCFDispatchFunctionPointer, GuardCFFunctionTable, GuardCFFunctionCount, GuardFlags, CodeIntegrity, GuardAddressTakenIatEntryTable, GuardAddressTakenIatEntryCount, GuardLongJumpTargetTable, GuardLongJumpTargetCount));
+    BOOST_DESCRIBE_STRUCT(LoadConfigDirectory64_Rest, (), (GuardCFCheckFunctionPointer, GuardCFDispatchFunctionPointer, GuardCFFunctionTable, GuardCFFunctionCount, GuardFlags, CodeIntegrity, GuardAddressTakenIatEntryTable, GuardAddressTakenIatEntryCount, GuardLongJumpTargetTable, GuardLongJumpTargetCount));
 };
 
-//Structs that don't belong to namespace need to have describe outside of namespace
+BOOST_DESCRIBE_STRUCT(IMAGE_DOS_HEADER, (), (e_magic, e_cblp, e_cp, e_crlc, e_cparhdr,
+        e_minalloc, e_maxalloc, e_ss, e_sp, e_csum, e_ip, e_cs, e_lfarlc, e_ovno,
+        e_res, e_oemid, e_oeminfo, e_res2, e_lfanew));
 
 BOOST_DESCRIBE_STRUCT(IMAGE_FILE_HEADER, (), (Machine, NumberOfSections, TimeDateStamp,
         PointerToSymbolTable, NumberOfSymbols, SizeOfOptionalHeader, Characteristics));
@@ -73,9 +72,14 @@ BOOST_DESCRIBE_STRUCT(IMAGE_SECTION_HEADER, (), (Name, Misc, VirtualAddress, Siz
     PointerToRawData, PointerToRelocations, PointerToLinenumbers, NumberOfRelocations,
     NumberOfLinenumbers, Characteristics));
 
-BOOST_DESCRIBE_STRUCT(IMAGE_IMPORT_DESCRIPTOR , (), (OriginalFirstThunk, TimeDateStamp, ForwarderChain, Name, FirstThunk));
+BOOST_DESCRIBE_STRUCT(IMAGE_IMPORT_DESCRIPTOR, (), (OriginalFirstThunk, TimeDateStamp, ForwarderChain, Name, FirstThunk));
 BOOST_DESCRIBE_STRUCT(IMAGE_BOUND_IMPORT_DESCRIPTOR, (), (TimeDateStamp, OffsetModuleName, NumberOfModuleForwarderRefs));
 
 BOOST_DESCRIBE_STRUCT(IMAGE_BASE_RELOCATION, (), (VirtualAddress, SizeOfBlock));
+
+BOOST_DESCRIBE_STRUCT(IMAGE_DEBUG_DIRECTORY, (), (Characteristics, TimeDateStamp, MajorVersion, MinorVersion, Type, SizeOfData, AddressOfRawData, PointerToRawData));
+
+BOOST_DESCRIBE_STRUCT(IMAGE_LOAD_CONFIG_DIRECTORY32, (), (Size, TimeDateStamp, MajorVersion, MinorVersion, GlobalFlagsClear, GlobalFlagsSet, CriticalSectionDefaultTimeout, DeCommitFreeBlockThreshold, DeCommitTotalFreeThreshold, LockPrefixTable, MaximumAllocationSize, VirtualMemoryThreshold, ProcessHeapFlags, ProcessAffinityMask, CSDVersion, Reserved1, EditList, SecurityCookie, SEHandlerTable, SEHandlerCount));
+BOOST_DESCRIBE_STRUCT(IMAGE_LOAD_CONFIG_DIRECTORY64, (), (Size, TimeDateStamp, MajorVersion, MinorVersion, GlobalFlagsClear, GlobalFlagsSet, CriticalSectionDefaultTimeout, DeCommitFreeBlockThreshold, DeCommitTotalFreeThreshold, LockPrefixTable, MaximumAllocationSize, VirtualMemoryThreshold, ProcessAffinityMask, ProcessHeapFlags, CSDVersion, Reserved1, EditList, SecurityCookie, SEHandlerTable, SEHandlerCount));
 
 #endif

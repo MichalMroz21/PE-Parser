@@ -42,7 +42,7 @@ namespace PE_PARSER{
         }
 
         if(!PE_PARSER::Parser::isBigEndian){
-            memcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
+            std::memcpy(&attr, this->buffer->getBeginAddress(), bytesToGet);
         }
         else{
             std::reverse_copy(reinterpret_cast<const char*>(this->buffer->getBeginAddress()),
@@ -97,7 +97,7 @@ namespace PE_PARSER{
         }
 
         //Get DLL names from Bound Import Directory Table
-        for(auto& boundRow : *peFile->getBoundImportDirectoryTable()){
+        for(const auto& boundRow : *peFile->getBoundImportDirectoryTable()){
             this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::boundImportDirectory));
             this->buffer->cutBytes(boundRow.OffsetModuleName);
             peFile->getBoundImportDirectoryNames(true)->push_back(this->getNullTerminatedString());
@@ -117,15 +117,13 @@ namespace PE_PARSER{
         }
 
         //Get Import Directory Names
-        for (auto &importRow: *peFile->getImportDirectoryTable()){
+        for (const auto &importRow: *peFile->getImportDirectoryTable()){
             this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(importRow.Name));
-            std::string importName = this->getNullTerminatedString();
-
-            peFile->getImportDirectoryNames(true)->push_back(importName);
+            peFile->getImportDirectoryNames(true)->push_back(this->getNullTerminatedString());
         }
 
         //Obtain Import Lookup Tables for Imports
-        for (auto &importRow: *peFile->getImportDirectoryTable()){
+        for (const auto &importRow: *peFile->getImportDirectoryTable()){
             this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(importRow.OriginalFirstThunk));
             peFile->getImportByNameTable(true)->emplace_back();
 
@@ -174,13 +172,42 @@ namespace PE_PARSER{
 
             DWORD amountOfRelocations = (baseRelocation.SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD);
 
-            for (DWORD i = 0; i < amountOfRelocations; i++) {
+            for (DWORD i = 0; i < amountOfRelocations; i++){
                 WORD relocation{};
                 this->copyBytesToVariable(relocation);
                 if(relocation == 0) continue;
                 peFile->getBaseRelocationTable(true)->back().second.push_back(relocation);
             }
         }
+    }
+
+    void Parser::getDebugDirectoryData(PE_DATA::PEFile *peFile) {
+        this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::debugDirectory));
+
+        std::size_t debugRows = peFile->debugDirectory().second / sizeof(IMAGE_DEBUG_DIRECTORY);
+
+        for(int i = 0; i < debugRows; i++){
+            IMAGE_DEBUG_DIRECTORY debugRow{};
+            this->copyBytesToStruct(debugRow);
+            if (!peFile->isTypeSet(&debugRow)) break;
+            peFile->getDebugDirectoryTable(true)->push_back(debugRow);
+        }
+    }
+
+    void Parser::getLoadConfigDirectoryData(PE_DATA::PEFile *peFile) {
+        this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::loadConfigDirectory));
+        int sizeOfLoadConfigDirectory = peFile->loadConfigDirectory().second;
+
+        boost::apply_visitor([this, peFile, &sizeOfLoadConfigDirectory](auto x){
+            this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, static_cast<int>(sizeof(*x))));
+            sizeOfLoadConfigDirectory -= sizeof(*x);
+        }, peFile->getLoadConfigDirectory(true));
+
+        if(sizeOfLoadConfigDirectory <= 0) return;
+
+        boost::apply_visitor([this, peFile, sizeOfLoadConfigDirectory](auto x){
+            this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, static_cast<int>(sizeof(*x))));
+        }, peFile->getLoadConfigDirectoryRest(true));
     }
 
     PE_DATA::PEFile* Parser::loadPEFile(){
@@ -224,8 +251,17 @@ namespace PE_PARSER{
             this->getBoundImportDirectoryData(peFile); //!Leaves buffer at random address
         }
 
+        //Obtain Base Relocation Table
         if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory).second){
             this->getBaseRelocationDirectoryData(peFile); //!Leaves buffer at random address
+        }
+
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::debugDirectory).second){
+            this->getDebugDirectoryData(peFile); //!Leaves buffer at random address
+        }
+
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::loadConfigDirectory).second){
+            this->getLoadConfigDirectoryData(peFile); //!Leaves buffer at random address
         }
 
         this->freeBuffer();

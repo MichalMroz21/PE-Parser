@@ -2,7 +2,6 @@
 #define PE_PARSER_HPP
 
 #include <vector>
-#include <stdint.h>
 #include <windows.h>
 #include <fstream>
 #include <iostream>
@@ -76,6 +75,10 @@ namespace PE_PARSER{
              getImportDirectoryData(PE_DATA::PEFile* peFile);
 
         void getBaseRelocationDirectoryData(PE_DATA::PEFile *pFile);
+
+        void getDebugDirectoryData(PE_DATA::PEFile* peFile);
+
+        void getLoadConfigDirectoryData(PE_DATA::PEFile *pFile);
     };
 
 };

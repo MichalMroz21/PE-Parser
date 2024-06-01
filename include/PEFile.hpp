@@ -25,6 +25,8 @@ namespace PE_DATA{
     using Header64 = IMAGE_OPTIONAL_HEADER64;
 
     using HeaderVariant = boost::variant<Header32*, Header64*>;
+    using ConfigVariant = boost::variant<IMAGE_LOAD_CONFIG_DIRECTORY32*, IMAGE_LOAD_CONFIG_DIRECTORY64*>;
+    using ConfigRestVariant = boost::variant<PE_STRUCTURE::LoadConfigDirectory32_Rest*, PE_STRUCTURE::LoadConfigDirectory64_Rest*>;
 
     class PEFile {
         friend class PE_PARSER::Parser;
@@ -92,6 +94,38 @@ namespace PE_DATA{
         [[nodiscard]] DWORD numberOfRvaAndSizes();
         [[nodiscard]] IMAGE_DATA_DIRECTORY* dataDirectory();
 
+        //LoadConfig data
+        [[nodiscard]] DWORD LoadConfigSize();
+        [[nodiscard]] DWORD LoadConfigTimeDateStamp();
+        [[nodiscard]] WORD LoadConfigMajorVersion();
+        [[nodiscard]] WORD LoadConfigMinorVersion();
+        [[nodiscard]] DWORD LoadConfigGlobalFlagsClear();
+        [[nodiscard]] DWORD LoadConfigGlobalFlagsSet();
+        [[nodiscard]] DWORD LoadConfigCriticalSectionDefaultTimeout();
+        [[nodiscard]] ULONGLONG LoadConfigDeCommitFreeBlockThreshold();
+        [[nodiscard]] ULONGLONG LoadConfigDeCommitTotalFreeThreshold();
+        [[nodiscard]] ULONGLONG LoadConfigLockPrefixTable();
+        [[nodiscard]] ULONGLONG LoadConfigMaximumAllocationSize();
+        [[nodiscard]] ULONGLONG LoadConfigVirtualMemoryThreshold();
+        [[nodiscard]] ULONGLONG LoadConfigProcessAffinityMask();
+        [[nodiscard]] DWORD LoadConfigProcessHeapFlags();
+        [[nodiscard]] WORD LoadConfigCSDVersion();
+        [[nodiscard]] WORD LoadConfigDependentLoadFlags();
+        [[nodiscard]] ULONGLONG LoadConfigEditList();
+        [[nodiscard]] ULONGLONG LoadConfigSecurityCookie();
+        [[nodiscard]] ULONGLONG LoadConfigSEHandlerTable();
+        [[nodiscard]] ULONGLONG LoadConfigSEHandlerCount();
+        [[nodiscard]] ULONGLONG LoadConfigGuardCFCheckFunctionPointer();
+        [[nodiscard]] ULONGLONG LoadConfigGuardCFDispatchFunctionPointer();
+        [[nodiscard]] ULONGLONG LoadConfigGuardCFFunctionTable();
+        [[nodiscard]] ULONGLONG LoadConfigGuardCFFunctionCount();
+        [[nodiscard]] DWORD LoadConfigGuardFlags();
+        [[nodiscard]] DWORD* LoadConfigCodeIntegrity();
+        [[nodiscard]] ULONGLONG LoadConfigGuardAddressTakenIatEntryTable();
+        [[nodiscard]] ULONGLONG LoadConfigGuardAddressTakenIatEntryCount();
+        [[nodiscard]] ULONGLONG LoadConfigGuardLongJumpTargetTable();
+        [[nodiscard]] ULONGLONG LoadConfigGuardLongJumpTargetCount();
+
         //Data Directory (in optional header) data
         //Returns address and size of data directory
         [[nodiscard]] std::pair<DWORD, std::size_t> exportDirectory();
@@ -120,18 +154,23 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<std::string>* getImportDirectoryNames(bool getEmpty = false);
         [[nodiscard]] std::vector<std::string>* getBoundImportDirectoryNames(bool getEmpty = false);
         [[nodiscard]] std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* getBaseRelocationTable(bool getEmpty = false);
+        [[nodiscard]] std::vector<IMAGE_DEBUG_DIRECTORY>* getDebugDirectoryTable(bool getEmpty = false);
 
         [[nodiscard]] HeaderVariant getOptionalHeader(bool getEmpty = false);
+        [[nodiscard]] ConfigVariant getLoadConfigDirectory(bool getEmpty = false);
+        [[nodiscard]] ConfigRestVariant getLoadConfigDirectoryRest(bool getEmpty = false);
 
-        [[nodiscard]] PE_STRUCTURE::DosHeader* getDosHeader(bool getEmpty = false);
+        [[nodiscard]] IMAGE_DOS_HEADER* getDosHeader(bool getEmpty = false);
         [[nodiscard]] PE_STRUCTURE::ImageHeader* getImageHeader(bool getEmpty = false);
+
+        [[nodiscard]] std::uintptr_t translateRVAtoRaw(std::uintptr_t rva);
 
     protected:
         PEFile();
 
         bool getIs64Bit();
-        
-        PE_STRUCTURE::DosHeader dosHeader{};
+
+        IMAGE_DOS_HEADER dosHeader{};
         PE_STRUCTURE::ImageHeader imageHeader{};
 
         void setTypeOfPE(WORD stateOfMachine);
@@ -157,6 +196,19 @@ namespace PE_DATA{
             iatDirectory, delayImportDescriptor, clrRuntimeHeader
         };
 
+        enum class LoadConfigData{
+            Size = 0, TimeDateStamp, MajorVersion, MinorVersion,
+            GlobalFlagsClear, GlobalFlagsSet, CriticalSectionDefaultTimeout,
+            DeCommitFreeBlockThreshold, DeCommitTotalFreeThreshold,
+            LockPrefixTable, MaximumAllocationSize, VirtualMemoryThreshold,
+            ProcessAffinityMask, ProcessHeapFlags, CSDVersion,
+            DependentLoadFlags, EditList, SecurityCookie, SEHandlerTable,
+            SEHandlerCount, GuardCFCheckFunctionPointer, GuardCFDispatchFunctionPointer,
+            GuardCFFunctionTable, GuardCFFunctionCount, GuardFlags,
+            CodeIntegrity, GuardAddressTakenIatEntryTable, GuardAddressTakenIatEntryCount,
+            GuardLongJumpTargetTable, GuardLongJumpTargetCount
+        };
+
         std::pair<DWORD, std::size_t> getDataDirectoryPairEnum(DataDirectory dir);
 
         template<typename AttrType>
@@ -170,18 +222,27 @@ namespace PE_DATA{
 
         void allocateSectionHeaders(std::size_t numberOfSections);
 
-        std::uintptr_t translateRVAtoRaw(std::uintptr_t rva),
-                       getRawDirectoryAddress(DataDirectory dir);
+        std::uintptr_t getRawDirectoryAddress(DataDirectory dir);
 
     private:
         //dev note: get them with getOptionalHeader
         Header32 imageOptionalHeader32{};
         Header64 imageOptionalHeader64{};
 
+        IMAGE_LOAD_CONFIG_DIRECTORY32 loadConfigDirectory32{};
+        IMAGE_LOAD_CONFIG_DIRECTORY64 loadConfigDirectory64{};
+
+        PE_STRUCTURE::LoadConfigDirectory32_Rest loadConfigDirectoryRest32{};
+        PE_STRUCTURE::LoadConfigDirectory64_Rest loadConfigDirectoryRest64{};
+
+        template<typename AttrType>
+        AttrType getLoadConfigData(LoadConfigData confData);
+
         std::vector<IMAGE_SECTION_HEADER> imageSectionHeaders{};
         std::vector<IMAGE_IMPORT_DESCRIPTOR> importDirectoryTable{};
         std::vector<std::string> importDirectoryNames{};
         std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>> importByNameTable{};
+        std::vector<IMAGE_DEBUG_DIRECTORY> debugDirectoryTable{};
 
         std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> boundImportDirectoryTable{};
         std::vector<std::string> boundImportDirectoryNames{};

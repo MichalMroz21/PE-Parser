@@ -637,4 +637,17 @@ namespace PE_DATA{
     ULONGLONG PEFile::tlsCharacteristics() {
         return this->getTLSData<ULONGLONG>(TLSData::Characteristics);
     }
+
+    ILTEntryVariant PEFile::getILTEntryVariant(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(&this->ILT_32) && !this->isTypeSet(&this->ILT_64)){
+            throw std::logic_error("ILT entry was not obtained before calling this method!");
+        }
+
+        if(this->getIs64Bit()) {
+            return ILTEntryVariant(&this->ILT_64);
+        }
+        else{
+            return ILTEntryVariant(&this->ILT_32);
+        }
+    }
 };

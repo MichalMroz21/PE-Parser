@@ -28,6 +28,7 @@ namespace PE_DATA{
     using ConfigVariant = boost::variant<IMAGE_LOAD_CONFIG_DIRECTORY32*, IMAGE_LOAD_CONFIG_DIRECTORY64*>;
     using ConfigRestVariant = boost::variant<PE_STRUCTURE::LoadConfigDirectory32_Rest*, PE_STRUCTURE::LoadConfigDirectory64_Rest*>;
     using TLSVariant = boost::variant<IMAGE_TLS_DIRECTORY32*, IMAGE_TLS_DIRECTORY64*>;
+    using ILTEntryVariant = boost::variant<unsigned long long*, unsigned long*>;
 
     class PEFile {
         friend class PE_PARSER::Parser;
@@ -169,6 +170,7 @@ namespace PE_DATA{
         [[nodiscard]] ConfigVariant getLoadConfigDirectory(bool getEmpty = false);
         [[nodiscard]] ConfigRestVariant getLoadConfigDirectoryRest(bool getEmpty = false);
         [[nodiscard]] TLSVariant getTLSDirectory(bool getEmpty = false);
+        [[nodiscard]] ILTEntryVariant getILTEntryVariant(bool getEmpty = false);
 
         [[nodiscard]] IMAGE_DOS_HEADER* getDosHeader(bool getEmpty = false);
         [[nodiscard]] PE_STRUCTURE::ImageHeader* getImageHeader(bool getEmpty = false);
@@ -255,6 +257,9 @@ namespace PE_DATA{
 
         PE_STRUCTURE::LoadConfigDirectory32_Rest loadConfigDirectoryRest32{};
         PE_STRUCTURE::LoadConfigDirectory64_Rest loadConfigDirectoryRest64{};
+
+        unsigned long long ILT_64{};
+        unsigned long ILT_32{};
 
         template<typename AttrType>
         AttrType getLoadConfigData(LoadConfigData confData);

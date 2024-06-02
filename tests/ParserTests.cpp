@@ -952,7 +952,26 @@ namespace PE_PARSER{
         );
 
         boost::apply_visitor([this, peFile](auto x){
+            if constexpr (std::is_same_v<decltype(x), std::vector<IMAGE_RUNTIME_FUNCTION_ENTRY>*>){
+                std::vector<IMAGE_RUNTIME_FUNCTION_ENTRY> expectedExceptions{
+                        {0x1054, 0x1074, 0x3D0A30},
+                        {0x1074, 0x1094, 0x3D0A30},
+                        {0x10A0, 0x10CF, 0x3E1D28},
+                        {0x10D0, 0x1155, 0x3E1C90},
+                        {0x1160, 0x120B, 0x3E49D8},
+                        {0x1210, 0x12BB, 0x3E4A98},
+                        {0x12C0, 0x12E7, 0x3D0A30}
+                };
+                for(int i = 0; i < expectedExceptions.size(); i++){
+                    ASSERT_EQ((*x)[i].BeginAddress, expectedExceptions[i].BeginAddress);
+                    ASSERT_EQ((*x)[i].EndAddress, expectedExceptions[i].EndAddress);
+                    ASSERT_EQ((*x)[i].UnwindInfoAddress, expectedExceptions[i].UnwindInfoAddress);
+                }
 
+                ASSERT_EQ((*x).back().BeginAddress, {0x3341EC});
+                ASSERT_EQ((*x).back().EndAddress, {0x334233});
+                ASSERT_EQ((*x).back().UnwindInfoAddress, {0x421250});
+            }
         }, peFile->getExceptionDirectory());
     }
 };

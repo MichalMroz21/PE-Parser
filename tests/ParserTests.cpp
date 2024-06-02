@@ -2,7 +2,7 @@
 #include <gmock/gmock.h>
 
 #include <Parser.hpp>
-#include <Structure.hpp>
+#include <boost/describe.hpp>
 
 #include <tuple>
 #include <windows.h>
@@ -45,6 +45,22 @@ namespace PE_PARSER{
                arg.ForwarderChain == expected.ForwarderChain &&
                arg.Name == expected.Name &&
                arg.FirstThunk == expected.FirstThunk;
+    }
+
+    TEST(ParserTest, Parse2) {
+        PE_PARSER::Parser parser;
+        PE_DATA::PEFile *peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/2.exe");
+
+        //TLS Callbacks
+        ASSERT_THAT(
+                (*peFile->getTLSCallbacks()),
+                ::testing::ElementsAreArray(
+                    std::vector<PIMAGE_TLS_CALLBACK>{
+                        reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E66B60), reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E76570),
+                        reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x144133B30), reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E8D8B0)
+                    }
+                )
+        );
     }
 
     TEST(ParserTest, Parse) {
@@ -100,7 +116,7 @@ namespace PE_PARSER{
                         peFile->minorOperatingSystemVersion(), peFile->majorImageVersion(), peFile->minorImageVersion(),
                         peFile->majorSubsystemVersion(), peFile->minorSubsystemVersion(), peFile->win32VersionValue(),
                         peFile->sizeOfImage(), peFile->sizeOfHeaders(), peFile->checkSumOptional(),
-                        peFile->dllCharasteristics(), peFile->sizeOfStackReserve(),
+                        peFile->dllCharacteristics(), peFile->sizeOfStackReserve(),
                         peFile->sizeOfStackCommit(), peFile->sizeOfHeapReserve(), peFile->sizeOfHeapCommit(),
                         peFile->loaderFlags(), peFile->numberOfRvaAndSizes()
                 }),
@@ -934,5 +950,9 @@ namespace PE_PARSER{
                         }
                 )
         );
+
+        boost::apply_visitor([this, peFile](auto x){
+
+        }, peFile->getExceptionDirectory());
     }
 };

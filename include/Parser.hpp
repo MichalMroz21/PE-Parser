@@ -23,11 +23,8 @@
 //Class for extracting bytes from Portable Executables
 namespace PE_PARSER{
 
-
-
     class Parser {
     public:
-
         Parser();
         ~Parser();
 
@@ -46,6 +43,9 @@ namespace PE_PARSER{
         //Main logic of parsing Portable Executables
         PE_DATA::PEFile* loadPEFile();
 
+        void freeBuffer();
+        std::string getNullTerminatedString();
+
         //returns amount of bytes copied to struct
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
         void copyBytesToStruct(Base& base, int toCopy = sizeof(Base));
@@ -58,31 +58,27 @@ namespace PE_PARSER{
 
         template<typename Attr> 
         void copyBytesToVariable(Attr& attr);
-        
-        void freeBuffer();
-        std::string getNullTerminatedString();
 
         template<typename Strct, typename Arr>
         void getStructsNullTerminated(Arr* arr, PE_DATA::PEFile* peFile);
 
         template<typename Strct, typename Arr>
-        void getStructs(Arr* arr, PE_DATA::PEFile* peFile, const std::size_t amount);
+        void getStructs(Arr* arr, PE_DATA::PEFile* peFile, std::size_t amount);
+
+        template<typename T>
+        void getExceptionStructs(std::vector<T>* exceptionDirectory, PE_DATA::PEFile* peFile);
         
         PE_BUFFER::Buffer* buffer{};
         
         static constexpr bool isBigEndian = (std::endian::native == std::endian::big);
 
         void getBoundImportDirectoryData(PE_DATA::PEFile* peFile),
-             getImportDirectoryData(PE_DATA::PEFile* peFile);
-
-        void getBaseRelocationDirectoryData(PE_DATA::PEFile *pFile);
-
-        void getDebugDirectoryData(PE_DATA::PEFile* peFile);
-
-        void getLoadConfigDirectoryData(PE_DATA::PEFile *pFile);
-
-        void getTLSDirectoryData(PE_DATA::PEFile *pFile);
+             getImportDirectoryData(PE_DATA::PEFile* peFile),
+             getBaseRelocationDirectoryData(PE_DATA::PEFile* pFile),
+             getDebugDirectoryData(PE_DATA::PEFile* peFile),
+             getLoadConfigDirectoryData(PE_DATA::PEFile* pFile),
+             getTLSDirectoryData(PE_DATA::PEFile* pFile),
+             getExceptionDirectoryData(PE_DATA::PEFile* peFile);
     };
-
 };
 #endif

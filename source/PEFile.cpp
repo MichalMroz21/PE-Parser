@@ -144,7 +144,7 @@ namespace PE_DATA{
     DWORD PEFile::sizeOfHeaders() { return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::sizeOfHeaders); }
     DWORD PEFile::checkSumOptional() { return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::checkSum); }
     WORD PEFile::subsystem() { return this->getOptHeaderAttr<WORD>(OptHeaderAttr::subsystem); }
-    WORD PEFile::dllCharasteristics() { return this->getOptHeaderAttr<WORD>(OptHeaderAttr::dllCharasteristics); }
+    WORD PEFile::dllCharacteristics() { return this->getOptHeaderAttr<WORD>(OptHeaderAttr::dllCharasteristics); }
     DWORD PEFile::loaderFlags() { return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::loaderFlags); }
     DWORD PEFile::numberOfRvaAndSizes() { return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::numberOfRvaAndSizes); }
 
@@ -286,6 +286,18 @@ namespace PE_DATA{
         }
 
         throw std::invalid_argument("RVA not found in any section");
+    }
+
+    std::uintptr_t PEFile::translateVAtoRaw(std::uintptr_t va) {
+        return boost::apply_visitor([&va, this](auto x) -> std::uintptr_t {
+            if constexpr (std::is_same_v<decltype(*x), Header32&> || std::is_same_v<decltype(*x), Header64&>){
+                if(va < x->ImageBase) throw std::invalid_argument("VA is lower than ImageBase");
+                return translateRVAtoRaw(va - x->ImageBase);
+            }
+            else{
+                throw std::logic_error("Invalid type returned from getOptionalHeader");
+            }
+        }, this->getOptionalHeader());
     }
 
     std::vector<IMAGE_IMPORT_DESCRIPTOR> *PEFile::getImportDirectoryTable(bool getEmpty) {
@@ -648,6 +660,35 @@ namespace PE_DATA{
         }
         else{
             return ILTEntryVariant(&this->ILT_32);
+        }
+    }
+
+    std::vector<PIMAGE_TLS_CALLBACK>* PEFile::getTLSCallbacks(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->tlsCallbacks.data())){
+            throw std::logic_error("TLS callbacks were not obtained before calling this method!");
+        }
+        return &this->tlsCallbacks;
+    }
+
+    ExceptionVariant PEFile::getExceptionDirectory(bool getEmpty) {
+        if (!getEmpty && !this->isTypeSet(&this->exceptionTableAlpha64) && !this->isTypeSet(&this->exceptionTableAlpha)
+            && !this->isTypeSet(&this->exceptionTableARM) && !this->isTypeSet(&this->exceptionTableARM64) && !this->isTypeSet(&this->exceptionTable)) {
+            throw std::logic_error("Exception table was not obtained before calling this method!");
+        }
+
+        switch (this->machine()) {
+            case IMAGE_FILE_MACHINE_ALPHA:
+                return ExceptionVariant(&this->exceptionTableAlpha);
+            case IMAGE_FILE_MACHINE_ALPHA64:
+                return ExceptionVariant(&this->exceptionTableAlpha64);
+            case IMAGE_FILE_MACHINE_ARM:
+            case IMAGE_FILE_MACHINE_ARMV7:
+            case IMAGE_FILE_MACHINE_THUMB:
+                return ExceptionVariant(&this->exceptionTableARM);
+            case IMAGE_FILE_MACHINE_ARM64:
+                return ExceptionVariant(&this->exceptionTableARM64);
+            default:
+                return ExceptionVariant(&this->exceptionTable);
         }
     }
 };

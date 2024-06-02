@@ -21,14 +21,17 @@ namespace PE_PARSER{
 //Class to read data from Parsed Portable Executable
 namespace PE_DATA{
 
+    //Variant Types
     using Header32 = IMAGE_OPTIONAL_HEADER32;
     using Header64 = IMAGE_OPTIONAL_HEADER64;
-
     using HeaderVariant = boost::variant<Header32*, Header64*>;
     using ConfigVariant = boost::variant<IMAGE_LOAD_CONFIG_DIRECTORY32*, IMAGE_LOAD_CONFIG_DIRECTORY64*>;
     using ConfigRestVariant = boost::variant<PE_STRUCTURE::LoadConfigDirectory32_Rest*, PE_STRUCTURE::LoadConfigDirectory64_Rest*>;
     using TLSVariant = boost::variant<IMAGE_TLS_DIRECTORY32*, IMAGE_TLS_DIRECTORY64*>;
     using ILTEntryVariant = boost::variant<unsigned long long*, unsigned long*>;
+    using ExceptionVariant = boost::variant<std::vector<IMAGE_ALPHA64_RUNTIME_FUNCTION_ENTRY>*, std::vector<IMAGE_ALPHA_RUNTIME_FUNCTION_ENTRY>*,
+                            std::vector<IMAGE_ARM_RUNTIME_FUNCTION_ENTRY>*, std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY>*,
+                            std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY>*>;
 
     class PEFile {
         friend class PE_PARSER::Parser;
@@ -87,7 +90,7 @@ namespace PE_DATA{
         [[nodiscard]] DWORD sizeOfHeaders();
         [[nodiscard]] DWORD checkSumOptional();
         [[nodiscard]] WORD subsystem();
-        [[nodiscard]] WORD dllCharasteristics();
+        [[nodiscard]] WORD dllCharacteristics();
         [[nodiscard]] ULONGLONG sizeOfStackReserve();
         [[nodiscard]] ULONGLONG sizeOfStackCommit();
         [[nodiscard]] ULONGLONG sizeOfHeapReserve();
@@ -157,6 +160,10 @@ namespace PE_DATA{
         //Section Headers data
         [[nodiscard]] std::vector<IMAGE_SECTION_HEADER>* getSectionHeaders(bool getEmpty = false);
 
+        //Dos Header and Image Header
+        [[nodiscard]] IMAGE_DOS_HEADER* getDosHeader(bool getEmpty = false);
+        [[nodiscard]] PE_STRUCTURE::ImageHeader* getImageHeader(bool getEmpty = false);
+
         //Data Directories
         [[nodiscard]] std::vector<IMAGE_IMPORT_DESCRIPTOR>* getImportDirectoryTable(bool getEmpty = false);
         [[nodiscard]] std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>* getImportByNameTable(bool getEmpty = false);
@@ -166,26 +173,25 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* getBaseRelocationTable(bool getEmpty = false);
         [[nodiscard]] std::vector<IMAGE_DEBUG_DIRECTORY>* getDebugDirectoryTable(bool getEmpty = false);
 
+        [[nodiscard]] std::vector<PIMAGE_TLS_CALLBACK>* getTLSCallbacks(bool getEmpty = false);
+
+        //Data dependent on PE type (x86/x64) or Machine Number
         [[nodiscard]] HeaderVariant getOptionalHeader(bool getEmpty = false);
         [[nodiscard]] ConfigVariant getLoadConfigDirectory(bool getEmpty = false);
         [[nodiscard]] ConfigRestVariant getLoadConfigDirectoryRest(bool getEmpty = false);
         [[nodiscard]] TLSVariant getTLSDirectory(bool getEmpty = false);
         [[nodiscard]] ILTEntryVariant getILTEntryVariant(bool getEmpty = false);
+        [[nodiscard]] ExceptionVariant getExceptionDirectory(bool getEmpty = false);
 
-        [[nodiscard]] IMAGE_DOS_HEADER* getDosHeader(bool getEmpty = false);
-        [[nodiscard]] PE_STRUCTURE::ImageHeader* getImageHeader(bool getEmpty = false);
-
+        //Function for converting RVA & VA to File Pointer
         [[nodiscard]] std::uintptr_t translateRVAtoRaw(std::uintptr_t rva);
+        [[nodiscard]] std::uintptr_t translateVAtoRaw(std::uintptr_t va);
 
     protected:
         PEFile();
 
-        bool getIs64Bit();
-
         IMAGE_DOS_HEADER dosHeader{};
         PE_STRUCTURE::ImageHeader imageHeader{};
-
-        void setTypeOfPE(WORD stateOfMachine);
 
         enum class OptHeaderAttr{
             magic = 0, majorLinkerVersion, minorLinkerVersion,
@@ -227,6 +233,10 @@ namespace PE_DATA{
         };
 
         std::pair<DWORD, std::size_t> getDataDirectoryPairEnum(DataDirectory dir);
+        std::uintptr_t getRawDirectoryAddress(DataDirectory dir);
+        bool getIs64Bit();
+        void setTypeOfPE(WORD stateOfMachine);
+        void allocateSectionHeaders(std::size_t numberOfSections);
 
         template<typename AttrType>
         AttrType getOptHeaderAttr(OptHeaderAttr attr);
@@ -234,18 +244,17 @@ namespace PE_DATA{
         template<typename AttrType>
         AttrType getTLSData(TLSData tlsData);
 
+        template<typename AttrType>
+        AttrType getLoadConfigData(LoadConfigData confData);
+
         template<typename T>
         bool isTypeSet(T *type){
             T zeroStruct{};
-            return memcmp(type, &zeroStruct, sizeof(T)) != 0;
+            return std::memcmp(type, &zeroStruct, sizeof(T)) != 0;
         }
 
-        void allocateSectionHeaders(std::size_t numberOfSections);
-
-        std::uintptr_t getRawDirectoryAddress(DataDirectory dir);
-
     private:
-        //dev note: get them with getOptionalHeader
+        //Variant Data
         Header32 imageOptionalHeader32{};
         Header64 imageOptionalHeader64{};
 
@@ -261,20 +270,23 @@ namespace PE_DATA{
         unsigned long long ILT_64{};
         unsigned long ILT_32{};
 
-        template<typename AttrType>
-        AttrType getLoadConfigData(LoadConfigData confData);
-
+        //Data Directories
         std::vector<IMAGE_SECTION_HEADER> imageSectionHeaders{};
         std::vector<IMAGE_IMPORT_DESCRIPTOR> importDirectoryTable{};
         std::vector<std::string> importDirectoryNames{};
         std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>> importByNameTable{};
         std::vector<IMAGE_DEBUG_DIRECTORY> debugDirectoryTable{};
-
         std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> boundImportDirectoryTable{};
         std::vector<std::string> boundImportDirectoryNames{};
-
         std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>> baseRelocationDirectoryTable{};
+        std::vector<PIMAGE_TLS_CALLBACK> tlsCallbacks{};
+        std::vector<IMAGE_ALPHA64_RUNTIME_FUNCTION_ENTRY> exceptionTableAlpha64{};
+        std::vector<IMAGE_ALPHA_RUNTIME_FUNCTION_ENTRY> exceptionTableAlpha{};
+        std::vector<IMAGE_ARM_RUNTIME_FUNCTION_ENTRY> exceptionTableARM{};
+        std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY> exceptionTableARM64{};
+        std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY> exceptionTable{};
 
+        //PE Information
         bool is64Bit = false, wasTypeSet = false;
     };
 

@@ -33,7 +33,7 @@ namespace PE_CONVERTER{
         );
 
         ASSERT_THAT(
-            converter.getDllCharacteristics(peFile->dllCharasteristics()), 
+            converter.getDllCharacteristics(peFile->dllCharacteristics()),
             ::testing::ElementsAreArray(
                 std::vector<std::string>{
                     "Image can handle a high entropy 64-bit virtual address space.",

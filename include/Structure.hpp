@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <winnt.h>
+#include <wintrust.h>
 
 #include <boost/describe/class.hpp>
 
@@ -84,5 +85,7 @@ BOOST_DESCRIBE_STRUCT(IMAGE_LOAD_CONFIG_DIRECTORY64, (), (Size, TimeDateStamp, M
 
 BOOST_DESCRIBE_STRUCT(IMAGE_TLS_DIRECTORY32, (), (StartAddressOfRawData, EndAddressOfRawData, AddressOfIndex, AddressOfCallBacks, SizeOfZeroFill, Characteristics));
 BOOST_DESCRIBE_STRUCT(IMAGE_TLS_DIRECTORY64, (), (StartAddressOfRawData, EndAddressOfRawData, AddressOfIndex, AddressOfCallBacks, SizeOfZeroFill, Characteristics));
+
+BOOST_DESCRIBE_STRUCT(WIN_CERTIFICATE, (), (dwLength, wRevision, wCertificateType, bCertificate));
 
 #endif

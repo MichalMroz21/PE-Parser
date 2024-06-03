@@ -48,13 +48,13 @@ namespace PE_PARSER{
 
         //returns amount of bytes copied to struct
         template<typename Base, class Md = boost::describe::describe_members<Base, boost::describe::mod_any_access>>
-        void copyBytesToStruct(Base& base, int toCopy = sizeof(Base));
+        void copyBytesToStruct(Base& base, long long toCopy = sizeof(Base));
 
         template<typename Attr> 
-        void copyBytesToStructInner(Attr& attr, int toCopy);
+        void copyBytesToStructInner(Attr& attr, long long toCopy);
 
         template<typename Arr> 
-        void copyBytesToStructInnerArr(Arr& arr, int toCopy);
+        void copyBytesToStructInnerArr(Arr& arr, long long toCopy);
 
         template<typename Attr> 
         void copyBytesToVariable(Attr& attr);
@@ -77,8 +77,10 @@ namespace PE_PARSER{
              getBaseRelocationDirectoryData(PE_DATA::PEFile* pFile),
              getDebugDirectoryData(PE_DATA::PEFile* peFile),
              getLoadConfigDirectoryData(PE_DATA::PEFile* pFile),
-             getTLSDirectoryData(PE_DATA::PEFile* pFile),
+             getTLSDirectoryData(PE_DATA::PEFile* peFile),
              getExceptionDirectoryData(PE_DATA::PEFile* peFile);
+
+        void getSecurityDirectoryData(PE_DATA::PEFile *pFile);
     };
 };
 #endif

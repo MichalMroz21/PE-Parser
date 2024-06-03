@@ -172,6 +172,7 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<std::string>* getBoundImportDirectoryNames(bool getEmpty = false);
         [[nodiscard]] std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* getBaseRelocationTable(bool getEmpty = false);
         [[nodiscard]] std::vector<IMAGE_DEBUG_DIRECTORY>* getDebugDirectoryTable(bool getEmpty = false);
+        [[nodiscard]] std::vector<std::unique_ptr<WIN_CERTIFICATE>>* getSecurityTable(bool getEmpty = false);
 
         [[nodiscard]] std::vector<PIMAGE_TLS_CALLBACK>* getTLSCallbacks(bool getEmpty = false);
 
@@ -285,6 +286,7 @@ namespace PE_DATA{
         std::vector<IMAGE_ARM_RUNTIME_FUNCTION_ENTRY> exceptionTableARM{};
         std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY> exceptionTableARM64{};
         std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY> exceptionTable{};
+        std::vector<std::unique_ptr<WIN_CERTIFICATE>> securityTable{};
 
         //PE Information
         bool is64Bit = false, wasTypeSet = false;

@@ -16,7 +16,7 @@ namespace PE_PARSER{
 
     //using this instead of memcpy with struct, because in case of big endian recursive struct iteration is needed
     template<typename Base, class Md>
-    void Parser::copyBytesToStruct(Base& base, int toCopy){
+    void Parser::copyBytesToStruct(Base& base, long long toCopy){
         boost::mp11::mp_for_each<Md>([&](auto attr){
             if(toCopy <= 0) return;
             this->copyBytesToStructInner(base.*attr.pointer, toCopy);
@@ -25,7 +25,7 @@ namespace PE_PARSER{
     }
 
     template<typename Arr> 
-    void Parser::copyBytesToStructInnerArr(Arr& arr, int toCopy){
+    void Parser::copyBytesToStructInnerArr(Arr& arr, long long toCopy){
         for (auto& el : arr){
             if(toCopy <= 0) return;
             this->copyBytesToStructInner(el, toCopy);
@@ -53,7 +53,7 @@ namespace PE_PARSER{
     }
 
     template<typename Attr> 
-    void Parser::copyBytesToStructInner(Attr& attr, int toCopy){
+    void Parser::copyBytesToStructInner(Attr& attr, long long toCopy){
         //check if iterated type is struct, if it is then recursively call this function for it
         if constexpr (std::is_class_v<Attr>){
             this->copyBytesToStruct(attr, toCopy);
@@ -190,17 +190,17 @@ namespace PE_PARSER{
 
     void Parser::getLoadConfigDirectoryData(PE_DATA::PEFile *peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::loadConfigDirectory));
-        int sizeOfLoadConfigDirectory = peFile->loadConfigDirectory().second;
+        std::size_t sizeOfLoadConfigDirectory = peFile->loadConfigDirectory().second;
 
-        boost::apply_visitor([this, peFile, &sizeOfLoadConfigDirectory](auto x){
-            this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, static_cast<int>(sizeof(*x))));
+        if(boost::apply_visitor([this, peFile, &sizeOfLoadConfigDirectory](auto x) -> bool{
+            this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, sizeof(*x)));
+            bool noRest = sizeOfLoadConfigDirectory <= sizeof(*x);
             sizeOfLoadConfigDirectory -= sizeof(*x);
-        }, peFile->getLoadConfigDirectory(true));
-
-        if(sizeOfLoadConfigDirectory <= 0) return;
+            return noRest;
+        }, peFile->getLoadConfigDirectory(true))) return;
 
         boost::apply_visitor([this, peFile, sizeOfLoadConfigDirectory](auto x){
-            this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, static_cast<int>(sizeof(*x))));
+            this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, sizeof(*x)));
         }, peFile->getLoadConfigDirectoryRest(true));
     }
 
@@ -227,6 +227,29 @@ namespace PE_PARSER{
         boost::apply_visitor([this, peFile](auto x){
             this->getExceptionStructs(x, peFile);
         }, peFile->getExceptionDirectory(true));
+    }
+
+    void Parser::getSecurityDirectoryData(PE_DATA::PEFile *peFile) {
+        this->buffer->setMemoryLocation(peFile->securityDirectory().first);
+
+        std::size_t totalLength = peFile->securityDirectory().second;
+
+        while(true){
+            DWORD length{};
+
+            this->copyBytesToVariable<DWORD>(length);
+            this->buffer->uncutBytes(sizeof(length));
+
+            auto secRow = std::unique_ptr<WIN_CERTIFICATE>((WIN_CERTIFICATE*)(malloc(length)));
+
+            this->copyBytesToStruct(*secRow);
+            std::memcpy(secRow->bCertificate, this->buffer->getBeginAddress() - sizeof(BYTE), length - 2 * sizeof(DWORD));
+
+            peFile->getSecurityTable(true)->push_back(std::move(secRow));
+
+            if(totalLength <= length) break;
+            totalLength -= length;
+        }
     }
 
     PE_DATA::PEFile* Parser::loadPEFile(){
@@ -287,6 +310,10 @@ namespace PE_PARSER{
 
         if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::exceptionDirectory).second){
             this->getExceptionDirectoryData(peFile); //!Leaves buffer at random address
+        }
+
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::securityDirectory).second){
+           this->getSecurityDirectoryData(peFile); //!Leaves buffer at random address
         }
 
         this->freeBuffer();

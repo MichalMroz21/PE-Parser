@@ -691,4 +691,11 @@ namespace PE_DATA{
                 return ExceptionVariant(&this->exceptionTable);
         }
     }
+
+    std::vector<std::unique_ptr<WIN_CERTIFICATE>>* PEFile::getSecurityTable(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(&this->securityTable)){
+            throw std::logic_error("Security table was not obtained before calling this method!");
+        }
+        return &this->securityTable;
+    }
 };

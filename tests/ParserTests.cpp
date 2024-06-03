@@ -61,6 +61,15 @@ namespace PE_PARSER{
                     }
                 )
         );
+
+        auto securityTable = peFile->getSecurityTable();
+
+        ASSERT_EQ((*securityTable)[0]->dwLength, 0x27D8);
+        ASSERT_EQ((*securityTable)[0]->wRevision, 0x200);
+        ASSERT_EQ((*securityTable)[0]->wCertificateType, 0x2);
+        ASSERT_EQ((*securityTable)[0]->bCertificate[0], 0x30);
+        ASSERT_EQ((*securityTable)[0]->bCertificate[1], 0x82);
+        ASSERT_EQ((*securityTable)[0]->bCertificate[2], 0x27);
     }
 
     TEST(ParserTest, Parse) {

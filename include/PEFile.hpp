@@ -173,6 +173,10 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* getBaseRelocationTable(bool getEmpty = false);
         [[nodiscard]] std::vector<IMAGE_DEBUG_DIRECTORY>* getDebugDirectoryTable(bool getEmpty = false);
         [[nodiscard]] std::vector<std::unique_ptr<WIN_CERTIFICATE>>* getSecurityTable(bool getEmpty = false);
+        [[nodiscard]] IMAGE_EXPORT_DIRECTORY* getExportDirectoryData(bool getEmpty = false);
+        [[nodiscard]] std::vector<PE_STRUCTURE::ExportFunction>* getExportFunctions(bool getEmpty = false);
+        [[nodiscard]] std::vector<DWORD>* getExportNames(bool getEmpty = false);
+        [[nodiscard]] std::vector<WORD>* getExportNameOrdinals(bool getEmpty = false);
 
         [[nodiscard]] std::vector<PIMAGE_TLS_CALLBACK>* getTLSCallbacks(bool getEmpty = false);
 
@@ -249,9 +253,13 @@ namespace PE_DATA{
         AttrType getLoadConfigData(LoadConfigData confData);
 
         template<typename T>
-        bool isTypeSet(T *type){
-            T zeroStruct{};
-            return std::memcmp(type, &zeroStruct, sizeof(T)) != 0;
+        bool isTypeSet(T *type, std::size_t size = 1){
+            for(int i = 0; i < size; i++) {
+                T zeroStruct{};
+                if(std::memcmp(type + i, &zeroStruct, sizeof(T)) != 0)
+                    return true;
+            }
+            return false;
         }
 
     private:
@@ -271,6 +279,8 @@ namespace PE_DATA{
         unsigned long long ILT_64{};
         unsigned long ILT_32{};
 
+        IMAGE_EXPORT_DIRECTORY exportDirectoryData{};
+
         //Data Directories
         std::vector<IMAGE_SECTION_HEADER> imageSectionHeaders{};
         std::vector<IMAGE_IMPORT_DESCRIPTOR> importDirectoryTable{};
@@ -287,6 +297,12 @@ namespace PE_DATA{
         std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY> exceptionTableARM64{};
         std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY> exceptionTable{};
         std::vector<std::unique_ptr<WIN_CERTIFICATE>> securityTable{};
+        //Functions RVAs + addresses of functions
+        std::vector<PE_STRUCTURE::ExportFunction> exportFunctions{};
+        //All addresses of function names from above vector, but sorted so binary search can be done
+        std::vector<DWORD> exportNames{};
+        //Ordinal vector
+        std::vector<WORD> exportNameOrdinals{};
 
         //PE Information
         bool is64Bit = false, wasTypeSet = false;

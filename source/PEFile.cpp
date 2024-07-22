@@ -266,7 +266,7 @@ namespace PE_DATA{
         if(this->imageSectionHeaders.empty()){
             throw std::logic_error("Section headers were not allocated before calling this method!");
         }
-        if(!getEmpty && !this->isTypeSet(this->imageSectionHeaders.data())){
+        if(!getEmpty && !this->isTypeSet(this->imageSectionHeaders.data(), this->imageSectionHeaders.size())){
             throw std::logic_error("Section headers were not obtained before calling this method!");
         }
         return &this->imageSectionHeaders;
@@ -301,49 +301,49 @@ namespace PE_DATA{
     }
 
     std::vector<IMAGE_IMPORT_DESCRIPTOR> *PEFile::getImportDirectoryTable(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->importDirectoryTable.data())){
+        if(!getEmpty && !this->isTypeSet(this->importDirectoryTable.data(), this->importDirectoryTable.size())){
             throw std::logic_error("Import directory table was not obtained before calling this method!");
         }
         return &this->importDirectoryTable;
     }
 
     std::vector<IMAGE_BOUND_IMPORT_DESCRIPTOR> *PEFile::getBoundImportDirectoryTable(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->boundImportDirectoryTable.data())){
+        if(!getEmpty && !this->isTypeSet(this->boundImportDirectoryTable.data(), this->boundImportDirectoryTable.size())){
             throw std::logic_error("Bound import directory table was not obtained before calling this method!");
         }
         return &this->boundImportDirectoryTable;
     }
 
     std::vector<std::string> *PEFile::getImportDirectoryNames(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->importDirectoryNames.data())){
+        if(!getEmpty && !this->isTypeSet(this->importDirectoryNames.data(), this->importDirectoryNames.size())){
             throw std::logic_error("Import directory names were not obtained before calling this method!");
         }
         return &this->importDirectoryNames;
     }
 
     std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>* PEFile::getImportByNameTable(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->importByNameTable.data())){
+        if(!getEmpty && !this->isTypeSet(this->importByNameTable.data(), this->importByNameTable.size())){
             throw std::logic_error("Import by name table was not obtained before calling this method!");
         }
         return &this->importByNameTable;
     }
 
     std::vector<std::string> *PEFile::getBoundImportDirectoryNames(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->boundImportDirectoryNames.data())){
+        if(!getEmpty && !this->isTypeSet(this->boundImportDirectoryNames.data(), this->boundImportDirectoryNames.size())){
             throw std::logic_error("Bound import directory names were not obtained before calling this method!");
         }
         return &this->boundImportDirectoryNames;
     }
 
     std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>>* PEFile::getBaseRelocationTable(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->baseRelocationDirectoryTable.data())){
+        if(!getEmpty && !this->isTypeSet(this->baseRelocationDirectoryTable.data(), this->baseRelocationDirectoryTable.size())){
             throw std::logic_error("Base relocation directory table was not obtained before calling this method!");
         }
         return &this->baseRelocationDirectoryTable;
     }
 
     std::vector<IMAGE_DEBUG_DIRECTORY> *PEFile::getDebugDirectoryTable(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->debugDirectoryTable.data())){
+        if(!getEmpty && !this->isTypeSet(this->debugDirectoryTable.data(), this->debugDirectoryTable.size())){
             throw std::logic_error("Debug directory table was not obtained before calling this method!");
         }
         return &this->debugDirectoryTable;
@@ -664,15 +664,16 @@ namespace PE_DATA{
     }
 
     std::vector<PIMAGE_TLS_CALLBACK>* PEFile::getTLSCallbacks(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(this->tlsCallbacks.data())){
+        if(!getEmpty && !this->isTypeSet(this->tlsCallbacks.data(), this->tlsCallbacks.size())){
             throw std::logic_error("TLS callbacks were not obtained before calling this method!");
         }
         return &this->tlsCallbacks;
     }
 
     ExceptionVariant PEFile::getExceptionDirectory(bool getEmpty) {
-        if (!getEmpty && !this->isTypeSet(&this->exceptionTableAlpha64) && !this->isTypeSet(&this->exceptionTableAlpha)
-            && !this->isTypeSet(&this->exceptionTableARM) && !this->isTypeSet(&this->exceptionTableARM64) && !this->isTypeSet(&this->exceptionTable)) {
+        if (!getEmpty && !this->isTypeSet(this->exceptionTableAlpha64.data(), this->exceptionTableAlpha64.size()) && !this->isTypeSet(this->exceptionTableAlpha.data(), this->exceptionTableAlpha.size())
+            && !this->isTypeSet(this->exceptionTableARM.data(), this->exceptionTableARM.size()) && !this->isTypeSet(this->exceptionTableARM64.data(), this->exceptionTableARM64.size()) &&
+            !this->isTypeSet(this->exceptionTable.data(), this->exceptionTable.size())) {
             throw std::logic_error("Exception table was not obtained before calling this method!");
         }
 
@@ -693,9 +694,37 @@ namespace PE_DATA{
     }
 
     std::vector<std::unique_ptr<WIN_CERTIFICATE>>* PEFile::getSecurityTable(bool getEmpty) {
-        if(!getEmpty && !this->isTypeSet(&this->securityTable)){
+        if(!getEmpty && !this->isTypeSet(this->securityTable.data(), this->securityTable.size())){
             throw std::logic_error("Security table was not obtained before calling this method!");
         }
         return &this->securityTable;
+    }
+
+    IMAGE_EXPORT_DIRECTORY* PEFile::getExportDirectoryData(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(&this->exportDirectoryData)){
+            throw std::logic_error("Export directory data was not obtained before calling this method!");
+        }
+        return &this->exportDirectoryData;
+    }
+
+    std::vector<PE_STRUCTURE::ExportFunction>* PEFile::getExportFunctions(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->exportFunctions.data(), this->exportFunctions.size())){
+            throw std::logic_error("Export functions were not obtained before calling this method!");
+        }
+        return &this->exportFunctions;
+    }
+
+    std::vector<DWORD> *PEFile::getExportNames(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->exportNames.data(), this->exportNames.size())){
+            throw std::logic_error("Export names were not obtained before calling this method!");
+        }
+        return &this->exportNames;
+    }
+
+    std::vector<WORD> *PEFile::getExportNameOrdinals(bool getEmpty) {
+        if(!getEmpty && !this->isTypeSet(this->exportNameOrdinals.data(), this->exportNameOrdinals.size())){
+            throw std::logic_error("Export ordinals were not obtained before calling this method!");
+        }
+        return &this->exportNameOrdinals;
     }
 };

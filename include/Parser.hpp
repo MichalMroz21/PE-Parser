@@ -8,6 +8,7 @@
 #include <cstring>
 #include <string>
 #include <type_traits>
+#include <winDNS.h>
 
 #include <boost/mp11.hpp>
 #include <boost/type_index.hpp>
@@ -66,7 +67,7 @@ namespace PE_PARSER{
         void getStructs(Arr* arr, PE_DATA::PEFile* peFile, std::size_t amount);
 
         template<typename T>
-        void getExceptionStructs(std::vector<T>* exceptionDirectory, PE_DATA::PEFile* peFile);
+        void getVectorStructs(std::vector<T>* vector, PE_DATA::PEFile* peFile);
         
         PE_BUFFER::Buffer* buffer{};
         
@@ -80,7 +81,9 @@ namespace PE_PARSER{
              getTLSDirectoryData(PE_DATA::PEFile* peFile),
              getExceptionDirectoryData(PE_DATA::PEFile* peFile);
 
-        void getSecurityDirectoryData(PE_DATA::PEFile *pFile);
+        void getSecurityDirectoryData(PE_DATA::PEFile *peFile);
+
+        void getExportDirectoryData(PE_DATA::PEFile *peFile);
     };
 };
 #endif

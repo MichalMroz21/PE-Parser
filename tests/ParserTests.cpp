@@ -2,6 +2,7 @@
 #include <gmock/gmock.h>
 
 #include <Parser.hpp>
+#include <Structure.hpp>
 #include <boost/describe.hpp>
 
 #include <tuple>
@@ -70,6 +71,34 @@ namespace PE_PARSER{
         ASSERT_EQ((*securityTable)[0]->bCertificate[0], 0x30);
         ASSERT_EQ((*securityTable)[0]->bCertificate[1], 0x82);
         ASSERT_EQ((*securityTable)[0]->bCertificate[2], 0x27);
+
+        std::vector<DWORD> expectedExportedNames{
+            0x08DCA43B, 0x08DCA493, 0x08DCA4EB, 0x08DCA543, 0x08DCA59B, 0x08DCA5FC, 0x08DCA661, 0x08DCA6C6,
+            0x08DCA727, 0x08DCA788, 0x08DCA7D5, 0x08DCA822, 0x08DCA84A, 0x08DCA86C, 0x08DCA894, 0x08DCA8B6
+        }, actualExportedNames = *peFile->getExportNames();
+
+        std::vector<WORD> expectedExportedNamesOrdinals{
+            0x0, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+            0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F
+        }, actualExportedNamesOrdinals = *peFile->getExportNameOrdinals();
+
+        std::vector<PE_STRUCTURE::ExportFunction> expectedExportedFunctions{
+                {0x04ADD340, 0x04ADD340}, {0x04ADD440, 0x04ADD580},
+                {0x04ADD0E0, 0x04ADD0E0}, {0x04ADD0E0, 0x04ADCEE0},
+                {0x04ADD0E0, 0x04ADCEE0}, {0x04ADD290, 0x003597A0},
+                {0x002A0730, 0x003597A0}, {0x002A0730, 0x003597A0},
+                {0x002A0730, 0x0051EBA0}, {0x0051EBA0, 0x0073A500},
+                {0x0073A500, 0x001C6AD0}, {0x00B04310, 0x00B04310},
+                {0x001C6AD0, 0x00B04060}, {0x00B04170, 0x00B04060},
+                {0x0051EBA0, 0x0051EBA0}, {0x00B06190, 0x00B06190}
+        }, actualExportedFunctions = *peFile->getExportFunctions();
+
+        for(int i = 0; i < expectedExportedNames.size(); i++){
+            ASSERT_EQ(actualExportedNames[i], expectedExportedNames[i]);
+            ASSERT_EQ(actualExportedNamesOrdinals[i], expectedExportedNamesOrdinals[i]);
+            ASSERT_EQ(actualExportedFunctions[i].AddressOfFunction, expectedExportedFunctions[i].AddressOfFunction);
+            ASSERT_EQ(actualExportedFunctions[i].AddressOfName, expectedExportedFunctions[i].AddressOfName);
+        }
     }
 
     TEST(ParserTest, Parse) {
@@ -78,8 +107,8 @@ namespace PE_PARSER{
         PE_DATA::PEFile *peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/1.exe");
 
         EXPECT_ANY_THROW({
-                             std::ignore = peFile->baseOfData();
-                         });
+             std::ignore = peFile->baseOfData();
+         });
 
         //DosHeader byte data
         ASSERT_THAT(
@@ -977,9 +1006,9 @@ namespace PE_PARSER{
                     ASSERT_EQ((*x)[i].UnwindInfoAddress, expectedExceptions[i].UnwindInfoAddress);
                 }
 
-                ASSERT_EQ((*x).back().BeginAddress, {0x3341EC});
-                ASSERT_EQ((*x).back().EndAddress, {0x334233});
-                ASSERT_EQ((*x).back().UnwindInfoAddress, {0x421250});
+                ASSERT_EQ(x->back().BeginAddress, {0x3341EC});
+                ASSERT_EQ(x->back().EndAddress, {0x334233});
+                ASSERT_EQ(x->back().UnwindInfoAddress, {0x421250});
             }
         }, peFile->getExceptionDirectory());
     }

@@ -40,10 +40,17 @@ namespace PE_STRUCTURE {
         ULONGLONG GuardLongJumpTargetCount{};
     };
 
+    struct ExportFunction{
+        DWORD AddressOfFunction{};
+        DWORD AddressOfName{};
+    };
+
     BOOST_DESCRIBE_STRUCT(ImageHeader, (), (signature, FileHeader));
 
     BOOST_DESCRIBE_STRUCT(LoadConfigDirectory32_Rest, (), (GuardCFCheckFunctionPointer, GuardCFDispatchFunctionPointer, GuardCFFunctionTable, GuardCFFunctionCount, GuardFlags, CodeIntegrity, GuardAddressTakenIatEntryTable, GuardAddressTakenIatEntryCount, GuardLongJumpTargetTable, GuardLongJumpTargetCount));
     BOOST_DESCRIBE_STRUCT(LoadConfigDirectory64_Rest, (), (GuardCFCheckFunctionPointer, GuardCFDispatchFunctionPointer, GuardCFFunctionTable, GuardCFFunctionCount, GuardFlags, CodeIntegrity, GuardAddressTakenIatEntryTable, GuardAddressTakenIatEntryCount, GuardLongJumpTargetTable, GuardLongJumpTargetCount));
+
+    BOOST_DESCRIBE_STRUCT(ExportFunction, (), (AddressOfFunction, AddressOfName));
 };
 
 BOOST_DESCRIBE_STRUCT(IMAGE_DOS_HEADER, (), (e_magic, e_cblp, e_cp, e_crlc, e_cparhdr,
@@ -87,5 +94,7 @@ BOOST_DESCRIBE_STRUCT(IMAGE_TLS_DIRECTORY32, (), (StartAddressOfRawData, EndAddr
 BOOST_DESCRIBE_STRUCT(IMAGE_TLS_DIRECTORY64, (), (StartAddressOfRawData, EndAddressOfRawData, AddressOfIndex, AddressOfCallBacks, SizeOfZeroFill, Characteristics));
 
 BOOST_DESCRIBE_STRUCT(WIN_CERTIFICATE, (), (dwLength, wRevision, wCertificateType, bCertificate));
+
+BOOST_DESCRIBE_STRUCT(IMAGE_EXPORT_DIRECTORY, (), (Characteristics, TimeDateStamp, MajorVersion, MinorVersion, Name, Base, NumberOfFunctions, NumberOfNames, AddressOfFunctions, AddressOfNames, AddressOfNameOrdinals));
 
 #endif

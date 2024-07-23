@@ -347,6 +347,9 @@ namespace PE_PARSER{
         IMAGE_EXPORT_DIRECTORY *exportDirectory = peFile->getExportDirectoryData(true);
         this->copyBytesToStruct(*exportDirectory);
 
+        this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(exportDirectory->Name));
+        peFile->exportDirectoryName = this->getNullTerminatedString();
+
         this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(exportDirectory->AddressOfFunctions));
         this->getStructs<PE_STRUCTURE::ExportFunction>(peFile->getExportFunctions(true), peFile, exportDirectory->NumberOfFunctions);
 
@@ -355,5 +358,15 @@ namespace PE_PARSER{
 
         this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(exportDirectory->AddressOfNameOrdinals));
         this->getStructs<WORD>(peFile->getExportNameOrdinals(true), peFile, exportDirectory->NumberOfNames);
+
+        auto exportFunctions = peFile->getExportFunctions();
+
+        for(auto& exportFunction : *exportFunctions){
+           std::uintptr_t rawAddr = peFile->translateRVAtoRaw(exportFunction.AddressOfName);
+           if(rawAddr != std::numeric_limits<std::uintptr_t>::max()) {
+              this->buffer->setMemoryLocation(rawAddr);
+              (*peFile->getExportRVANameMap(true))[exportFunction.AddressOfName] = this->getNullTerminatedString();
+           }
+        }
     }
 };

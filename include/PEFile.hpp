@@ -13,6 +13,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <type_traits>
+#include <memory>
+#include <map>
 
 namespace PE_PARSER{
     class Parser;
@@ -177,6 +179,8 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<PE_STRUCTURE::ExportFunction>* getExportFunctions(bool getEmpty = false);
         [[nodiscard]] std::vector<DWORD>* getExportNames(bool getEmpty = false);
         [[nodiscard]] std::vector<WORD>* getExportNameOrdinals(bool getEmpty = false);
+        [[nodiscard]] std::string getExportName(bool getEmpty = false);
+        [[nodicard]] std::map<DWORD, std::string>* getExportRVANameMap(bool getEmpty = false);
 
         [[nodiscard]] std::vector<PIMAGE_TLS_CALLBACK>* getTLSCallbacks(bool getEmpty = false);
 
@@ -280,6 +284,7 @@ namespace PE_DATA{
         unsigned long ILT_32{};
 
         IMAGE_EXPORT_DIRECTORY exportDirectoryData{};
+        std::string exportDirectoryName{};
 
         //Data Directories
         std::vector<IMAGE_SECTION_HEADER> imageSectionHeaders{};
@@ -303,6 +308,8 @@ namespace PE_DATA{
         std::vector<DWORD> exportNames{};
         //Ordinal vector
         std::vector<WORD> exportNameOrdinals{};
+        //RVAs mapped to names of exported functions
+        std::map<DWORD, std::string> exportRVANameMap{};
 
         //PE Information
         bool is64Bit = false, wasTypeSet = false;

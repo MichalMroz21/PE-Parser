@@ -280,12 +280,14 @@ namespace PE_DATA{
 
     std::uintptr_t PEFile::translateRVAtoRaw(std::uintptr_t rva) {
         for(const auto& sectionHeader : *this->getSectionHeaders()){
-            if(rva >= sectionHeader.VirtualAddress && rva < sectionHeader.VirtualAddress + sectionHeader.SizeOfRawData){
+            if(rva >= sectionHeader.VirtualAddress && rva < (sectionHeader.VirtualAddress + sectionHeader.SizeOfRawData)){
                 return rva - sectionHeader.VirtualAddress + sectionHeader.PointerToRawData;
             }
         }
 
-        throw std::invalid_argument("RVA not found in any section");
+        std::cerr << "[Warning!] RVA: " << std::hex << rva << " not found in any section!" << '\n';
+
+        return std::numeric_limits<std::uintptr_t>::max();
     }
 
     std::uintptr_t PEFile::translateVAtoRaw(std::uintptr_t va) {
@@ -726,5 +728,19 @@ namespace PE_DATA{
             throw std::logic_error("Export ordinals were not obtained before calling this method!");
         }
         return &this->exportNameOrdinals;
+    }
+
+    std::map<DWORD, std::string>* PEFile::getExportRVANameMap(bool getEmpty) {
+        if(!getEmpty && this->exportRVANameMap.empty()){
+            throw std::logic_error("Export RVA name map was not obtained before calling this method!");
+        }
+        return &this->exportRVANameMap;
+    }
+
+    std::string PEFile::getExportName(bool getEmpty) {
+        if(!this->isTypeSet(this->exportDirectoryName.data(), this->exportDirectoryName.size())){
+            throw std::logic_error("Export name was not obtained before calling this method!");
+        }
+        return this->exportDirectoryName;
     }
 };

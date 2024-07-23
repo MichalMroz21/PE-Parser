@@ -56,10 +56,12 @@ namespace PE_PARSER{
         ASSERT_THAT(
                 (*peFile->getTLSCallbacks()),
                 ::testing::ElementsAreArray(
-                    std::vector<PIMAGE_TLS_CALLBACK>{
-                        reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E66B60), reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E76570),
-                        reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x144133B30), reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E8D8B0)
-                    }
+                        std::vector<PIMAGE_TLS_CALLBACK>{
+                                reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E66B60),
+                                reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E76570),
+                                reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x144133B30),
+                                reinterpret_cast<PIMAGE_TLS_CALLBACK>(0x141E8D8B0)
+                        }
                 )
         );
 
@@ -73,32 +75,45 @@ namespace PE_PARSER{
         ASSERT_EQ((*securityTable)[0]->bCertificate[2], 0x27);
 
         std::vector<DWORD> expectedExportedNames{
-            0x08DCA43B, 0x08DCA493, 0x08DCA4EB, 0x08DCA543, 0x08DCA59B, 0x08DCA5FC, 0x08DCA661, 0x08DCA6C6,
-            0x08DCA727, 0x08DCA788, 0x08DCA7D5, 0x08DCA822, 0x08DCA84A, 0x08DCA86C, 0x08DCA894, 0x08DCA8B6
+                0x08DCA43B, 0x08DCA493, 0x08DCA4EB, 0x08DCA543, 0x08DCA59B, 0x08DCA5FC, 0x08DCA661, 0x08DCA6C6,
+                0x08DCA727, 0x08DCA788, 0x08DCA7D5, 0x08DCA822, 0x08DCA84A, 0x08DCA86C, 0x08DCA894, 0x08DCA8B6
         }, actualExportedNames = *peFile->getExportNames();
 
         std::vector<WORD> expectedExportedNamesOrdinals{
-            0x0, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
-            0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F
+                0x0, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+                0x0008, 0x0009, 0x000A, 0x000B, 0x000C, 0x000D, 0x000E, 0x000F
         }, actualExportedNamesOrdinals = *peFile->getExportNameOrdinals();
 
         std::vector<PE_STRUCTURE::ExportFunction> expectedExportedFunctions{
-                {0x04ADD340, 0x04ADD340}, {0x04ADD440, 0x04ADD580},
-                {0x04ADD0E0, 0x04ADD0E0}, {0x04ADD0E0, 0x04ADCEE0},
-                {0x04ADD0E0, 0x04ADCEE0}, {0x04ADD290, 0x003597A0},
-                {0x002A0730, 0x003597A0}, {0x002A0730, 0x003597A0},
-                {0x002A0730, 0x0051EBA0}, {0x0051EBA0, 0x0073A500},
-                {0x0073A500, 0x001C6AD0}, {0x00B04310, 0x00B04310},
-                {0x001C6AD0, 0x00B04060}, {0x00B04170, 0x00B04060},
-                {0x0051EBA0, 0x0051EBA0}, {0x00B06190, 0x00B06190}
+                {0x04ADD340, 0x04ADD340},
+                {0x04ADD440, 0x04ADD580},
+                {0x04ADD0E0, 0x04ADD0E0},
+                {0x04ADD0E0, 0x04ADCEE0},
+                {0x04ADD0E0, 0x04ADCEE0},
+                {0x04ADD290, 0x003597A0},
+                {0x002A0730, 0x003597A0},
+                {0x002A0730, 0x003597A0},
+                {0x002A0730, 0x0051EBA0},
+                {0x0051EBA0, 0x0073A500},
+                {0x0073A500, 0x001C6AD0},
+                {0x00B04310, 0x00B04310},
+                {0x001C6AD0, 0x00B04060},
+                {0x00B04170, 0x00B04060},
+                {0x0051EBA0, 0x0051EBA0},
+                {0x00B06190, 0x00B06190}
         }, actualExportedFunctions = *peFile->getExportFunctions();
 
-        for(int i = 0; i < expectedExportedNames.size(); i++){
+        for (int i = 0; i < expectedExportedNames.size(); i++) {
             ASSERT_EQ(actualExportedNames[i], expectedExportedNames[i]);
             ASSERT_EQ(actualExportedNamesOrdinals[i], expectedExportedNamesOrdinals[i]);
             ASSERT_EQ(actualExportedFunctions[i].AddressOfFunction, expectedExportedFunctions[i].AddressOfFunction);
             ASSERT_EQ(actualExportedFunctions[i].AddressOfName, expectedExportedFunctions[i].AddressOfName);
         }
+
+        ASSERT_EQ(peFile->getExportName(), "electron.exe");
+
+        ASSERT_EQ((*peFile->getExportRVANameMap())[0x8df5b6c], "uv_write2");
+        ASSERT_EQ((*peFile->getExportRVANameMap())[0x8ddf78e],"?IsEmbeddedAsarIntegrityValidationEnabled@fuses@electron@@YA_NXZ");
     }
 
     TEST(ParserTest, Parse) {
@@ -201,6 +216,40 @@ namespace PE_PARSER{
                         }
                 )
         );
+
+        std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>> relocationTable = *peFile->getBaseRelocationTable(),
+                expectedRelocationTable{
+                //first relocation table
+                std::make_pair(IMAGE_BASE_RELOCATION{0x336000, 0x9C}, std::vector<WORD>{
+                        0xa248, 0xa250, 0xa260, 0xa268, 0xa270, 0xa278, 0xa280, 0xa288, 0xa290, 0xa298, 0xa2A0,
+                        0xa2A8, 0xa2B0, 0xa2B8, 0xa2C0, 0xa2C8, 0xa2D0, 0xa2D8, 0xa2E0, 0xa2E8, 0xa2F0, 0xa2F8,
+                        0xa300, 0xa308, 0xa310, 0xa318, 0xa320, 0xa328, 0xa330, 0xa338, 0xa340, 0xa348, 0xa350,
+                        0xa358, 0xa360, 0xa368, 0xa370, 0xa378, 0xa380, 0xa388, 0xa390, 0xa398, 0xa3A0, 0xa3A8,
+                        0xa3B0, 0xa3B8, 0xa3C0, 0xa3C8, 0xa3D0, 0xa3D8, 0xa3E0, 0xa3E8, 0xa3F0, 0xa3F8, 0xa400,
+                        0xa408, 0xa410, 0xa418, 0xa420, 0xa428, 0xa430, 0xa448, 0xa450, 0xa458,
+                        0xa460, 0xa468, 0xa470, 0xa478, 0xa480, 0xa4a8, 0xa4b0, 0xa4b8, 0xa4c0
+                }),
+                //last relocation table
+                std::make_pair(IMAGE_BASE_RELOCATION{0x43E000, 0x58}, std::vector<WORD>{
+                        0xA010, 0xa048, 0xa080, 0xa0b0, 0xa0e0, 0xa118, 0xa148, 0xa178, 0xa1a8, 0xa1d8,
+                        0xa200, 0xa230, 0xa258, 0xa288, 0xa2b0, 0xa2d0, 0xa300, 0xa320, 0xa340,
+                        0xa368, 0xa388, 0xa3b0, 0xa3d0, 0xa3f8, 0xa418, 0xa438, 0xa458, 0xa478,
+                        0xa4a0, 0xa4c0, 0xa4e8, 0xa508, 0xa530, 0xa550, 0xa570, 0xa590, 0xa5b8,
+                        0xa5d8, 0xa5f8
+                }),
+        };
+
+        int expInd{};
+
+        for(int i = 0; i < relocationTable.size(); i++){
+            if(i != 0 && i != relocationTable.size() - 1) continue; //only test first and last one
+            ASSERT_EQ(relocationTable[i].first.VirtualAddress, expectedRelocationTable[expInd].first.VirtualAddress);
+            ASSERT_EQ(relocationTable[i].first.SizeOfBlock, expectedRelocationTable[expInd].first.SizeOfBlock);
+            for(int j = 0; j < relocationTable[i].second.size(); j++){
+                ASSERT_EQ(relocationTable[i].second[j], expectedRelocationTable[expInd].second[j]);
+            }
+            expInd++;
+        }
 
         //SectionHeaders byte data
         std::vector<IMAGE_SECTION_HEADER> sectionHeaders = *peFile->getSectionHeaders(),
@@ -901,40 +950,6 @@ namespace PE_PARSER{
                     ASSERT_EQ(importByNameTable[i][j].second, nullptr);
                 }
             }
-        }
-
-        std::vector<std::pair<IMAGE_BASE_RELOCATION, std::vector<WORD>>> relocationTable = *peFile->getBaseRelocationTable(),
-                expectedRelocationTable{
-                        //first relocation table
-                        std::make_pair(IMAGE_BASE_RELOCATION{0x336000, 0x9C}, std::vector<WORD>{
-                                0xa248, 0xa250, 0xa260, 0xa268, 0xa270, 0xa278, 0xa280, 0xa288, 0xa290, 0xa298, 0xa2A0,
-                                0xa2A8, 0xa2B0, 0xa2B8, 0xa2C0, 0xa2C8, 0xa2D0, 0xa2D8, 0xa2E0, 0xa2E8, 0xa2F0, 0xa2F8,
-                                0xa300, 0xa308, 0xa310, 0xa318, 0xa320, 0xa328, 0xa330, 0xa338, 0xa340, 0xa348, 0xa350,
-                                0xa358, 0xa360, 0xa368, 0xa370, 0xa378, 0xa380, 0xa388, 0xa390, 0xa398, 0xa3A0, 0xa3A8,
-                                0xa3B0, 0xa3B8, 0xa3C0, 0xa3C8, 0xa3D0, 0xa3D8, 0xa3E0, 0xa3E8, 0xa3F0, 0xa3F8, 0xa400,
-                                0xa408, 0xa410, 0xa418, 0xa420, 0xa428, 0xa430, 0xa448, 0xa450, 0xa458,
-                                0xa460, 0xa468, 0xa470, 0xa478, 0xa480, 0xa4a8, 0xa4b0, 0xa4b8, 0xa4c0
-                        }),
-                        //last relocation table
-                        std::make_pair(IMAGE_BASE_RELOCATION{0x43E000, 0x58}, std::vector<WORD>{
-                                0xA010, 0xa048, 0xa080, 0xa0b0, 0xa0e0, 0xa118, 0xa148, 0xa178, 0xa1a8, 0xa1d8,
-                                0xa200, 0xa230, 0xa258, 0xa288, 0xa2b0, 0xa2d0, 0xa300, 0xa320, 0xa340,
-                                0xa368, 0xa388, 0xa3b0, 0xa3d0, 0xa3f8, 0xa418, 0xa438, 0xa458, 0xa478,
-                                0xa4a0, 0xa4c0, 0xa4e8, 0xa508, 0xa530, 0xa550, 0xa570, 0xa590, 0xa5b8,
-                                0xa5d8, 0xa5f8
-                        }),
-        };
-
-        int expInd{};
-
-        for(int i = 0; i < relocationTable.size(); i++){
-            if(i != 0 && i != relocationTable.size() - 1) continue; //only test first and last one
-            ASSERT_EQ(relocationTable[i].first.VirtualAddress, expectedRelocationTable[expInd].first.VirtualAddress);
-            ASSERT_EQ(relocationTable[i].first.SizeOfBlock, expectedRelocationTable[expInd].first.SizeOfBlock);
-            for(int j = 0; j < relocationTable[i].second.size(); j++){
-                ASSERT_EQ(relocationTable[i].second[j], expectedRelocationTable[expInd].second[j]);
-            }
-            expInd++;
         }
 
         std::vector<IMAGE_DEBUG_DIRECTORY> debugDirectory = *peFile->getDebugDirectoryTable(),

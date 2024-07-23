@@ -71,7 +71,7 @@ namespace PE_CONVERTER{
         str.imbue(std::locale(str.getloc(), facet));
         str << boost::posix_time::from_time_t(timestamp);
         return str.str();
-    } 
+    }
 
     std::vector<std::string> Converter::getDllCharacteristics(WORD dllCharasteristics){
 

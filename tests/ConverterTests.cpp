@@ -23,7 +23,7 @@ namespace PE_CONVERTER{
         ASSERT_EQ(converter.getSubsystem(peFile->subsystem()), "The Windows graphical user interface (GUI) subsystem");
 
         ASSERT_THAT(
-            converter.getCharacteristics(peFile->charasteristics()), 
+            converter.getCharacteristics(peFile->characteristics()),
             ::testing::ElementsAreArray(
                 std::vector<std::string>{
                     "Image only. The image file is valid and can be run.",

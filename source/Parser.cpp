@@ -2,25 +2,27 @@
 
 namespace PE_PARSER{
 
-    PE_DATA::PEFile* Parser::loadPEFileFromPath(const char* fullPEPath){
-        this->freeBuffer();
+    PE_DATA::PEFile* Parser::loadPEFileFromPath(const char* fullPEPath, bool freeBuffer){
+        this->freeBuffer(); //clears previous parsing
         this->buffer = new PE_BUFFER::Buffer(fullPEPath);
-        return this->loadPEFile();
+        auto peFile = this->loadPEFile(freeBuffer);
+        peFile->setPathToFile(fullPEPath);
+        return peFile;
     }
 
-    PE_DATA::PEFile* Parser::loadPEFileFromBytes(const std::vector<BYTE>& bytes){
-        this->freeBuffer();
+    PE_DATA::PEFile* Parser::loadPEFileFromBytes(const std::vector<BYTE>& bytes, bool freeBuffer){
+        this->freeBuffer(); //clears previous parsing
         this->buffer = new PE_BUFFER::Buffer(bytes);
-        return this->loadPEFile();
+        return this->loadPEFile(freeBuffer);
     }
 
-    PE_DATA::PEFile* Parser::loadPEFileFromHexString(const std::string& hexStr){
-        this->freeBuffer();
+    PE_DATA::PEFile* Parser::loadPEFileFromHexString(const std::string& hexStr, bool freeBuffer){
+        this->freeBuffer(); //clears previous parsing
         this->buffer = new PE_BUFFER::Buffer(hexStr);
-        return this->loadPEFile();
+        return this->loadPEFile(freeBuffer);
     }
 
-    PE_DATA::PEFile* Parser::loadPEFile(){
+    PE_DATA::PEFile* Parser::loadPEFile(bool freeBuffer){
         auto* peFile = new PE_DATA::PEFile();
 
         //Copy Dos Header
@@ -88,11 +90,15 @@ namespace PE_PARSER{
             this->getExportDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        this->freeBuffer();
+        if(freeBuffer) this->freeBuffer();
         return peFile;
     }
 
     Parser::Parser() = default;
+
+    PE_BUFFER::Buffer* Parser::obtainBuffer() {
+        return this->buffer;
+    }
 
     void Parser::freeBuffer(){
         if(this->buffer)
@@ -368,5 +374,41 @@ namespace PE_PARSER{
               (*peFile->getExportRVANameMap(true))[exportFunction.AddressOfName] = this->getNullTerminatedString();
            }
         }
+    }
+
+    std::map<std::uintptr_t, std::string>
+    Parser::getStrings(PE_BUFFER::Buffer* buff) {
+        std::map<std::uintptr_t, std::string> strings{};
+        std::string current_string{};
+
+        std::uintptr_t bufferLocSave = buff->getCurrMemoryLocation(), currOffset{};
+        buff->setMemoryLocation(0);
+
+        bool nonPrintableMet = false;
+
+        for (BYTE byte : buff->getBuffer()) {
+            if (byte == 0x00) {
+                if (!nonPrintableMet && !current_string.empty()) {
+                    strings[currOffset - current_string.size()] = current_string;
+                }
+                current_string.clear();
+                nonPrintableMet = false;
+            } else {
+                if (byte < 0x20 || byte > 0x7E) {
+                    nonPrintableMet = true;
+                } else {
+                    current_string += static_cast<char>(byte);
+                    nonPrintableMet = false;
+                }
+            }
+            currOffset++;
+        }
+
+        if (!current_string.empty() && !nonPrintableMet) {
+            strings[currOffset - current_string.size()] = current_string;
+        }
+
+        buff->setMemoryLocation(bufferLocSave);
+        return strings;
     }
 };

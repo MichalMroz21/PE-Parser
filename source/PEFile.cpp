@@ -28,13 +28,9 @@ namespace PE_DATA{
 
     template<typename AttrType>
     AttrType PEFile::getOptHeaderAttr(OptHeaderAttr attrEnum){
-
         return boost::apply_visitor([&attrEnum, this](auto x) -> AttrType {
-
             if constexpr (std::is_same_v<decltype(*x), Header32&> || std::is_same_v<decltype(*x), Header64&>){
-
                 std::uintptr_t attrPtr{}, structPtr = reinterpret_cast<std::uintptr_t>(x);
-
                 int attrCnt{};
 
                 if constexpr (std::is_same_v<decltype(*x), Header64&>){
@@ -71,6 +67,7 @@ namespace PE_DATA{
                 throw std::logic_error("Invalid type returned from getOptionalHeader");
             }
 
+            return 0;
         }, this->getOptionalHeader());
     }
 
@@ -89,7 +86,6 @@ namespace PE_DATA{
     }
 
     HeaderVariant PEFile::getOptionalHeader(bool getEmpty){
-
         if( !getEmpty && !(this->isTypeSet(&this->imageOptionalHeader64) || this->isTypeSet(&this->imageOptionalHeader32)) ){
             throw std::logic_error("Optional header was not obtained before calling this method!");
         }
@@ -98,6 +94,39 @@ namespace PE_DATA{
             return HeaderVariant(&this->imageOptionalHeader64);
         else 
             return HeaderVariant(&this->imageOptionalHeader32);
+    }
+
+    void PEFile::allocateSectionHeaders(std::size_t numberOfSections) {
+        this->imageSectionHeaders.resize(numberOfSections);
+    }
+
+    std::uintptr_t PEFile::getRawDirectoryAddress(DataDirectory dir) {
+        auto dirPair = this->getDataDirectoryPairEnum(dir);
+        if(dirPair.second == 0) throw std::logic_error("Trying to obtain raw address of empty directory");
+        return this->translateRVAtoRaw(dirPair.first);
+    }
+
+    std::uintptr_t PEFile::translateRVAtoRaw(std::uintptr_t rva) {
+        for(const auto& sectionHeader : *this->getSectionHeaders()){
+            if(rva >= sectionHeader.VirtualAddress && rva < (sectionHeader.VirtualAddress + sectionHeader.SizeOfRawData)){
+                return rva - sectionHeader.VirtualAddress + sectionHeader.PointerToRawData;
+            }
+        }
+
+        std::cerr << "[Warning!] RVA: " << std::hex << rva << " not found in any section!" << '\n';
+        return std::numeric_limits<std::uintptr_t>::max();
+    }
+
+    std::uintptr_t PEFile::translateVAtoRaw(std::uintptr_t va) {
+        return boost::apply_visitor([&va, this](auto x) -> std::uintptr_t {
+            if constexpr (std::is_same_v<decltype(*x), Header32&> || std::is_same_v<decltype(*x), Header64&>){
+                if(va < x->ImageBase) throw std::invalid_argument("VA is lower than ImageBase");
+                return translateRVAtoRaw(va - x->ImageBase);
+            }
+            else{
+                throw std::logic_error("Invalid type returned from getOptionalHeader");
+            }
+        }, this->getOptionalHeader());
     }
 
     //DosHeader Data
@@ -127,7 +156,7 @@ namespace PE_DATA{
     DWORD PEFile::pointerToSymbolTable() { return this->getImageHeader()->FileHeader.PointerToSymbolTable; }
     DWORD PEFile::numberOfSymbols() { return this->getImageHeader()->FileHeader.NumberOfSymbols; }
     WORD PEFile::sizeOfOptionalHeader() { return this->getImageHeader()->FileHeader.SizeOfOptionalHeader; }
-    WORD PEFile::charasteristics() { return this->getImageHeader()->FileHeader.Characteristics; }
+    WORD PEFile::characteristics() { return this->getImageHeader()->FileHeader.Characteristics; }
 
     //OptionalHeader Data
     WORD PEFile::magic() { return this->getOptHeaderAttr<WORD>(OptHeaderAttr::magic); }
@@ -188,12 +217,9 @@ namespace PE_DATA{
         if(this->getIs64Bit()) throw std::logic_error("Trying to obtain base of data on x64 PE");
         return this->getOptHeaderAttr<DWORD>(OptHeaderAttr::baseOfData);
     }
+
     IMAGE_DATA_DIRECTORY* PEFile::dataDirectory(){
         return this->getOptHeaderAttr<IMAGE_DATA_DIRECTORY*>(OptHeaderAttr::dataDirectory);
-    }
-
-    void PEFile::allocateSectionHeaders(std::size_t numberOfSections) {
-        this->imageSectionHeaders.resize(numberOfSections);
     }
 
     //Data Directory (in optional header) data
@@ -270,36 +296,6 @@ namespace PE_DATA{
             throw std::logic_error("Section headers were not obtained before calling this method!");
         }
         return &this->imageSectionHeaders;
-    }
-
-    std::uintptr_t PEFile::getRawDirectoryAddress(DataDirectory dir) {
-        auto dirPair = this->getDataDirectoryPairEnum(dir);
-        if(dirPair.second == 0) throw std::logic_error("Trying to obtain raw address of empty directory");
-        return this->translateRVAtoRaw(dirPair.first);
-    }
-
-    std::uintptr_t PEFile::translateRVAtoRaw(std::uintptr_t rva) {
-        for(const auto& sectionHeader : *this->getSectionHeaders()){
-            if(rva >= sectionHeader.VirtualAddress && rva < (sectionHeader.VirtualAddress + sectionHeader.SizeOfRawData)){
-                return rva - sectionHeader.VirtualAddress + sectionHeader.PointerToRawData;
-            }
-        }
-
-        std::cerr << "[Warning!] RVA: " << std::hex << rva << " not found in any section!" << '\n';
-
-        return std::numeric_limits<std::uintptr_t>::max();
-    }
-
-    std::uintptr_t PEFile::translateVAtoRaw(std::uintptr_t va) {
-        return boost::apply_visitor([&va, this](auto x) -> std::uintptr_t {
-            if constexpr (std::is_same_v<decltype(*x), Header32&> || std::is_same_v<decltype(*x), Header64&>){
-                if(va < x->ImageBase) throw std::invalid_argument("VA is lower than ImageBase");
-                return translateRVAtoRaw(va - x->ImageBase);
-            }
-            else{
-                throw std::logic_error("Invalid type returned from getOptionalHeader");
-            }
-        }, this->getOptionalHeader());
     }
 
     std::vector<IMAGE_IMPORT_DESCRIPTOR> *PEFile::getImportDirectoryTable(bool getEmpty) {
@@ -457,6 +453,8 @@ namespace PE_DATA{
             else{
                 throw std::logic_error("Invalid type returned from getLoadConfigDirectory");
             }
+
+            return 0;
         }, this->getLoadConfigDirectory() );
     }
 
@@ -625,6 +623,7 @@ namespace PE_DATA{
             else{
                 throw std::logic_error("Invalid type returned from getTLSDirectory");
             }
+            return 0;
         }, this->getTLSDirectory() );
     }
 
@@ -742,5 +741,13 @@ namespace PE_DATA{
             throw std::logic_error("Export name was not obtained before calling this method!");
         }
         return this->exportDirectoryName;
+    }
+
+    void PEFile::setPathToFile(const std::string& path) {
+        this->pathToFile = path;
+    }
+
+    std::string PEFile::getPathToFile(){
+        return this->pathToFile;
     }
 };

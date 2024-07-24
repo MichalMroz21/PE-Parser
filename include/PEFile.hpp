@@ -32,13 +32,24 @@ namespace PE_DATA{
     using TLSVariant = boost::variant<IMAGE_TLS_DIRECTORY32*, IMAGE_TLS_DIRECTORY64*>;
     using ILTEntryVariant = boost::variant<unsigned long long*, unsigned long*>;
     using ExceptionVariant = boost::variant<std::vector<IMAGE_ALPHA64_RUNTIME_FUNCTION_ENTRY>*, std::vector<IMAGE_ALPHA_RUNTIME_FUNCTION_ENTRY>*,
-                            std::vector<IMAGE_ARM_RUNTIME_FUNCTION_ENTRY>*, std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY>*,
-                            std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY>*>;
+                             std::vector<IMAGE_ARM_RUNTIME_FUNCTION_ENTRY>*, std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY>*,
+                             std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY>*>;
 
     class PEFile {
         friend class PE_PARSER::Parser;
 
+    /*-----------------------------------
+       Public PE Library Functions
+    -----------------------------------*/
+
     public:
+        //General Information about PE File
+        std::string getPathToFile();
+        bool getIsTruncated(), getIs64Bit();
+        unsigned long long getFileSizeBytes(),
+                           getFileAlignmentUnits();
+        std::string getImpHash(), getRichHeaderHash(), getChecksum(), getMD5Hash(), getSHA1Hash();
+
         //DosHeader Data
         [[nodiscard]] WORD magicNumber();
         [[nodiscard]] WORD lastPageBytes();
@@ -66,7 +77,7 @@ namespace PE_DATA{
         [[nodiscard]] DWORD pointerToSymbolTable();
         [[nodiscard]] DWORD numberOfSymbols();
         [[nodiscard]] WORD sizeOfOptionalHeader();
-        [[nodiscard]] WORD charasteristics();
+        [[nodiscard]] WORD characteristics();
 
         //OptionalHeader data
         [[nodiscard]] WORD magic();
@@ -180,7 +191,7 @@ namespace PE_DATA{
         [[nodiscard]] std::vector<DWORD>* getExportNames(bool getEmpty = false);
         [[nodiscard]] std::vector<WORD>* getExportNameOrdinals(bool getEmpty = false);
         [[nodiscard]] std::string getExportName(bool getEmpty = false);
-        [[nodicard]] std::map<DWORD, std::string>* getExportRVANameMap(bool getEmpty = false);
+        [[nodiscard]] std::map<DWORD, std::string>* getExportRVANameMap(bool getEmpty = false);
 
         [[nodiscard]] std::vector<PIMAGE_TLS_CALLBACK>* getTLSCallbacks(bool getEmpty = false);
 
@@ -192,7 +203,7 @@ namespace PE_DATA{
         [[nodiscard]] ILTEntryVariant getILTEntryVariant(bool getEmpty = false);
         [[nodiscard]] ExceptionVariant getExceptionDirectory(bool getEmpty = false);
 
-        //Function for converting RVA & VA to File Pointer
+        //Function for converting RVA & VA to File Pointer, returns max uintptr_t if not found
         [[nodiscard]] std::uintptr_t translateRVAtoRaw(std::uintptr_t rva);
         [[nodiscard]] std::uintptr_t translateVAtoRaw(std::uintptr_t va);
 
@@ -243,9 +254,11 @@ namespace PE_DATA{
 
         std::pair<DWORD, std::size_t> getDataDirectoryPairEnum(DataDirectory dir);
         std::uintptr_t getRawDirectoryAddress(DataDirectory dir);
-        bool getIs64Bit();
+
         void setTypeOfPE(WORD stateOfMachine);
         void allocateSectionHeaders(std::size_t numberOfSections);
+
+        void setPathToFile(const std::string& pathToFile);
 
         template<typename AttrType>
         AttrType getOptHeaderAttr(OptHeaderAttr attr);
@@ -283,6 +296,15 @@ namespace PE_DATA{
         unsigned long long ILT_64{};
         unsigned long ILT_32{};
 
+        //PE Information
+        bool is64Bit = false, wasTypeSet = false;
+
+        //General Information
+        std::string pathToFile{};
+        bool isTruncated = false;
+        unsigned long long fileSizeBytes = 0, fileAlignmentUnits = 0;
+        std::string impHash{}, richHeaderHash{}, checksum{}, md5Hash{}, sha1Hash{};
+
         IMAGE_EXPORT_DIRECTORY exportDirectoryData{};
         std::string exportDirectoryName{};
 
@@ -302,6 +324,7 @@ namespace PE_DATA{
         std::vector<IMAGE_ARM64_RUNTIME_FUNCTION_ENTRY> exceptionTableARM64{};
         std::vector<_IMAGE_RUNTIME_FUNCTION_ENTRY> exceptionTable{};
         std::vector<std::unique_ptr<WIN_CERTIFICATE>> securityTable{};
+
         //Functions RVAs + addresses of functions
         std::vector<PE_STRUCTURE::ExportFunction> exportFunctions{};
         //All addresses of function names from above vector, but sorted so binary search can be done
@@ -310,10 +333,6 @@ namespace PE_DATA{
         std::vector<WORD> exportNameOrdinals{};
         //RVAs mapped to names of exported functions
         std::map<DWORD, std::string> exportRVANameMap{};
-
-        //PE Information
-        bool is64Bit = false, wasTypeSet = false;
     };
-
 }
 #endif

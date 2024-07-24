@@ -9,6 +9,7 @@
 #include <string>
 #include <type_traits>
 #include <winDNS.h>
+#include <regex>
 
 #include <boost/mp11.hpp>
 #include <boost/type_index.hpp>
@@ -30,21 +31,33 @@ namespace PE_PARSER{
         ~Parser();
 
         //User Entry Points into parsing Portable Executables
-        [[nodiscard]]
-        PE_DATA::PEFile* loadPEFileFromPath(const char* fullPEPath);
+        [[nodiscard]] PE_DATA::PEFile* loadPEFileFromPath(const char* fullPEPath, bool freeBuffer = true);
 
-        [[nodiscard]]
-        PE_DATA::PEFile* loadPEFileFromBytes(const std::vector<BYTE>& bytes);
+        [[nodiscard]] PE_DATA::PEFile* loadPEFileFromBytes(const std::vector<BYTE>& bytes, bool freeBuffer = true);
 
         //hexString has to be of even size
-        [[nodiscard]]
-        PE_DATA::PEFile* loadPEFileFromHexString(const std::string& hexStr);
+        [[nodiscard]] PE_DATA::PEFile* loadPEFileFromHexString(const std::string& hexStr, bool freeBuffer = true);
+
+        //Returns the buffer after parsing. If freeBuffer was set to true this will return nullptr.
+        //If You want to get a buffer after parsing then set freeBuffer argument to false.
+        //Remember to free the buffer Yourself after using it!
+        [[nodiscard]] PE_BUFFER::Buffer* obtainBuffer();
+
+        //Extracts strings from PE (Buffer)
+        //Where the key of the map is the offset of the string in PE, char is the type, and std::size_t is the length of string
+        [[nodiscard]] std::map<std::uintptr_t, std::string> getStrings(PE_BUFFER::Buffer* buff);
         
     private:
         //Main logic of parsing Portable Executables
-        PE_DATA::PEFile* loadPEFile();
+        PE_DATA::PEFile* loadPEFile(bool freeBuffer);
 
+        //this function used outside of class may lead to memory leaks
         void freeBuffer();
+
+        PE_BUFFER::Buffer* buffer{};
+
+        static constexpr bool isBigEndian = (std::endian::native == std::endian::big);
+
         std::string getNullTerminatedString();
 
         //returns amount of bytes copied to struct
@@ -68,22 +81,16 @@ namespace PE_PARSER{
 
         template<typename T>
         void getVectorStructs(std::vector<T>* vector, PE_DATA::PEFile* peFile);
-        
-        PE_BUFFER::Buffer* buffer{};
-        
-        static constexpr bool isBigEndian = (std::endian::native == std::endian::big);
 
         void getBoundImportDirectoryData(PE_DATA::PEFile* peFile),
              getImportDirectoryData(PE_DATA::PEFile* peFile),
-             getBaseRelocationDirectoryData(PE_DATA::PEFile* pFile),
+             getBaseRelocationDirectoryData(PE_DATA::PEFile* peFile),
              getDebugDirectoryData(PE_DATA::PEFile* peFile),
-             getLoadConfigDirectoryData(PE_DATA::PEFile* pFile),
+             getLoadConfigDirectoryData(PE_DATA::PEFile* peFile),
              getTLSDirectoryData(PE_DATA::PEFile* peFile),
-             getExceptionDirectoryData(PE_DATA::PEFile* peFile);
-
-        void getSecurityDirectoryData(PE_DATA::PEFile *peFile);
-
-        void getExportDirectoryData(PE_DATA::PEFile *peFile);
+             getExceptionDirectoryData(PE_DATA::PEFile* peFile),
+             getSecurityDirectoryData(PE_DATA::PEFile *peFile),
+             getExportDirectoryData(PE_DATA::PEFile *peFile);
     };
 };
 #endif

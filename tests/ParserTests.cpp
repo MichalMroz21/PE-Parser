@@ -50,7 +50,8 @@ namespace PE_PARSER{
 
     TEST(ParserTest, Parse2) {
         PE_PARSER::Parser parser;
-        PE_DATA::PEFile *peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/2.exe");
+        PE_DATA::PEFile* peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/2.exe", false);
+        PE_BUFFER::Buffer* buffer = parser.obtainBuffer();
 
         //TLS Callbacks
         ASSERT_THAT(
@@ -114,6 +115,14 @@ namespace PE_PARSER{
 
         ASSERT_EQ((*peFile->getExportRVANameMap())[0x8df5b6c], "uv_write2");
         ASSERT_EQ((*peFile->getExportRVANameMap())[0x8ddf78e],"?IsEmbeddedAsarIntegrityValidationEnabled@fuses@electron@@YA_NXZ");
+
+        auto strings = parser.getStrings(buffer);
+
+        ASSERT_EQ(strings[0x1f8], ".pdata");
+        ASSERT_EQ(strings[0x1cf], "@.data");
+
+        free(buffer);
+        buffer = nullptr;
     }
 
     TEST(ParserTest, Parse) {
@@ -149,7 +158,7 @@ namespace PE_PARSER{
                 (std::vector<uint64_t>{
                         peFile->signature(), peFile->machine(), peFile->numberOfSections(),
                         peFile->timeDateStamp(), peFile->pointerToSymbolTable(), peFile->numberOfSymbols(),
-                        peFile->sizeOfOptionalHeader(), peFile->charasteristics()
+                        peFile->sizeOfOptionalHeader(), peFile->characteristics()
                 }),
                 ::testing::ElementsAreArray(
                         std::vector<uint64_t>{

@@ -46,6 +46,9 @@ add_executable(TestProject main.cpp)
 target_link_libraries(TestProject PRIVATE PE-Parser::PE-Parser)
 ```
 
+## Examples
+Check the tests folder that contains examples on how to use the library.
+
 ## Running Tests
 To run Google Tests, turn on "MAKE_TEST_EXE" option in root CMakeLists.txt.<br>
 Then run:

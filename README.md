@@ -30,7 +30,7 @@ cmake --install build
 ```
 After that add the ../PE-Parser/bin/ directory in PATH Environment Variables.<br> 
 That exact path should be printed out by ```cmake --install build```<br><br>
-Using the library after installation is simple:
+Using the library after installation is simple, with CMake for example:
 ```
 cmake_minimum_required(VERSION 3.24)
 project(TestProject VERSION 1.0 LANGUAGES CXX)

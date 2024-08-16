@@ -27,7 +27,7 @@ cmake -B build -S . -G "MinGW Makefiles" && cd build && make && cd ..
 cmake --install build
 ```
 After that add the ../PE-Parser/bin/ directory in PATH Environment Variables.<br> 
-The exact path should be printed out by ```cmake --install```<br><br>
+The exact path should be printed out by ```cmake --install build```<br><br>
 Using the library after installation is simple:
 ```
 cmake_minimum_required(VERSION 3.24)

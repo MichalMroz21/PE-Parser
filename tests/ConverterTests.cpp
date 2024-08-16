@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <Converter.hpp>
-#include <Parser.hpp>
+#include "PE-Parser/Converter.hpp"
+#include "PE-Parser/Parser.hpp"
 
 #include <tuple>
 #include <vector>

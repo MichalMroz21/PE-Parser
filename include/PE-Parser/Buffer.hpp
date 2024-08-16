@@ -9,8 +9,6 @@
 
 #include <boost/algorithm/hex.hpp>
 
-#include <gtest/gtest_prod.h>
-
 namespace PE_PARSER{
     class Parser;
 };
@@ -19,14 +17,13 @@ namespace PE_PARSER{
 namespace PE_BUFFER{
 
     class Buffer{
-        friend class PE_PARSER::Parser;
-
-        FRIEND_TEST(BufferTest, HexConstructor);
-        FRIEND_TEST(BufferTest, OpenPEFile);
-
     //Buffer's library functions
     //To obtain a buffer pointer, set a flag not to freeBuffer in Parser to false and use a method after parsing.
     public:
+        explicit Buffer(const char* fullFilePath);
+        explicit Buffer(const std::vector<BYTE>& bytes);
+        explicit Buffer(const std::string& hexString);
+
         void cutBytes(unsigned int bytes); //adds to buffer's pointer
         void uncutBytes(unsigned int bytes); //subtracts from buffer's pointer
         void setMemoryLocation(DWORD offset); //sets buffer at offset
@@ -36,11 +33,6 @@ namespace PE_BUFFER{
         [[nodiscard]] BYTE* getBeginAddress(); //returns pointer to buffer
         [[nodiscard]] int availableToCopy(); //returns how many bytes are left in the buffer
         [[nodiscard]] DWORD getCurrMemoryLocation(); //obtains current offset
-
-    protected:
-        explicit Buffer(const char* fullFilePath);
-        explicit Buffer(const std::vector<BYTE>& bytes);
-        explicit Buffer(const std::string& hexString);
 
     private:
         std::vector<BYTE> buffer{};

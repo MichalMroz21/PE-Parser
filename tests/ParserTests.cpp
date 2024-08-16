@@ -1,14 +1,14 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include <Parser.hpp>
-#include <Structure.hpp>
+#include "PE-Parser/Parser.hpp"
+#include "PE-Parser/Structure.hpp"
 #include <boost/describe.hpp>
 
 #include <tuple>
 #include <windows.h>
 #include <winnt.h>
-#include "better_braces.hpp"
+#include "PE-Parser/better_braces.hpp"
 
 namespace PE_PARSER{
     std::unique_ptr<IMAGE_IMPORT_BY_NAME> createImageImportByName(WORD hint, const char* name){
@@ -955,7 +955,8 @@ namespace PE_PARSER{
                         ASSERT_EQ(expectedImportByNameTable[i][j].second->Name[k], importByNameTable[i][j].second->Name[k]);
                         k++;
                     }
-                } else {
+                }
+                else {
                     ASSERT_EQ(importByNameTable[i][j].second, nullptr);
                 }
             }

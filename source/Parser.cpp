@@ -1,4 +1,4 @@
-#include <Parser.hpp>
+#include "PE-Parser/Parser.hpp"
 
 namespace PE_PARSER{
 
@@ -376,8 +376,7 @@ namespace PE_PARSER{
         }
     }
 
-    std::map<std::uintptr_t, std::string>
-    Parser::getStrings(PE_BUFFER::Buffer* buff) {
+    std::map<std::uintptr_t, std::string> Parser::getStrings(PE_BUFFER::Buffer* buff) {
         std::map<std::uintptr_t, std::string> strings{};
         std::string current_string{};
 
@@ -393,8 +392,9 @@ namespace PE_PARSER{
                 }
                 current_string.clear();
                 nonPrintableMet = false;
-            } else {
-                if (byte < 0x20 || byte > 0x7E) {
+            }
+            else {
+                if (!std::isprint(byte)) {
                     nonPrintableMet = true;
                 } else {
                     current_string += static_cast<char>(byte);

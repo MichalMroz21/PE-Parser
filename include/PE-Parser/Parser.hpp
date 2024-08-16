@@ -8,7 +8,7 @@
 #include <cstring>
 #include <string>
 #include <type_traits>
-#include <winDNS.h>
+#include <windns.h>
 #include <regex>
 
 #include <boost/mp11.hpp>
@@ -16,11 +16,11 @@
 #include <boost/describe.hpp>
 #include <boost/endian/conversion.hpp>
 
-#include <PEFile.hpp>
-#include <Structure.hpp>
-#include <Buffer.hpp>
+#include "PEFile.hpp"
+#include "Structure.hpp"
+#include "Buffer.hpp"
 
-#include <better_braces.hpp>
+#include "better_braces.hpp"
 
 //Class for extracting bytes from Portable Executables
 namespace PE_PARSER{

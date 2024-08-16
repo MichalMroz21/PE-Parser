@@ -7,7 +7,7 @@
 #include <iostream>
 #include <limits>
 
-#include <PEFile.hpp>
+#include "PEFile.hpp"
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/dynamic_bitset.hpp>

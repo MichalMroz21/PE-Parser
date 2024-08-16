@@ -1,7 +1,7 @@
 #ifndef PE_STRUCTURE_HPP
 #define PE_STRUCTURE_HPP
 
-#include <Windows.h>
+#include <windows.h>
 #include <winnt.h>
 #include <wintrust.h>
 

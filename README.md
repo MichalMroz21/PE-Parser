@@ -17,6 +17,7 @@ C++ Library for Parsing Windows Portable Executables
 
 ### GoogleTest
 * Downloaded automatically if You decide to run tests
+* Not needed to just use the library
 
 ## Building & Installation
 ```

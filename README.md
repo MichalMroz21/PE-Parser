@@ -20,6 +20,7 @@ C++ Library for Parsing Windows Portable Executables
 * Not needed to just use the library
 
 ## Building & Installation
+In bash terminal run:
 ```
 git clone https://github.com/MichalMroz21/PE-Parser
 cd PE-Parser

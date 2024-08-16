@@ -20,7 +20,7 @@ C++ Library for Parsing Windows Portable Executables
 * Not needed to just use the library
 
 ## Building & Installation
-Requires C++17 or higher<br>
+Requires C++20 or higher<br>
 In git bash terminal You can run:
 ```
 git clone https://github.com/MichalMroz21/PE-Parser

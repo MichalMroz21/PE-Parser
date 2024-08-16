@@ -15,6 +15,9 @@ C++ Library for Parsing Windows Portable Executables
 ### Boost
 * Install Boost Libraries from the [Boost page](https://www.boost.org/)
 
+### GoogleTest
+* Downloaded automatically if You decide to run tests
+
 ## Building & Installation
 ```
 git clone https://github.com/MichalMroz21/PE-Parser

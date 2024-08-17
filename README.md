@@ -17,16 +17,20 @@ C++ Library for Parsing Windows Portable Executables
 
 ### GoogleTest
 * Downloaded automatically if You decide to run tests
+* Not needed to just use the library
 
 ## Building & Installation
+Requires C++20 or higher.<br>
+In git bash terminal You can run:
 ```
 git clone https://github.com/MichalMroz21/PE-Parser
 cd PE-Parser
 cmake -B build -S . -G "MinGW Makefiles" && cd build && make && cd ..
 cmake --install build
 ```
-After that add the PE-Parser/bin directory as PATH Environment Variable<br>
-Using the library after installation with CMake is simple:
+After that add the ../PE-Parser/bin/ directory in PATH Environment Variables.<br> 
+That exact path should be printed out by ```cmake --install build```<br><br>
+Using the library after installation is simple, with CMake for example:
 ```
 cmake_minimum_required(VERSION 3.24)
 project(TestProject VERSION 1.0 LANGUAGES CXX)
@@ -43,6 +47,9 @@ add_executable(TestProject main.cpp)
 # Link against PE-Parser
 target_link_libraries(TestProject PRIVATE PE-Parser::PE-Parser)
 ```
+
+## Examples
+Check the tests folder that contains examples on how to use the library.
 
 ## Running Tests
 To run Google Tests, turn on "MAKE_TEST_EXE" option in root CMakeLists.txt.<br>

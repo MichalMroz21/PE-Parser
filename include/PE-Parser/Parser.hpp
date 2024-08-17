@@ -10,6 +10,7 @@
 #include <type_traits>
 #include <windns.h>
 #include <regex>
+#include <utility>
 
 #include <boost/mp11.hpp>
 #include <boost/type_index.hpp>
@@ -41,7 +42,7 @@ namespace PE_PARSER{
         //Returns the buffer after parsing. If freeBuffer was set to true this will return nullptr.
         //If You want to get a buffer after parsing then set freeBuffer argument to false.
         //Remember to free the buffer Yourself after using it!
-        [[nodiscard]] PE_BUFFER::Buffer* obtainBuffer();
+        [[nodiscard]] PE_BUFFER::Buffer* obtainBufferAndSetNull();
 
         //Extracts strings from PE (Buffer)
         //Where the key of the map is the offset of the string in PE, char is the type, and std::size_t is the length of string

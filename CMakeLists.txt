@@ -2,11 +2,14 @@
 
 project(PE-Parser VERSION 0.1 LANGUAGES CXX)
 
+set(Boost_USE_STATIC_RUNTIME ON)
+set(Boost_COMPILER "mgw9")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(BOOST_ENABLE_CMAKE ON)
 
-set(MAKE_TEST_EXE OFF CACHE BOOL "Make test executable & download/update GoogleTest via git submodule" FORCE)
+set(MAKE_TEST_EXE ON CACHE BOOL "Make test executable & download/update GoogleTest via git submodule" FORCE)
 
 set(BOOST_COMPONENTS date_time)
 
@@ -47,42 +50,42 @@ target_link_libraries(${PROJECT_NAME} PUBLIC ${Boost_LIBRARIES})
 
 #add include folder to includes of library
 target_include_directories(${PROJECT_NAME} PUBLIC
-		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	$<INSTALL_INTERFACE:include>
 )
 
 install(TARGETS ${PROJECT_NAME}
-		EXPORT "${PROJECT_NAME}Targets"
-		LIBRARY DESTINATION "lib"
-		ARCHIVE DESTINATION "lib"
-		RUNTIME DESTINATION "bin"
+	EXPORT "${PROJECT_NAME}Targets"
+	LIBRARY DESTINATION "lib"
+	ARCHIVE DESTINATION "lib"
+	RUNTIME DESTINATION "bin"
 )
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
-		DESTINATION "include/"
+	DESTINATION "include/"
 )
 
 install(EXPORT "${PROJECT_NAME}Targets"
-		FILE "${PROJECT_NAME}Targets.cmake"
-		NAMESPACE ${PROJECT_NAME}::
-		DESTINATION "lib/cmake/${PROJECT_NAME}"
+	FILE "${PROJECT_NAME}Targets.cmake"
+	NAMESPACE ${PROJECT_NAME}::
+	DESTINATION "lib/cmake/${PROJECT_NAME}"
 )
 
 # Generate config file
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-		VERSION ${PROJECT_VERSION}
-		COMPATIBILITY AnyNewerVersion
+	"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+	VERSION ${PROJECT_VERSION}
+	COMPATIBILITY AnyNewerVersion
 )
 configure_file("cmake/PE-ParserConfig.cmake.in"
-		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-		@ONLY
+	"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+	@ONLY
 )
 install(FILES
-		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-		"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
-		DESTINATION "lib/cmake/${PROJECT_NAME}"
+	"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+	"${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+	DESTINATION "lib/cmake/${PROJECT_NAME}"
 )
 
 #Building

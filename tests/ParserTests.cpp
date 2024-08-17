@@ -3,12 +3,14 @@
 
 #include "PE-Parser/Parser.hpp"
 #include "PE-Parser/Structure.hpp"
+#include "PE-Parser/better_braces.hpp"
+
 #include <boost/describe.hpp>
 
 #include <tuple>
 #include <windows.h>
 #include <winnt.h>
-#include "PE-Parser/better_braces.hpp"
+#include <optional>
 
 namespace PE_PARSER{
     std::unique_ptr<IMAGE_IMPORT_BY_NAME> createImageImportByName(WORD hint, const char* name){
@@ -51,9 +53,9 @@ namespace PE_PARSER{
     TEST(ParserTest, Parse2) {
         PE_PARSER::Parser parser;
         PE_DATA::PEFile* peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/2.exe", false);
-        PE_BUFFER::Buffer* buffer = parser.obtainBuffer();
+        PE_BUFFER::Buffer* buffer = parser.obtainBufferAndSetNull(); //Returns parser's buffer and sets it to nullptr
 
-        //TLS Callbacks
+        //TLS Callbacks Tests
         ASSERT_THAT(
                 (*peFile->getTLSCallbacks()),
                 ::testing::ElementsAreArray(
@@ -104,7 +106,7 @@ namespace PE_PARSER{
                 {0x00B06190, 0x00B06190}
         }, actualExportedFunctions = *peFile->getExportFunctions();
 
-        for (int i = 0; i < expectedExportedNames.size(); i++) {
+       for (int i = 0; i < expectedExportedNames.size(); i++) {
             ASSERT_EQ(actualExportedNames[i], expectedExportedNames[i]);
             ASSERT_EQ(actualExportedNamesOrdinals[i], expectedExportedNamesOrdinals[i]);
             ASSERT_EQ(actualExportedFunctions[i].AddressOfFunction, expectedExportedFunctions[i].AddressOfFunction);
@@ -114,25 +116,27 @@ namespace PE_PARSER{
         ASSERT_EQ(peFile->getExportName(), "electron.exe");
 
         ASSERT_EQ((*peFile->getExportRVANameMap())[0x8df5b6c], "uv_write2");
-        ASSERT_EQ((*peFile->getExportRVANameMap())[0x8ddf78e],"?IsEmbeddedAsarIntegrityValidationEnabled@fuses@electron@@YA_NXZ");
+        ASSERT_EQ((*peFile->getExportRVANameMap())[0x8ddf78e], "?IsEmbeddedAsarIntegrityValidationEnabled@fuses@electron@@YA_NXZ");
 
         auto strings = parser.getStrings(buffer);
 
         ASSERT_EQ(strings[0x1f8], ".pdata");
         ASSERT_EQ(strings[0x1cf], "@.data");
 
-        free(buffer);
+        delete buffer;
+        delete peFile;
+
         buffer = nullptr;
+        peFile = nullptr;
     }
 
     TEST(ParserTest, Parse) {
-
         PE_PARSER::Parser parser;
-        PE_DATA::PEFile *peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/1.exe");
+        PE_DATA::PEFile* peFile = parser.loadPEFileFromPath("D:/PE-Parser/tests/Test_PEs/1.exe");
 
         EXPECT_ANY_THROW({
-             std::ignore = peFile->baseOfData();
-         });
+            std::ignore = peFile->baseOfData();
+        });
 
         //DosHeader byte data
         ASSERT_THAT(
@@ -252,17 +256,20 @@ namespace PE_PARSER{
 
         for(int i = 0; i < relocationTable.size(); i++){
             if(i != 0 && i != relocationTable.size() - 1) continue; //only test first and last one
+
             ASSERT_EQ(relocationTable[i].first.VirtualAddress, expectedRelocationTable[expInd].first.VirtualAddress);
             ASSERT_EQ(relocationTable[i].first.SizeOfBlock, expectedRelocationTable[expInd].first.SizeOfBlock);
+
             for(int j = 0; j < relocationTable[i].second.size(); j++){
                 ASSERT_EQ(relocationTable[i].second[j], expectedRelocationTable[expInd].second[j]);
             }
+
             expInd++;
         }
 
         //SectionHeaders byte data
         std::vector<IMAGE_SECTION_HEADER> sectionHeaders = *peFile->getSectionHeaders(),
-                expectedHeaders{
+            expectedHeaders{
                 IMAGE_SECTION_HEADER{".text", 0x33324c, 0x1000, 0x333400, 0x400, 0x0, 0x0, 0x0, 0x0, 0x60000020},
                 IMAGE_SECTION_HEADER{".rdata", 0xf765c, 0x335000, 0xF7800, 0x333800, 0x0, 0x0, 0x0, 0x0, 0x40000040},
                 IMAGE_SECTION_HEADER{".data", 0x250ac, 0x42D000, 0x11800, 0x42B000, 0x0, 0x0, 0x0, 0x0, 0xC0000040},
@@ -317,7 +324,8 @@ namespace PE_PARSER{
         );
 
         std::vector<std::vector<std::pair<std::optional<WORD>, std::unique_ptr<IMAGE_IMPORT_BY_NAME>>>>
-                importByNameTable = std::move(*peFile->getImportByNameTable()), expectedImportByNameTable{};
+                importByNameTable = std::move(*peFile->getImportByNameTable()),
+                expectedImportByNameTable{};
 
         expectedImportByNameTable.push_back(init{
                 createNameTable(0x51, "ImageList_BeginDrag"),
@@ -945,13 +953,17 @@ namespace PE_PARSER{
         for (int i = 0; i < expectedImportByNameTable.size(); i++) {
             for (int j = 0; j < expectedImportByNameTable[i].size(); j++) {
                 ASSERT_EQ(expectedImportByNameTable[i][j].first, importByNameTable[i][j].first);
+
                 if (expectedImportByNameTable[i][j].second) {
                     ASSERT_EQ(expectedImportByNameTable[i][j].second->Hint, importByNameTable[i][j].second->Hint);
+
                     int k{};
+
                     while(true){
                         if (expectedImportByNameTable[i][j].second->Name[k] == '\0' && importByNameTable[i][j].second->Name[k] == '\0') {
                             break;
                         }
+
                         ASSERT_EQ(expectedImportByNameTable[i][j].second->Name[k], importByNameTable[i][j].second->Name[k]);
                         k++;
                     }
@@ -963,7 +975,7 @@ namespace PE_PARSER{
         }
 
         std::vector<IMAGE_DEBUG_DIRECTORY> debugDirectory = *peFile->getDebugDirectoryTable(),
-        expectedDebugDirectory{
+            expectedDebugDirectory{
                 {0x0, 0x615074EB, 0x0, 0x0, 0x2, 0x4F, 0x3D059C, 0x3CED9C},
                 {0x0, 0x615074EB, 0x0, 0x0, 0xC, 0x14, 0x3D05EC, 0x3CEDEC},
                 {0x0, 0x615074EB, 0x0, 0x0, 0xD, 0x3C8, 0x3D0600, 0x3CEE00}
@@ -1025,6 +1037,7 @@ namespace PE_PARSER{
                         {0x1210, 0x12BB, 0x3E4A98},
                         {0x12C0, 0x12E7, 0x3D0A30}
                 };
+
                 for(int i = 0; i < expectedExceptions.size(); i++){
                     ASSERT_EQ((*x)[i].BeginAddress, expectedExceptions[i].BeginAddress);
                     ASSERT_EQ((*x)[i].EndAddress, expectedExceptions[i].EndAddress);
@@ -1036,5 +1049,8 @@ namespace PE_PARSER{
                 ASSERT_EQ(x->back().UnwindInfoAddress, {0x421250});
             }
         }, peFile->getExceptionDirectory());
+
+        delete peFile;
+        peFile = nullptr;
     }
 };

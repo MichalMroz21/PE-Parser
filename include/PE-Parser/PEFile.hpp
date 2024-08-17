@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <memory>
 #include <map>
+#include <optional>
 
 namespace PE_PARSER{
     class Parser;

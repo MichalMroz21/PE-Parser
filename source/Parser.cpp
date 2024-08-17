@@ -2,8 +2,10 @@
 
 namespace PE_PARSER{
 
+    //!User Entry Points into parsing Portable Executables
+
     PE_DATA::PEFile* Parser::loadPEFileFromPath(const char* fullPEPath, bool freeBuffer){
-        this->freeBuffer(); //clears previous parsing
+        this->freeBuffer(); //Clears previous parsing
         this->buffer = new PE_BUFFER::Buffer(fullPEPath);
         auto peFile = this->loadPEFile(freeBuffer);
         peFile->setPathToFile(fullPEPath);
@@ -11,16 +13,18 @@ namespace PE_PARSER{
     }
 
     PE_DATA::PEFile* Parser::loadPEFileFromBytes(const std::vector<BYTE>& bytes, bool freeBuffer){
-        this->freeBuffer(); //clears previous parsing
+        this->freeBuffer(); //Clears previous parsing
         this->buffer = new PE_BUFFER::Buffer(bytes);
         return this->loadPEFile(freeBuffer);
     }
 
     PE_DATA::PEFile* Parser::loadPEFileFromHexString(const std::string& hexStr, bool freeBuffer){
-        this->freeBuffer(); //clears previous parsing
+        this->freeBuffer(); //Clears previous parsing
         this->buffer = new PE_BUFFER::Buffer(hexStr);
         return this->loadPEFile(freeBuffer);
     }
+
+    //!Main logic of parsing Portable Executables
 
     PE_DATA::PEFile* Parser::loadPEFile(bool freeBuffer){
         auto* peFile = new PE_DATA::PEFile();
@@ -44,49 +48,50 @@ namespace PE_PARSER{
 
         peFile->setTypeOfPE(stateOfMachine);
 
-        boost::apply_visitor([this, peFile](auto x){
+        boost::apply_visitor([this, peFile](auto x) {
             this->copyBytesToStruct(*x, peFile->sizeOfOptionalHeader());
         }, peFile->getOptionalHeader(true));
 
         //Copy Section Headers
-        for(auto& imageSectionHeader : *peFile->getSectionHeaders(true)){
+        for(auto& imageSectionHeader : *peFile->getSectionHeaders(true)) {
             this->copyBytesToStruct(imageSectionHeader);
         }
 
-        //Get Data Directories
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::importDirectory).second){
+        //!Get Data Directories if they exist
+
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::importDirectory).second) {
             this->getImportDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::boundImportDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::boundImportDirectory).second) {
             this->getBoundImportDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory).second) {
             this->getBaseRelocationDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::debugDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::debugDirectory).second) {
             this->getDebugDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::loadConfigDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::loadConfigDirectory).second) {
             this->getLoadConfigDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::tlsDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::tlsDirectory).second) {
             this->getTLSDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::exceptionDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::exceptionDirectory).second) {
             this->getExceptionDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::securityDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::securityDirectory).second) {
             this->getSecurityDirectoryData(peFile); //!Leaves buffer at random address
         }
 
-        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::exportDirectory).second){
+        if(peFile->getDataDirectoryPairEnum(PE_DATA::PEFile::DataDirectory::exportDirectory).second) {
             this->getExportDirectoryData(peFile); //!Leaves buffer at random address
         }
 
@@ -96,13 +101,12 @@ namespace PE_PARSER{
 
     Parser::Parser() = default;
 
-    PE_BUFFER::Buffer* Parser::obtainBuffer() {
-        return this->buffer;
+    PE_BUFFER::Buffer* Parser::obtainBufferAndSetNull() {
+        return std::exchange(this->buffer, nullptr);
     }
 
     void Parser::freeBuffer(){
-        if(this->buffer)
-            free(this->buffer);
+        delete this->buffer;
         this->buffer = nullptr;
     }
 
@@ -184,14 +188,14 @@ namespace PE_PARSER{
     }
 
     template<typename T>
-    void Parser::getVectorStructs(std::vector<T>* vector, PE_DATA::PEFile* peFile){
+    void Parser::getVectorStructs(std::vector<T>* vector, PE_DATA::PEFile* peFile) {
         this->getStructsNullTerminated<T>(vector, peFile);
     }
 
-    std::string Parser::getNullTerminatedString(){
+    std::string Parser::getNullTerminatedString() {
         std::string str{};
 
-        while(true){
+        while(true) {
             char c{};
             this->copyBytesToVariable(c);
             if(c == '\0') break;
@@ -201,7 +205,7 @@ namespace PE_PARSER{
         return str;
     }
 
-    void Parser::getBoundImportDirectoryData(PE_DATA::PEFile* peFile){
+    void Parser::getBoundImportDirectoryData(PE_DATA::PEFile* peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::boundImportDirectory));
 
         //Get Bound Import Directory Table
@@ -221,24 +225,24 @@ namespace PE_PARSER{
         }
     }
 
-    void Parser::getImportDirectoryData(PE_DATA::PEFile* peFile){
+    void Parser::getImportDirectoryData(PE_DATA::PEFile* peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::importDirectory));
 
         //Get Import Directory Table
         this->getStructsNullTerminated<IMAGE_IMPORT_DESCRIPTOR>(peFile->getImportDirectoryTable(true), peFile);
 
         //Get Import Directory Names
-        for (const auto &importRow: *peFile->getImportDirectoryTable()){
+        for (const auto &importRow: *peFile->getImportDirectoryTable()) {
             this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(importRow.Name));
             peFile->getImportDirectoryNames(true)->push_back(this->getNullTerminatedString());
         }
 
         //Obtain Import Lookup Tables for Imports
-        for (const auto &importRow: *peFile->getImportDirectoryTable()){
+        for (const auto &importRow: *peFile->getImportDirectoryTable()) {
             this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(importRow.OriginalFirstThunk));
             peFile->getImportByNameTable(true)->emplace_back();
 
-            while (boost::apply_visitor([this, peFile](auto x) -> bool{
+            while (boost::apply_visitor([this, peFile](auto x) -> bool {
                 this->copyBytesToVariable(*x);
                 if (*x == 0) return false;
 
@@ -269,10 +273,10 @@ namespace PE_PARSER{
         }
     }
 
-    void Parser::getBaseRelocationDirectoryData(PE_DATA::PEFile *peFile){
+    void Parser::getBaseRelocationDirectoryData(PE_DATA::PEFile *peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::baseRelocationDirectory));
 
-        while(true){
+        while(true) {
             IMAGE_BASE_RELOCATION baseRelocation{};
             this->copyBytesToStruct(baseRelocation);
 
@@ -293,14 +297,14 @@ namespace PE_PARSER{
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::loadConfigDirectory));
         std::size_t sizeOfLoadConfigDirectory = peFile->loadConfigDirectory().second;
 
-        if(boost::apply_visitor([this, peFile, &sizeOfLoadConfigDirectory](auto x) -> bool{
+        if(boost::apply_visitor([this, peFile, &sizeOfLoadConfigDirectory](auto x) -> bool {
             this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, sizeof(*x)));
             bool noRest = sizeOfLoadConfigDirectory <= sizeof(*x);
             sizeOfLoadConfigDirectory -= sizeof(*x);
             return noRest;
         }, peFile->getLoadConfigDirectory(true))) return;
 
-        boost::apply_visitor([this, peFile, sizeOfLoadConfigDirectory](auto x){
+        boost::apply_visitor([this, peFile, sizeOfLoadConfigDirectory](auto x) {
             this->copyBytesToStruct(*x, std::min(sizeOfLoadConfigDirectory, sizeof(*x)));
         }, peFile->getLoadConfigDirectoryRest(true));
     }
@@ -308,9 +312,10 @@ namespace PE_PARSER{
     void Parser::getTLSDirectoryData(PE_DATA::PEFile *peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::tlsDirectory));
 
-        boost::apply_visitor([this, peFile](auto x){
+        boost::apply_visitor([this, peFile](auto x) {
             this->copyBytesToStruct(*x);
-            if(x->AddressOfCallBacks != 0){
+
+            if(x->AddressOfCallBacks != 0) {
                 this->buffer->setMemoryLocation(peFile->translateVAtoRaw(x->AddressOfCallBacks));
                 this->getStructsNullTerminated<PIMAGE_TLS_CALLBACK>(peFile->getTLSCallbacks(true), peFile);
             }
@@ -320,7 +325,7 @@ namespace PE_PARSER{
     void Parser::getExceptionDirectoryData(PE_DATA::PEFile *peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::exceptionDirectory));
 
-        boost::apply_visitor([this, peFile](auto x){
+        boost::apply_visitor([this, peFile](auto x) {
             this->getVectorStructs(x, peFile);
         }, peFile->getExceptionDirectory(true));
     }
@@ -330,7 +335,7 @@ namespace PE_PARSER{
 
         std::size_t totalLength = peFile->securityDirectory().second;
 
-        while(true){
+        while(true) {
             DWORD length{};
 
             this->copyBytesToVariable<DWORD>(length);
@@ -350,10 +355,13 @@ namespace PE_PARSER{
 
     void Parser::getExportDirectoryData(PE_DATA::PEFile *peFile) {
         this->buffer->setMemoryLocation(peFile->getRawDirectoryAddress(PE_DATA::PEFile::DataDirectory::exportDirectory));
+
         IMAGE_EXPORT_DIRECTORY *exportDirectory = peFile->getExportDirectoryData(true);
+
         this->copyBytesToStruct(*exportDirectory);
 
         this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(exportDirectory->Name));
+
         peFile->exportDirectoryName = this->getNullTerminatedString();
 
         this->buffer->setMemoryLocation(peFile->translateRVAtoRaw(exportDirectory->AddressOfFunctions));
@@ -381,9 +389,10 @@ namespace PE_PARSER{
         std::string current_string{};
 
         std::uintptr_t bufferLocSave = buff->getCurrMemoryLocation(), currOffset{};
+
         buff->setMemoryLocation(0);
 
-        bool nonPrintableMet = false;
+        bool nonPrintableMet{};
 
         for (BYTE byte : buff->getBuffer()) {
             if (byte == 0x00) {
